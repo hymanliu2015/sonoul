@@ -1,8 +1,10 @@
 
+import 'package:sonoul/common/config/config.dart';
 import 'package:sonoul/common/res/aoo_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/utils/sp_util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class InitService extends GetxService {
 
@@ -29,6 +31,12 @@ class InitService extends GetxService {
 
     // 初始化 SharedPreferences
     await SpUtil.getInstance();
+
+    // 初始化 Supabase
+    await Supabase.initialize(
+      url: AppConfig.supabaseUrl,
+      anonKey:AppConfig.supabaseAnonKey,
+    );
 
     return this;
   }
