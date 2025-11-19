@@ -1,11 +1,9 @@
-import 'package:get/get.dart';
-import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'package:sonoul/services/song_generation_service.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:get/get.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
+import 'package:sonoul/services/song_generation_service.dart';
 
 class CreateSingleController extends GetxController {
   final SongGenerationService _songService = Get.put(SongGenerationService());
