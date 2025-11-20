@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:sonoul/utils/toast_util.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AuthController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -21,9 +23,9 @@ class AuthController extends GetxController {
         Get.offAllNamed(AppRoutes.dash);
       }
     } on AuthException catch (e) {
-      Get.snackbar('Error', e.message, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      ToastUtils.shotToast(e.message, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
     } catch (e) {
-      Get.snackbar('Error', 'An unexpected error occurred', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      ToastUtils.shotToast('An unexpected error occurred', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
     } finally {
       isLoading.value = false;
     }
@@ -39,15 +41,15 @@ class AuthController extends GetxController {
       );
 
       if (res.user != null) {
-        Get.snackbar('Success', 'Registration successful! Please login.', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+        ToastUtils.shotToast('Registration successful! Please login.', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.green, Colors.white);
         // Optionally navigate to login or auto-login
         // For now, let's just stay here or go to login if we were separate
         Get.offNamed(AppRoutes.login); 
       }
     } on AuthException catch (e) {
-      Get.snackbar('Error', e.message, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      debugPrint("AuthException:${e.toString()}");
     } catch (e) {
-      Get.snackbar('Error', 'An unexpected error occurred', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      debugPrint("Exception:${e.toString()}");
     } finally {
       isLoading.value = false;
     }

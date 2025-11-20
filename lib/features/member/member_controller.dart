@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/utils/toast_util.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MemberController extends GetxController {
   final InAppPurchase _iap = InAppPurchase.instance;
@@ -78,7 +80,7 @@ class MemberController extends GetxController {
     isLoading.value = true;
     Future.delayed(const Duration(seconds: 2), () {
       isLoading.value = false;
-      Get.snackbar('Success', 'Subscribed to $productId (Mock)', backgroundColor: AppColors.greenMain, colorText: Colors.white);
+      ToastUtils.shotToast('Subscribed to $productId (Mock)', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
     });
   }
 
@@ -93,12 +95,12 @@ class MemberController extends GetxController {
       } else {
         if (purchaseDetails.status == PurchaseStatus.error) {
           // Handle error
-          Get.snackbar('Error', 'Purchase failed', backgroundColor: Colors.red, colorText: Colors.white);
+          ToastUtils.shotToast('Purchase failed', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored) {
           // Deliver product
           // Verify with Supabase here
-          Get.snackbar('Success', 'Purchase successful!', backgroundColor: AppColors.greenMain, colorText: Colors.white);
+          ToastUtils.shotToast('Purchase successful!', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
         }
         if (purchaseDetails.pendingCompletePurchase) {
           await _iap.completePurchase(purchaseDetails);

@@ -69,13 +69,35 @@ class DashPage extends StatelessWidget {
                 ],
               )),
               const SizedBox(height: 10),
-              const Text(
-                'Ready to create some music?',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textSecondary,
-                ),
-              ),
+              Obx(() => !controller.hasRealSinger.value
+                  ? Column(
+                      children: [
+                        const Text(
+                          'This is a demo singer. Login to create your own!',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.orange,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton.icon(
+                          onPressed: controller.goToCreateSinger,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Create My Singer'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    )
+                  : const Text(
+                      'Ready to create some music?',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                    )),
               const SizedBox(height: 40),
               _buildMenuCard(
                 icon: Icons.mic,

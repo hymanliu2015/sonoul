@@ -2,93 +2,140 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/guide/guide_controller.dart';
-import 'package:sonoul/common/helper/loading_helper.dart';
 
 class GuidePage extends StatelessWidget {
   final GuideController controller = Get.put(GuideController());
-  final TextEditingController nameController = TextEditingController();
 
   GuidePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Your Singer'),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: controller.pickImage,
-              child: Obx(() => Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  shape: BoxShape.circle,
-                  image: controller.avatarPath.value.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(controller.avatarPath.value),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                  border: Border.all(color: AppColors.primary, width: 2),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppColors.primary, AppColors.secondary],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.music_note,
+                  size: 100,
+                  color: Colors.white,
                 ),
-                child: controller.avatarPath.value.isEmpty
-                    ? const Icon(Icons.camera_alt, size: 50, color: Colors.grey)
-                    : null,
-              )),
-            ),
-            const SizedBox(height: 10),
-            const Text('Tap to upload avatar', style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 40),
-            TextField(
-              controller: nameController,
-              onChanged: controller.onNameChanged,
-              decoration: InputDecoration(
-                labelText: 'Singer Name',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 40),
+                const Text(
+                  'Welcome to Sonoul',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                prefixIcon: const Icon(Icons.person),
-              ),
-            ),
-            const SizedBox(height: 40),
-            Obx(() {
-              final isButtonEnabled = controller.name.value.isNotEmpty && !controller.isLoading.value;
-              return SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: isButtonEnabled
-                      ? () {
-                          controller.createSinger();
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppColors.primary,
-                    disabledBackgroundColor: Colors.grey,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 20),
+                const Text(
+                  'Your AI Virtual Singer App',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white70,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 60),
+                _buildFeatureItem(
+                  icon: Icons.mic,
+                  title: 'Create AI Songs',
+                  description: 'Generate unique songs with AI-powered voice',
+                ),
+                const SizedBox(height: 20),
+                _buildFeatureItem(
+                  icon: Icons.album,
+                  title: 'Build Your Album',
+                  description: 'Organize and share your music collection',
+                ),
+                const SizedBox(height: 20),
+                _buildFeatureItem(
+                  icon: Icons.person,
+                  title: 'Virtual Singer',
+                  description: 'Create your own AI virtual singer identity',
+                ),
+                const SizedBox(height: 60),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: controller.finishGuide,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Get Started',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
-                  child: controller.isLoading.value
-                      ? const LoadingHelper(size: 24, color: Colors.white)
-                      : const Text(
-                          'Create Singer',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
                 ),
-              );
-            }),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureItem({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.white, size: 30),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

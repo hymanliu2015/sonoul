@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
+import 'package:sonoul/utils/toast_util.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RegisterPage extends StatelessWidget {
   final AuthController controller = Get.find<AuthController>();
@@ -104,7 +106,7 @@ class RegisterPage extends StatelessWidget {
                       ? null
                       : () {
                           if (passwordController.text != confirmPasswordController.text) {
-                            Get.snackbar('Error', 'Passwords do not match', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+                            ToastUtils.shotToast('Passwords do not match', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
                             return;
                           }
                           controller.register(
