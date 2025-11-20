@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/common/helper/loading_helper.dart';
 
 class LoginPage extends StatelessWidget {
   final AuthController controller = Get.put(AuthController());
@@ -95,7 +96,7 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                   child: controller.isLoading.value
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const LoadingHelper(size: 24, color: Colors.white)
                       : const Text(
                           'Login',
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

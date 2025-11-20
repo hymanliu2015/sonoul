@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/song/create_single_controller.dart';
+import 'package:sonoul/common/helper/loading_helper.dart';
 
 class CreateSinglePage extends StatelessWidget {
   final CreateSingleController controller = Get.put(CreateSingleController());
@@ -136,7 +137,7 @@ class CreateSinglePage extends StatelessWidget {
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          CircularProgressIndicator(color: Colors.white),
+                          LoadingHelper(size: 24, color: Colors.white),
                           SizedBox(width: 10),
                           Text('Composing...', style: TextStyle(color: Colors.white)),
                         ],

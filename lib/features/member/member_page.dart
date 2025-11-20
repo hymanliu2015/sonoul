@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/member/member_controller.dart';
+import 'package:sonoul/common/helper/loading_helper.dart';
 
 class MemberPage extends StatelessWidget {
   final MemberController controller = Get.put(MemberController());
@@ -24,7 +25,7 @@ class MemberPage extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LoadingHelper());
         }
         return SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),

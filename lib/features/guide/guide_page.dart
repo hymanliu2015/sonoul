@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
-import 'package:sonoul/features/singer/singer_controller.dart';
+import 'package:sonoul/features/guide/guide_controller.dart';
+import 'package:sonoul/common/helper/loading_helper.dart';
 
-class SingerCreationPage extends StatelessWidget {
-  final SingerController controller = Get.put(SingerController());
+class GuidePage extends StatelessWidget {
+  final GuideController controller = Get.put(GuideController());
   final TextEditingController nameController = TextEditingController();
 
-  SingerCreationPage({super.key});
+  GuidePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class SingerCreationPage extends StatelessWidget {
                   shape: BoxShape.circle,
                   image: controller.avatarPath.value.isNotEmpty
                       ? DecorationImage(
-                          image: NetworkImage(controller.avatarPath.value), // In real app, use FileImage for local pick
+                          image: NetworkImage(controller.avatarPath.value),
                           fit: BoxFit.cover,
                         )
                       : null,
@@ -48,6 +49,7 @@ class SingerCreationPage extends StatelessWidget {
             const SizedBox(height: 40),
             TextField(
               controller: nameController,
+              onChanged: controller.onNameChanged,
               decoration: InputDecoration(
                 labelText: 'Singer Name',
                 border: OutlineInputBorder(
@@ -57,29 +59,33 @@ class SingerCreationPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 40),
-            Obx(() => SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: controller.isLoading.value
-                    ? null
-                    : () {
-                        controller.createSinger(nameController.text.trim());
-                      },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            Obx(() {
+              final isButtonEnabled = controller.name.value.isNotEmpty && !controller.isLoading.value;
+              return SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: isButtonEnabled
+                      ? () {
+                          controller.createSinger();
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.primary,
+                    disabledBackgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
+                  child: controller.isLoading.value
+                      ? const LoadingHelper(size: 24, color: Colors.white)
+                      : const Text(
+                          'Create Singer',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                 ),
-                child: controller.isLoading.value
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Create Singer',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-              ),
-            )),
+              );
+            }),
           ],
         ),
       ),

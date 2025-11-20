@@ -3,7 +3,7 @@ import 'package:sonoul/features/dash/dash_binding.dart';
 import 'package:sonoul/features/dash/dash_page.dart';
 import 'package:sonoul/features/auth/login_page.dart';
 import 'package:sonoul/features/auth/register_page.dart';
-import 'package:sonoul/features/singer/singer_creation_page.dart';
+import 'package:sonoul/features/guide/guide_page.dart';
 import 'package:sonoul/features/song/create_single_page.dart';
 import 'package:sonoul/features/album/album_page.dart';
 import 'package:sonoul/features/song/song_detail_page.dart';
@@ -32,8 +32,8 @@ class AppPages{
       page: () => RegisterPage(),
     ),
     GetPage(
-      name: AppRoutes.createSinger,
-      page: () => SingerCreationPage(),
+      name: AppRoutes.guide,
+      page: () => GuidePage(),
     ),
     GetPage(
       name: AppRoutes.createSingle,
@@ -65,7 +65,7 @@ class RouteAuthMiddleware extends GetMiddleware {
     // But let's stick to the specific request: "First time install... create singer... then dash".
     
     if (!hasCreatedSinger) {
-      return const RouteSettings(name: AppRoutes.createSinger);
+      return const RouteSettings(name: AppRoutes.guide);
     }
     return null;
   }
