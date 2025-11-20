@@ -34,14 +34,40 @@ class DashPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Hello, ${controller.userEmail}',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
+              Obx(() => Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: controller.singerAvatar.value.isNotEmpty
+                        ? NetworkImage(controller.singerAvatar.value)
+                        : null,
+                    child: controller.singerAvatar.value.isEmpty
+                        ? const Icon(Icons.person, size: 30)
+                        : null,
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hello, ${controller.singerName.value}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        'Manager: ${controller.userEmail}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )),
               const SizedBox(height: 10),
               const Text(
                 'Ready to create some music?',
@@ -65,6 +91,14 @@ class DashPage extends StatelessWidget {
                 subtitle: 'Listen to your generated songs and share them.',
                 color: AppColors.secondary,
                 onTap: controller.goToAlbum,
+              ),
+              const SizedBox(height: 20),
+              _buildMenuCard(
+                icon: Icons.star,
+                title: 'Member',
+                subtitle: 'Unlock premium features and more.',
+                color: Colors.orange,
+                onTap: controller.goToMember,
               ),
             ],
           ),
