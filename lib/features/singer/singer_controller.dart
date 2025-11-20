@@ -47,7 +47,7 @@ class SingerController extends GetxController {
       Get.snackbar('Error', e.message, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
     } catch (e) {
       // For demo purposes, if table doesn't exist, we might just proceed
-      print("Error creating singer: $e");
+      debugPrint("Error creating singer: $e");
       Get.snackbar('Dev Note', 'Simulating success (DB might be missing)', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.orange, colorText: Colors.white);
       Get.offAllNamed(AppRoutes.dash);
     } finally {

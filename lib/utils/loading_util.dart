@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 
 class LoadingUtils {
   // 使用单例模式来确保工具类只有一个实例

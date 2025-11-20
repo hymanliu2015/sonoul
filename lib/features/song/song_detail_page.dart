@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/song/song_detail_controller.dart';
 
 class SongDetailPage extends StatelessWidget {
@@ -33,7 +33,7 @@ class SongDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),

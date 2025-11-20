@@ -1,4 +1,4 @@
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -96,7 +96,7 @@ class BottomSheetHelper {
       Container(
         height: height ?? Get.height * 0.2,
         decoration: BoxDecoration(
-          color: AppColors.blackColor,
+          color: AppColors.background,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular( 16.0),
             topRight: Radius.circular( 16.0),

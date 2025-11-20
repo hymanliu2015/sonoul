@@ -1,5 +1,4 @@
 // 按钮组件
-import 'package:sonoul/common/res/aoo_colors.dart';
 import 'package:sonoul/components/custom_box.dart';
 import 'package:sonoul/components/custom_text.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,6 @@ class CustomButton extends StatelessWidget {
     return CustomBox(
       width: width ?? 300,
       height: height ?? 56,
-      color: color ?? AppColors.whiteColor,
       onTap: isEnabled ? onPressed : null,
       alignment: Alignment.center,
       padding: EdgeInsets.only(
@@ -41,7 +39,7 @@ class CustomButton extends StatelessWidget {
       margin: EdgeInsets.zero,
       child: CustomText(
         text: text,
-        textColor: textColor ?? AppColors.blackColor,
+        textColor: textColor ,
         textFontSize: textFontSize ?? 20,
         fontWeight: FontWeight.bold,
       ),

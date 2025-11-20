@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sonoul/common/res/aoo_colors.dart';
 import 'package:sonoul/features/album/album_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
 
@@ -53,7 +52,7 @@ class AlbumPage extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text(song['artist']),
-              trailing: const Icon(Icons.play_circle_fill, color: AppColors.primary, size: 32),
+              trailing: const Icon(Icons.play_circle_fill, size: 32),
               onTap: () => controller.openSongDetail(song),
             ),
           );

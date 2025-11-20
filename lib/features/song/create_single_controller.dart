@@ -47,7 +47,7 @@ class CreateSingleController extends GetxController {
         Get.snackbar('Permission', 'Microphone permission required');
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -59,7 +59,7 @@ class CreateSingleController extends GetxController {
         isRecording.value = false;
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

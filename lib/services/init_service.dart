@@ -1,6 +1,6 @@
 
 import 'package:sonoul/common/config/config.dart';
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/utils/sp_util.dart';

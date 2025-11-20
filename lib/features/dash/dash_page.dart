@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 
 class DashPage extends StatelessWidget {
@@ -89,7 +89,7 @@ class DashPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -100,7 +100,7 @@ class DashPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 30),

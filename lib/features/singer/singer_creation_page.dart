@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/singer/singer_controller.dart';
 
 class SingerCreationPage extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/song/create_single_controller.dart';
 
 class CreateSinglePage extends StatelessWidget {
@@ -62,7 +62,7 @@ class CreateSinglePage extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: (controller.isRecording.value ? Colors.red : AppColors.primary).withOpacity(0.4),
+                            color: (controller.isRecording.value ? Colors.red : AppColors.primary).withValues(alpha: 0.4),
                             blurRadius: 10,
                             spreadRadius: 2,
                           )
@@ -109,7 +109,7 @@ class CreateSinglePage extends StatelessWidget {
                   label: Text(tag),
                   selected: isSelected,
                   onSelected: (_) => controller.toggleTag(tag),
-                  selectedColor: AppColors.accent.withOpacity(0.2),
+                  selectedColor: AppColors.accent.withValues(alpha: 0.2),
                   checkmarkColor: AppColors.accent,
                   labelStyle: TextStyle(
                     color: isSelected ? AppColors.accent : Colors.black,

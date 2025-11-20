@@ -1,4 +1,4 @@
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomBox extends StatelessWidget {
@@ -47,7 +47,7 @@ class CustomBox extends StatelessWidget {
           color: color,
           borderRadius: borderRadius ?? BorderRadius.circular(12),
           border: Border.all(
-            color: borderColor ?? AppColors.tranColor,
+            color: borderColor ?? AppColors.background,
             width: borderWidth ?? 0,
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
-import 'package:sonoul/common/res/aoo_colors.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 
 class RegisterPage extends StatelessWidget {
   final AuthController controller = Get.find<AuthController>();
@@ -56,7 +56,7 @@ class RegisterPage extends StatelessWidget {
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(Icons.email, color: Colors.white70),
                     filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
+                    fillColor: Colors.white.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -73,7 +73,7 @@ class RegisterPage extends StatelessWidget {
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(Icons.lock, color: Colors.white70),
                     filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
+                    fillColor: Colors.white.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -90,7 +90,7 @@ class RegisterPage extends StatelessWidget {
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(Icons.lock_outline, color: Colors.white70),
                     filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
+                    fillColor: Colors.white.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,

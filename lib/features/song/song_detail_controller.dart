@@ -48,6 +48,8 @@ class SongDetailController extends GetxController {
   }
 
   void shareSong() {
-    Share.share('Check out my new song "${song['title']}" by ${song['artist']}! Listen here: ${song['audio_url']}');
+    SharePlus.instance.share(
+        ShareParams(text: 'Check out my new song "${song['title']}" by ${song['artist']}! Listen here: ${song['audio_url']}')
+    );
   }
 }
