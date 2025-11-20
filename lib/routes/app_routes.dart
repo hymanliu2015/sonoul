@@ -9,4 +9,5 @@ class AppRoutes{
   static const album = "/album";
   static const songDetail = "/song_detail";
   static const member = "/member";
+  static const settings = "/settings";
 }

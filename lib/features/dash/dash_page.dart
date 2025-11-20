@@ -16,8 +16,8 @@ class DashPage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: controller.logout,
+            icon: const Icon(Icons.settings),
+            onPressed: controller.goToSettings,
           ),
         ],
       ),
@@ -101,7 +101,7 @@ class DashPage extends StatelessWidget {
               const SizedBox(height: 40),
               _buildMenuCard(
                 icon: Icons.mic,
-                title: 'Create New Single',
+                title: 'Create New Song',
                 subtitle: 'Write lyrics, record voice, and generate AI music.',
                 color: AppColors.primary,
                 onTap: controller.goToCreateSingle,
@@ -113,14 +113,6 @@ class DashPage extends StatelessWidget {
                 subtitle: 'Listen to your generated songs and share them.',
                 color: AppColors.secondary,
                 onTap: controller.goToAlbum,
-              ),
-              const SizedBox(height: 20),
-              _buildMenuCard(
-                icon: Icons.star,
-                title: 'Member',
-                subtitle: 'Unlock premium features and more.',
-                color: Colors.orange,
-                onTap: controller.goToMember,
               ),
             ],
           ),

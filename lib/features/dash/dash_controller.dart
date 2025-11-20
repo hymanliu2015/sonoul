@@ -75,6 +75,10 @@ class DashController extends GetxController {
     Get.toNamed(AppRoutes.member);
   }
 
+  void goToSettings() {
+    Get.toNamed(AppRoutes.settings);
+  }
+
   void logout() {
     _authController.logout();
   }
