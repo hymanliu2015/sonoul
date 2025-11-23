@@ -29,8 +29,8 @@ class SettingsController extends GetxController {
 
   Future<void> shareApp() async {
     try {
-      await Share.share(
-        'Check out Sonoul - Your AI Virtual Singer App! Create amazing songs with AI-powered voices.',
+      SharePlus.instance.share(
+          ShareParams(text: 'Check out Sonoul - Your AI Virtual Singer App! Create amazing songs with AI-powered voices.')
       );
     } catch (e) {
       ToastUtils.shotToast('Failed to share app');
@@ -103,5 +103,9 @@ class SettingsController extends GetxController {
 
   void logout() {
     _authController.logout();
+  }
+
+  void deleteAccount() {
+    _authController.deleteAccount();
   }
 }

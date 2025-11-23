@@ -4,12 +4,9 @@ import 'package:sonoul/features/dash/singer_model.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/utils/sp_util.dart';
 import 'package:sonoul/utils/toast_util.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter/material.dart';
 
 class DashController extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
-  final SupabaseClient _supabase = Supabase.instance.client;
 
   String get userEmail => _authController.currentUser?.email ?? 'Guest';
   bool get isLoggedIn => _authController.currentUser != null;
@@ -28,59 +25,34 @@ class DashController extends GetxController {
   }
 
   Future<void> loadSingers() async {
-    if (!isLoggedIn) {
-      _setDemoSinger();
-      return;
-    }
-
-    try {
-      isLoading.value = true;
-      final user = _authController.currentUser;
-      
-      // Fetch singers from Supabase
-      final response = await _supabase
-          .from('singers')
-          .select()
-          .eq('user_id', user!.id)
-          .order('created_at', ascending: true);
-      
-      final List<dynamic> data = response as List<dynamic>;
-      
-      if (data.isNotEmpty) {
-        singers.value = data.map((json) => Singer.fromJson(json)).toList();
-      } else {
-        // Fallback to local storage if DB is empty but flag is set (legacy support or offline)
-        final savedName = SpUtil.getString('singer_name');
-        final savedAvatar = SpUtil.getString('singer_avatar');
-        final hasCreated = SpUtil.getBool('has_created_singer', defValue: false) ?? false;
-
-        if (hasCreated && savedName != null) {
-           singers.value = [
-             Singer(id: 'local', name: savedName, avatarUrl: savedAvatar ?? '')
-           ];
-        } else {
-           // Should ideally not happen if we force creation, but handle it
-           singers.clear();
-        }
-      }
-    } catch (e) {
-      debugPrint('Error loading singers: $e');
-      // Fallback for demo/testing if DB fails
-       final savedName = SpUtil.getString('singer_name');
-       if (savedName != null) {
-          singers.value = [
-             Singer(id: 'local', name: savedName, avatarUrl: SpUtil.getString('singer_avatar') ?? '')
-           ];
-       }
-    } finally {
-      isLoading.value = false;
-    }
+    // Mock data: Start with 1 singer as requested
+    if (singers.isNotEmpty) return; // Don't reload if we already have data (dynamic additions)
+    
+    isLoading.value = true;
+    await Future.delayed(const Duration(milliseconds: 500)); 
+    
+    singers.value = [
+      Singer(
+        id: '1', 
+        name: 'Hatsune Miku', 
+        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Miku'
+      ),
+    ];
+    
+    isLoading.value = false;
   }
 
-  void _setDemoSinger() {
-    // For guests, maybe show a demo singer or empty state
-    // Per requirement, we might force login/creation, but for safety:
-    singers.clear();
+  void addMockSinger(String name, String avatar) {
+    final newSinger = Singer(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      name: name,
+      avatarUrl: avatar,
+    );
+    singers.add(newSinger);
+    // Auto-scroll to the new singer
+    Future.delayed(const Duration(milliseconds: 100), () {
+      currentSingerIndex.value = singers.length - 1;
+    });
   }
 
   bool requireAuth() {
@@ -94,6 +66,12 @@ class DashController extends GetxController {
 
   void goToCreateSinger() {
     if (requireAuth()) {
+      // Limit check: Max 2 singers for free users
+      if (singers.length >= 2) {
+        ToastUtils.shotToast('Free limit reached (Max 2 singers). Upgrade to create more!');
+        Get.toNamed(AppRoutes.member);
+        return;
+      }
       Get.toNamed(AppRoutes.singer);
     }
   }
@@ -105,6 +83,15 @@ class DashController extends GetxController {
          Get.toNamed(AppRoutes.singer);
          return;
       }
+      
+      // Limit check: Max 5 songs for free users
+      final createdSongs = SpUtil.getInt('created_song_count', defValue: 0) ?? 0;
+      if (createdSongs >= 5) {
+        ToastUtils.shotToast('Free limit reached (Max 5 songs). Upgrade to create more!');
+        Get.toNamed(AppRoutes.member);
+        return;
+      }
+      
       Get.toNamed(AppRoutes.createSingle);
     }
   }

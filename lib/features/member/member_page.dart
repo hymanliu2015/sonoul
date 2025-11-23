@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/components/custom_appbar.dart';
+import 'package:sonoul/components/custom_box.dart';
+import 'package:sonoul/components/custom_buttom.dart';
+import 'package:sonoul/components/custom_text.dart';
 import 'package:sonoul/features/member/member_controller.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
+import 'package:sonoul/utils/toast_util.dart';
 
 class MemberPage extends StatelessWidget {
   final MemberController controller = Get.put(MemberController());
@@ -14,56 +19,108 @@ class MemberPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text('Premium Member'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: AppColors.textPrimary),
-          onPressed: () => Get.back(),
+      appBar: const CustomAppbar(
+        title: Text(
+          'Premium Member',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        backgroundColor: Colors.transparent,
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: LoadingHelper());
         }
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Icon(Icons.star, size: 80, color: Colors.orange),
-              const SizedBox(height: 20),
-              const Text(
-                'Unlock Full Potential',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+        return Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.star_rounded, size: 80, color: Colors.orange),
+                    const SizedBox(height: 20),
+                    const CustomText(
+                      text: 'Unlock Full Potential',
+                      textFontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      textColor: AppColors.textPrimary,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    const CustomText(
+                      text: 'Get unlimited AI songs, high quality downloads, and more.',
+                      textFontSize: 16,
+                      textColor: AppColors.textSecondary,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
+                    if (controller.products.isEmpty)
+                      _buildMockProducts()
+                    else
+                      ...controller.products.map((product) => _buildProductCard(product)),
+                  ],
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
-                'Get unlimited AI songs, high quality downloads, and more.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppColors.textSecondary,
-                ),
+            ),
+            
+            // Bottom Area
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
               ),
-              const SizedBox(height: 40),
-              if (controller.products.isEmpty)
-                _buildMockProducts()
-              else
-                ...controller.products.map((product) => _buildProductCard(product)),
-              
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: controller.restorePurchases,
-                child: const Text('Restore Purchases'),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomButton(
+                    text: 'Continue',
+                    onPressed: controller.buySelectedProduct,
+                    color: AppColors.primary,
+                    textColor: Colors.white,
+                    width: double.infinity,
+                    height: 56,
+                    textFontSize: 18,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () => ToastUtils.shotToast('Opening Terms of Service...'),
+                        child: const CustomText(
+                          text: 'Terms of Service',
+                          textColor: AppColors.textSecondary,
+                          textFontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      GestureDetector(
+                        onTap: controller.restorePurchases,
+                        child: const CustomText(
+                          text: 'Restore Purchases',
+                          textColor: AppColors.textSecondary,
+                          textFontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8), // Safe area padding
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         );
       }),
     );
@@ -72,6 +129,12 @@ class MemberPage extends StatelessWidget {
   Widget _buildMockProducts() {
     return Column(
       children: [
+        _buildMockCard(
+          title: 'Weekly Premium',
+          price: '\$2.99 / week',
+          productId: 'sonoul_premium_weekly',
+        ),
+        const SizedBox(height: 16),
         _buildMockCard(
           title: 'Monthly Premium',
           price: '\$9.99 / month',
@@ -94,22 +157,15 @@ class MemberPage extends StatelessWidget {
     required String productId,
     bool isBestValue = false,
   }) {
-    return GestureDetector(
-      onTap: () => controller.mockBuy(productId),
-      child: Container(
+    return Obx(() {
+      final isSelected = controller.selectedProductId.value == productId;
+      return CustomBox(
+        onTap: () => controller.selectProduct(productId),
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: isBestValue ? Border.all(color: AppColors.primary, width: 2) : null,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+        color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        borderWidth: 2,
+        borderColor: isSelected ? AppColors.primary : Colors.transparent,
         child: Row(
           children: [
             Expanded(
@@ -124,98 +180,117 @@ class MemberPage extends StatelessWidget {
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text(
-                        'BEST VALUE',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      child: const CustomText(
+                        text: 'BEST VALUE',
+                        textColor: Colors.white,
+                        textFontSize: 10,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+                  CustomText(
+                    text: title,
+                    textFontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    textColor: AppColors.textPrimary,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    price,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: AppColors.textSecondary,
-                    ),
+                  CustomText(
+                    text: price,
+                    textFontSize: 16,
+                    textColor: AppColors.textSecondary,
                   ),
                 ],
               ),
             ),
-            ElevatedButton(
-              onPressed: () => controller.mockBuy(productId),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+            // Selection Radio/Check
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : Colors.grey.shade300,
+                  width: 2,
                 ),
               ),
-              child: const Text('Subscribe'),
+              child: isSelected
+                  ? Center(
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    )
+                  : null,
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildProductCard(ProductDetails product) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.title,
-                  style: const TextStyle(
-                    fontSize: 18,
+    return Obx(() {
+      final isSelected = controller.selectedProductId.value == product.id;
+      return CustomBox(
+        onTap: () => controller.selectProduct(product.id),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(20),
+        color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        borderWidth: 2,
+        borderColor: isSelected ? AppColors.primary : Colors.transparent,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    text: product.title,
+                    textFontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    textColor: AppColors.textPrimary,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  product.price,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: AppColors.textSecondary,
+                  const SizedBox(height: 4),
+                  CustomText(
+                    text: product.price,
+                    textFontSize: 16,
+                    textColor: AppColors.textSecondary,
                   ),
-                ),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () => controller.buyProduct(product),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                ],
               ),
             ),
-            child: const Text('Subscribe'),
-          ),
-        ],
-      ),
-    );
+             // Selection Radio/Check
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : Colors.grey.shade300,
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? Center(
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

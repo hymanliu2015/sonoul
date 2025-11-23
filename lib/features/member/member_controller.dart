@@ -11,11 +11,17 @@ class MemberController extends GetxController {
   
   RxBool isAvailable = false.obs;
   RxBool isLoading = false.obs;
+  RxString selectedProductId = 'sonoul_premium_yearly'.obs; // Default to yearly
+
   RxList<ProductDetails> products = <ProductDetails>[].obs;
-  RxList<PurchaseDetails> purchases = <PurchaseDetails>[].obs;
-  
+
+
   // Example product IDs
-  final Set<String> _kIds = <String>{'sonoul_premium_monthly', 'sonoul_premium_yearly'};
+  final Set<String> _kIds = <String>{
+    'sonoul_premium_weekly',
+    'sonoul_premium_monthly', 
+    'sonoul_premium_yearly'
+  };
   
   late StreamSubscription<List<PurchaseDetails>> _subscription;
 
@@ -41,33 +47,75 @@ class MemberController extends GetxController {
 
   Future<void> initStore() async {
     isLoading.value = true;
-    final bool available = await _iap.isAvailable();
-    isAvailable.value = available;
-    
-    if (available) {
-      final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
-      if (response.notFoundIDs.isNotEmpty) {
-        // Handle missing IDs
-        debugPrint("Products not found: ${response.notFoundIDs}");
-      }
-      products.value = response.productDetails;
+    try {
+      final bool available = await _iap.isAvailable();
+      isAvailable.value = available;
       
-      // For demo purposes, if no products found (emulator), add mock products
-      if (products.isEmpty) {
-         _addMockProducts();
+      if (available) {
+        final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
+        if (response.notFoundIDs.isNotEmpty) {
+          debugPrint("Products not found: ${response.notFoundIDs}");
+        }
+        products.value = response.productDetails;
       }
-    } else {
-      // Mock for emulator if store not available
-      _addMockProducts();
+    } catch (e) {
+      debugPrint("Store init error: $e");
     }
+    
+    // Always load mock data if empty (for testing/emulator)
+    if (products.isEmpty) {
+       _addMockProducts();
+    }
+    
     isLoading.value = false;
   }
   
   void _addMockProducts() {
     // Mock data for UI testing
-    // Note: ProductDetails is not easily instantiable with public constructor in some versions, 
-    // but let's try to rely on the UI handling empty list or just showing static cards if empty.
-    // Actually, we can just use a separate list for UI if products are empty.
+    products.value = [
+      ProductDetails(
+        id: 'sonoul_premium_weekly',
+        title: 'Weekly Premium',
+        description: 'Weekly subscription',
+        price: '\$2.99',
+        rawPrice: 2.99,
+        currencyCode: 'USD',
+      ),
+      ProductDetails(
+        id: 'sonoul_premium_monthly',
+        title: 'Monthly Premium',
+        description: 'Monthly subscription',
+        price: '\$9.99',
+        rawPrice: 9.99,
+        currencyCode: 'USD',
+      ),
+      ProductDetails(
+        id: 'sonoul_premium_yearly',
+        title: 'Yearly Premium',
+        description: 'Yearly subscription',
+        price: '\$99.99',
+        rawPrice: 99.99,
+        currencyCode: 'USD',
+      ),
+    ];
+  }
+
+  void selectProduct(String productId) {
+    selectedProductId.value = productId;
+  }
+
+  void buySelectedProduct() {
+    if (products.isNotEmpty) {
+      final product = products.firstWhereOrNull((p) => p.id == selectedProductId.value);
+      if (product != null) {
+        buyProduct(product);
+      } else {
+        // Mock buy if product not found in real list (e.g. emulator)
+        mockBuy(selectedProductId.value);
+      }
+    } else {
+      mockBuy(selectedProductId.value);
+    }
   }
 
   void buyProduct(ProductDetails product) {

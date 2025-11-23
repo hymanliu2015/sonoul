@@ -21,7 +21,7 @@ class CustomText extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        color: textColor ,
+        color: textColor,
         fontSize: textFontSize,
         fontWeight: fontWeight,
       ),

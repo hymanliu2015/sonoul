@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -36,30 +37,43 @@ class SingerController extends GetxController {
         return;
       }
 
-      await _supabase.from('singers').insert({
-        'user_id': user.id,
-        'name': singerName,
-        'avatar_url': avatarPath.value,
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      // await _supabase.from('singers').insert({
+      //   'user_id': user.id,
+      //   'name': singerName,
+      //   'avatar_url': avatarPath.value,
+      //   'created_at': DateTime.now().toIso8601String(),
+      // });
 
       await SpUtil.putBool('has_created_singer', true);
       await SpUtil.putString('singer_name', singerName);
       await SpUtil.putString('singer_avatar', avatarPath.value);
 
+      // Mock: Add to DashController directly
+      if (Get.isRegistered<DashController>()) {
+        final avatar = avatarPath.value.isNotEmpty 
+            ? avatarPath.value 
+            : "https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}";
+        Get.find<DashController>().addMockSinger(singerName, avatar);
+      }
+
       ToastUtils.shotToast('Singer created successfully!');
-      Get.offAllNamed(AppRoutes.dash);
+      Get.back(); // Return to Dash instead of offAllNamed to keep state
       
     } on PostgrestException catch (e) {
       ToastUtils.shotToast(e.message);
     } catch (e) {
       debugPrint("Error creating singer: $e");
-      await SpUtil.putBool('has_created_singer', true);
-      await SpUtil.putString('singer_name', singerName);
-      await SpUtil.putString('singer_avatar', avatarPath.value);
+      
+      // Mock: Add to DashController directly
+      if (Get.isRegistered<DashController>()) {
+        final avatar = avatarPath.value.isNotEmpty 
+            ? avatarPath.value 
+            : "https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}";
+        Get.find<DashController>().addMockSinger(singerName, avatar);
+      }
 
-      ToastUtils.shotToast('Simulating success (DB might be missing)');
-      Get.offAllNamed(AppRoutes.dash);
+      ToastUtils.shotToast('Simulating success');
+      Get.back();
     } finally {
       isLoading.value = false;
     }

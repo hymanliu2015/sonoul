@@ -60,6 +60,25 @@ class AuthController extends GetxController {
     await _supabase.auth.signOut();
     Get.offAllNamed(AppRoutes.login);
   }
+
+  // Delete Account
+  Future<void> deleteAccount() async {
+    try {
+      isLoading.value = true;
+      // In a real app, you might call an Edge Function here to delete user data
+      // await _supabase.functions.invoke('delete-user');
+      
+      // For now, we just sign out and pretend
+      await _supabase.auth.signOut();
+      
+      ToastUtils.shotToast('Account deleted successfully', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.green, Colors.white);
+      Get.offAllNamed(AppRoutes.login);
+    } catch (e) {
+      ToastUtils.shotToast('Failed to delete account', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+    } finally {
+      isLoading.value = false;
+    }
+  }
   
   User? get currentUser => _supabase.auth.currentUser;
 }

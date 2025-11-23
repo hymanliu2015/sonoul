@@ -109,6 +109,36 @@ class SettingsPage extends StatelessWidget {
               textColor: Colors.red,
               showArrow: false,
             ),
+            _buildDivider(),
+            _buildSettingItem(
+              icon: Icons.delete_forever_rounded,
+              title: 'Delete Account',
+              subtitle: 'Permanently delete your account',
+              onTap: () {
+                Get.dialog(
+                  AlertDialog(
+                    title: const Text('Delete Account'),
+                    content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Get.back(),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Get.back();
+                          controller.deleteAccount();
+                        },
+                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              iconColor: Colors.red,
+              textColor: Colors.red,
+              showArrow: false,
+            ),
           ]),
           const SizedBox(height: 32),
           Obx(() => Center(
@@ -153,7 +183,7 @@ class SettingsPage extends StatelessWidget {
       child: Divider(
         height: 1,
         thickness: 0.5,
-        color: AppColors.textSecondary.withOpacity(0.1),
+        color: AppColors.textSecondary.withValues(alpha: 0.1),
       ),
     );
   }
@@ -176,7 +206,7 @@ class SettingsPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: (iconColor ?? AppColors.primary).withOpacity(0.1),
+                color: (iconColor ?? AppColors.primary).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -209,7 +239,7 @@ class SettingsPage extends StatelessWidget {
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
-                color: AppColors.textSecondary.withOpacity(0.5),
+                color: AppColors.textSecondary.withValues(alpha: 0.5),
               ),
           ],
         ),
