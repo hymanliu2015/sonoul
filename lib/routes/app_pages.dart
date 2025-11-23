@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 import 'package:sonoul/features/dash/dash_binding.dart';
 import 'package:sonoul/features/dash/dash_page.dart';
 import 'package:sonoul/features/auth/login_page.dart';
@@ -14,7 +14,6 @@ import 'package:sonoul/features/profile/profile_page.dart';
 import 'package:sonoul/middleware/auth_middleware.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:get/get.dart';
-import 'package:sonoul/utils/sp_util.dart';
 
 class AppPages{
 
@@ -25,7 +24,7 @@ class AppPages{
         name: AppRoutes.dash,
         page: () => DashPage(),
         binding: DashBinding(),
-        middlewares: [RouteAuthMiddleware()],
+        middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: AppRoutes.login,
@@ -69,15 +68,4 @@ class AppPages{
       middlewares: [AuthMiddleware()],
     ),
   ];
-}
-
-class RouteAuthMiddleware extends GetMiddleware {
-  @override
-  RouteSettings? redirect(String? route) {
-    final hasSeenGuide = SpUtil.getBool('has_seen_guide', defValue: false) ?? false;
-    if (!hasSeenGuide) {
-      return const RouteSettings(name: AppRoutes.guide);
-    }
-    return null;
-  }
 }
