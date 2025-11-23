@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/components/custom_appbar.dart';
+import 'package:sonoul/components/custom_box.dart';
+import 'package:sonoul/components/custom_text.dart';
 import 'package:sonoul/features/settings/settings_controller.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -11,93 +14,111 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        centerTitle: true,
+      backgroundColor: AppColors.background,
+      appBar: const CustomAppbar(
+        title: CustomText(
+          text: 'Settings',
+          textFontSize: 18,
+          fontWeight: FontWeight.bold,
+          textColor: AppColors.textPrimary,
+        ),
+        backgroundColor: AppColors.background,
       ),
       body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
           _buildSectionHeader('General'),
-          _buildListTile(
-            icon: Icons.share,
-            title: 'Share App',
-            subtitle: 'Share Sonoul with friends',
-            onTap: controller.shareApp,
-          ),
-          _buildListTile(
-            icon: Icons.star_rate,
-            title: 'Rate App',
-            subtitle: 'Rate us on the app store',
-            onTap: controller.rateApp,
-          ),
-          const Divider(),
+          _buildSection([
+            _buildSettingItem(
+              icon: Icons.share_rounded,
+              title: 'Share App',
+              subtitle: 'Share Sonoul with friends',
+              onTap: controller.shareApp,
+            ),
+            _buildDivider(),
+            _buildSettingItem(
+              icon: Icons.star_rate_rounded,
+              title: 'Rate App',
+              subtitle: 'Rate us on the app store',
+              onTap: controller.rateApp,
+            ),
+          ]),
+          const SizedBox(height: 24),
           _buildSectionHeader('Support'),
-          _buildListTile(
-            icon: Icons.language,
-            title: 'Website',
-            subtitle: 'Visit our website',
-            onTap: controller.openWebsite,
-          ),
-          _buildListTile(
-            icon: Icons.email,
-            title: 'Contact Support',
-            subtitle: 'Get help from our team',
-            onTap: controller.contactSupport,
-          ),
-          const Divider(),
+          _buildSection([
+            _buildSettingItem(
+              icon: Icons.language_rounded,
+              title: 'Website',
+              subtitle: 'Visit our website',
+              onTap: controller.openWebsite,
+            ),
+            _buildDivider(),
+            _buildSettingItem(
+              icon: Icons.email_rounded,
+              title: 'Contact Support',
+              subtitle: 'Get help from our team',
+              onTap: controller.contactSupport,
+            ),
+          ]),
+          const SizedBox(height: 24),
           _buildSectionHeader('Legal'),
-          _buildListTile(
-            icon: Icons.privacy_tip,
-            title: 'Privacy Policy',
-            subtitle: 'Read our privacy policy',
-            onTap: controller.openPrivacyPolicy,
-          ),
-          _buildListTile(
-            icon: Icons.description,
-            title: 'Terms of Service',
-            subtitle: 'Read our terms',
-            onTap: controller.openTermsOfService,
-          ),
-          const Divider(),
+          _buildSection([
+            _buildSettingItem(
+              icon: Icons.privacy_tip_rounded,
+              title: 'Privacy Policy',
+              subtitle: 'Read our privacy policy',
+              onTap: controller.openPrivacyPolicy,
+            ),
+            _buildDivider(),
+            _buildSettingItem(
+              icon: Icons.description_rounded,
+              title: 'Terms of Service',
+              subtitle: 'Read our terms',
+              onTap: controller.openTermsOfService,
+            ),
+          ]),
+          const SizedBox(height: 24),
           _buildSectionHeader('Account'),
-          _buildListTile(
-            icon: Icons.logout,
-            title: 'Logout',
-            subtitle: 'Sign out of your account',
-            onTap: () {
-              Get.dialog(
-                AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Get.back(),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Get.back();
-                        controller.logout();
-                      },
-                      child: const Text('Logout', style: TextStyle(color: Colors.red)),
-                    ),
-                  ],
-                ),
-              );
-            },
-            iconColor: Colors.red,
-          ),
-          const SizedBox(height: 20),
+          _buildSection([
+            _buildSettingItem(
+              icon: Icons.logout_rounded,
+              title: 'Logout',
+              subtitle: 'Sign out of your account',
+              onTap: () {
+                Get.dialog(
+                  AlertDialog(
+                    title: const Text('Logout'),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Get.back(),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Get.back();
+                          controller.logout();
+                        },
+                        child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              iconColor: Colors.red,
+              textColor: Colors.red,
+              showArrow: false,
+            ),
+          ]),
+          const SizedBox(height: 32),
           Obx(() => Center(
-            child: Text(
-              'Version ${controller.appVersion.value}',
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-              ),
+            child: CustomText(
+              text: 'Version ${controller.appVersion.value}',
+              textColor: AppColors.textSecondary,
+              textFontSize: 12,
             ),
           )),
-          const SizedBox(height: 20),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -105,31 +126,94 @@ class SettingsPage extends StatelessWidget {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: AppColors.primary,
-        ),
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: CustomText(
+        text: title,
+        textFontSize: 14,
+        fontWeight: FontWeight.bold,
+        textColor: AppColors.textSecondary,
       ),
     );
   }
 
-  Widget _buildListTile({
+  Widget _buildSection(List<Widget> children) {
+    return CustomBox(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Divider(
+        height: 1,
+        thickness: 0.5,
+        color: AppColors.textSecondary.withOpacity(0.1),
+      ),
+    );
+  }
+
+  Widget _buildSettingItem({
     required IconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
     Color? iconColor,
+    Color? textColor,
+    bool showArrow = true,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: iconColor ?? AppColors.primary),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+    return InkWell(
       onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: (iconColor ?? AppColors.primary).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: iconColor ?? AppColors.primary,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    text: title,
+                    textFontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    textColor: textColor ?? AppColors.textPrimary,
+                  ),
+                  const SizedBox(height: 2),
+                  CustomText(
+                    text: subtitle,
+                    textFontSize: 12,
+                    textColor: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+            if (showArrow)
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 16,
+                color: AppColors.textSecondary.withOpacity(0.5),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

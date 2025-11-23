@@ -10,6 +10,8 @@ import 'package:sonoul/features/album/album_page.dart';
 import 'package:sonoul/features/song/song_detail_page.dart';
 import 'package:sonoul/features/member/member_page.dart';
 import 'package:sonoul/features/settings/settings_page.dart';
+import 'package:sonoul/features/profile/profile_page.dart';
+import 'package:sonoul/middleware/auth_middleware.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/utils/sp_util.dart';
@@ -60,6 +62,11 @@ class AppPages{
     GetPage(
       name: AppRoutes.settings,
       page: () => SettingsPage(),
+    ),
+    GetPage(
+      name: AppRoutes.profile,
+      page: () => ProfilePage(),
+      middlewares: [AuthMiddleware()],
     ),
   ];
 }

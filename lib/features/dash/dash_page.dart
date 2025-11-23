@@ -16,8 +16,8 @@ class DashPage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: controller.goToSettings,
+            icon: const Icon(Icons.account_circle_rounded),
+            onPressed: controller.goToProfile,
           ),
         ],
       ),

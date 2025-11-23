@@ -10,4 +10,5 @@ class AppRoutes{
   static const songDetail = "/song_detail";
   static const member = "/member";
   static const settings = "/settings";
+  static const profile = "/profile";
 }

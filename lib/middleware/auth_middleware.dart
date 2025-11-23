@@ -1,18 +1,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sonoul/routes/app_routes.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthMiddleware extends GetMiddleware{
 
   @override
   RouteSettings? redirect(String? route) {
-   // final authService = Get.find<AuthService>();
-   //
-   //  bool isAuthenticated = authService.isLogin.value;
-   //
-   //  if (!isAuthenticated) {
-   //    return RouteSettings(name: AppRoutes.auth);
-   //  }
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) {
+      return const RouteSettings(name: AppRoutes.login);
+    }
     return null;
   }
 
