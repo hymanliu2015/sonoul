@@ -57,7 +57,7 @@ class SingerController extends GetxController {
       }
 
       ToastUtils.shotToast('Singer created successfully!');
-      Get.back(); // Return to Dash instead of offAllNamed to keep state
+      Get.offAndToNamed(AppRoutes.dash);
       
     } on PostgrestException catch (e) {
       ToastUtils.shotToast(e.message);

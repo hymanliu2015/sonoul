@@ -77,8 +77,8 @@ class MemberController extends GetxController {
         id: 'sonoul_premium_weekly',
         title: 'Weekly Premium',
         description: 'Weekly subscription',
-        price: '\$2.99',
-        rawPrice: 2.99,
+        price: '\$4.99',
+        rawPrice: 4.99,
         currencyCode: 'USD',
       ),
       ProductDetails(
@@ -93,8 +93,8 @@ class MemberController extends GetxController {
         id: 'sonoul_premium_yearly',
         title: 'Yearly Premium',
         description: 'Yearly subscription',
-        price: '\$99.99',
-        rawPrice: 99.99,
+        price: '\$69.99',
+        rawPrice: 69.99,
         currencyCode: 'USD',
       ),
     ];
