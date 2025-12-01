@@ -37,12 +37,21 @@ class SingerController extends GetxController {
         return;
       }
 
-      // await _supabase.from('singers').insert({
-      //   'user_id': user.id,
-      //   'name': singerName,
-      //   'avatar_url': avatarPath.value,
-      //   'created_at': DateTime.now().toIso8601String(),
-      // });
+      final res = await _supabase.functions.invoke(
+        'api_music/singers',
+        method: HttpMethod.post,
+        body: {
+          'name': singerName,
+          'avatar_url': avatarPath.value,
+        },
+      );
+
+      // 后端返回：{ "data": [...] }
+      final data = res.data;
+      if (data == null) {
+        ToastUtils.shotToast('Server error');
+        return;
+      }
 
       await SpUtil.putBool('has_created_singer', true);
       await SpUtil.putString('singer_name', singerName);
@@ -50,24 +59,24 @@ class SingerController extends GetxController {
 
       // Mock: Add to DashController directly
       if (Get.isRegistered<DashController>()) {
-        final avatar = avatarPath.value.isNotEmpty 
-            ? avatarPath.value 
+        final avatar = avatarPath.value.isNotEmpty
+            ? avatarPath.value
             : "https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}";
         Get.find<DashController>().addMockSinger(singerName, avatar);
       }
 
       ToastUtils.shotToast('Singer created successfully!');
       Get.offAndToNamed(AppRoutes.dash);
-      
+
     } on PostgrestException catch (e) {
       ToastUtils.shotToast(e.message);
     } catch (e) {
       debugPrint("Error creating singer: $e");
-      
+
       // Mock: Add to DashController directly
       if (Get.isRegistered<DashController>()) {
-        final avatar = avatarPath.value.isNotEmpty 
-            ? avatarPath.value 
+        final avatar = avatarPath.value.isNotEmpty
+            ? avatarPath.value
             : "https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}";
         Get.find<DashController>().addMockSinger(singerName, avatar);
       }
