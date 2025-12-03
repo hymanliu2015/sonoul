@@ -12,6 +12,17 @@ class AuthController extends GetxController {
 
   // Login
   Future<void> login(String email, String password) async {
+    // Validate inputs
+    if (email.isEmpty) {
+      ToastUtils.shotToast('Please enter your email', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      return;
+    }
+    
+    if (password.isEmpty) {
+      ToastUtils.shotToast('Please enter your password', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      return;
+    }
+    
     try {
       isLoading.value = true;
       final AuthResponse res = await _supabase.auth.signInWithPassword(
@@ -32,7 +43,28 @@ class AuthController extends GetxController {
   }
 
   // Register
-  Future<void> register(String email, String password) async {
+  Future<void> register(String email, String password, String confirmPassword) async {
+    // Validate inputs
+    if (email.isEmpty) {
+      ToastUtils.shotToast('Please enter your email', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      return;
+    }
+    
+    if (password.isEmpty) {
+      ToastUtils.shotToast('Please enter your password', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      return;
+    }
+    
+    if (confirmPassword.isEmpty) {
+      ToastUtils.shotToast('Please confirm your password', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      return;
+    }
+    
+    if (password != confirmPassword) {
+      ToastUtils.shotToast('Passwords do not match', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      return;
+    }
+    
     try {
       isLoading.value = true;
       final AuthResponse res = await _supabase.auth.signUp(

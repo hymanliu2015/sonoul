@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sonoul/features/auth/auth_controller.dart';
-import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
-import 'package:sonoul/utils/toast_util.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/features/auth/auth_controller.dart';
 
 class RegisterPage extends StatelessWidget {
   final AuthController controller = Get.find<AuthController>();
@@ -105,13 +103,10 @@ class RegisterPage extends StatelessWidget {
                   onPressed: controller.isLoading.value
                       ? null
                       : () {
-                          if (passwordController.text != confirmPasswordController.text) {
-                            ToastUtils.shotToast('Passwords do not match', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
-                            return;
-                          }
                           controller.register(
                             emailController.text.trim(),
                             passwordController.text.trim(),
+                            confirmPasswordController.text.trim(),
                           );
                         },
                   style: ElevatedButton.styleFrom(
