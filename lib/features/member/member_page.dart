@@ -10,10 +10,8 @@ import 'package:sonoul/features/member/member_controller.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
 import 'package:sonoul/utils/toast_util.dart';
 
-class MemberPage extends StatelessWidget {
-  final MemberController controller = Get.put(MemberController());
-
-  MemberPage({super.key});
+class MemberPage extends GetView<MemberController> {
+  const MemberPage({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -38,7 +38,7 @@ class SingerController extends GetxController {
       }
 
       final res = await _supabase.functions.invoke(
-        'api_music/singers',
+        'api_singers',
         method: HttpMethod.post,
         body: {
           'name': singerName,

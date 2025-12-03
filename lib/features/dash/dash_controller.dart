@@ -1,12 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
-import 'package:sonoul/features/dash/singer_model.dart';
+import 'package:sonoul/features/singer/singer_model.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/utils/sp_util.dart';
 import 'package:sonoul/utils/toast_util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DashController extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
+  final SupabaseClient _supabase = Supabase.instance.client;
 
   String get userEmail => _authController.currentUser?.email ?? 'Guest';
   bool get isLoggedIn => _authController.currentUser != null;
@@ -21,38 +24,39 @@ class DashController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadSingers();
+    fetchSingers();
   }
 
-  Future<void> loadSingers() async {
-    // Mock data: Start with 1 singer as requested
-    if (singers.isNotEmpty) return; // Don't reload if we already have data (dynamic additions)
-    
-    isLoading.value = true;
-    await Future.delayed(const Duration(milliseconds: 500)); 
-    
-    singers.value = [
-      Singer(
-        id: '1', 
-        name: 'Hatsune Miku', 
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/png?seed=Miku'
-      ),
-    ];
-    
-    isLoading.value = false;
+  Future<void> fetchSingers() async {
+    if (!isLoggedIn) return;
+
+    try {
+      isLoading.value = true;
+      
+      final res = await _supabase.functions.invoke(
+        'api_singers',
+        method: HttpMethod.get,
+      );
+
+      final data = res.data;
+      if (data != null && data['data'] != null) {
+        final List<dynamic> list = data['data'];
+        singers.value = list.map((e) => Singer.fromJson(e)).toList();
+      }
+      
+    } catch (e) {
+      debugPrint("Error fetching singers: $e");
+      // Don't show toast on init to avoid annoyance, just log
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void addMockSinger(String name, String avatar) {
-    final newSinger = Singer(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      avatarUrl: avatar,
-    );
-    singers.add(newSinger);
-    // Auto-scroll to the new singer
-    Future.delayed(const Duration(milliseconds: 100), () {
-      currentSingerIndex.value = singers.length - 1;
-    });
+    // This might still be used by SingerController for optimistic update, 
+    // but ideally we should reload or add the real object.
+    // For now, let's keep it but maybe trigger a reload?
+    fetchSingers();
   }
 
   bool requireAuth() {
