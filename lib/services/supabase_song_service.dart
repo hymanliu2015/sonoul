@@ -22,49 +22,21 @@ class SupabaseSongService extends GetxService {
     }
   }
 
-  Future<Map<String, dynamic>?> createSong({
-    required String title,
-    required String audioUrl,
-    String? lyrics,
-    String? idea,
-    List<String>? tags,
-    String? emotion,
-    int? duration,
-    String? coverUrl,
-  }) async {
-    try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) throw Exception('User not logged in');
-
-      final response = await _supabase.from('songs').insert({
-        'user_id': user.id,
-        'title': title,
-        'audio_url': audioUrl,
-        'lyrics': lyrics,
-        'idea': idea,
-        'tags': tags,
-        'emotion': emotion,
-        'duration': duration,
-        'cover_url': coverUrl ?? 'https://picsum.photos/200', // Default or random cover
-      }).select().single();
-
-      return response;
-    } catch (e) {
-      print('Error creating song record: $e');
-      return null;
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> getUserSongs() async {
+  Future<List<Map<String, dynamic>>> getUserSongs({String? singerId}) async {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) return [];
 
-      final response = await _supabase
+      var query = _supabase
           .from('songs')
           .select()
-          .eq('user_id', user.id)
-          .order('created_at', ascending: false);
+          .eq('user_id', user.id);
+          
+      if (singerId != null && singerId.isNotEmpty) {
+        query = query.eq('singer_id', singerId);
+      }
+          
+      final response = await query.order('created_at', ascending: false);
       
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {

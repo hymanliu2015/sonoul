@@ -1,63 +1,51 @@
 import 'dart:io';
 import 'package:get/get.dart';
-import 'package:sonoul/services/lyrics_service.dart';
-import 'package:sonoul/services/voice_analysis_service.dart';
-import 'package:sonoul/services/elevenlabs_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sonoul/services/supabase_song_service.dart';
 
 class SongGenerationService extends GetxService {
-  final LyricsService _lyricsService = Get.put(LyricsService());
-  final VoiceAnalysisService _voiceAnalysisService = Get.put(VoiceAnalysisService());
-  final ElevenLabsService _elevenLabsService = Get.put(ElevenLabsService());
+  final SupabaseClient _supabase = Supabase.instance.client;
   final SupabaseSongService _supabaseSongService = Get.put(SupabaseSongService());
 
   Future<Map<String, dynamic>> generateSong({
     required String idea,
     required String audioPath,
     required List<String> tags,
+    required String singerId,
   }) async {
-    // 1. Generate Lyrics (Mock or real implementation)
-    final lyrics = await _lyricsService.generateLyrics(idea);
+    try {
+      // 1. Upload User's Voice Recording to Storage
+      // We need to upload this first so the Edge Function can access it (if needed for analysis)
+      final File audioFile = File(audioPath);
+      final String fileName = 'voice_input_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      final String? inputAudioUrl = await _supabaseSongService.uploadSongAudio(audioFile, fileName);
 
-    // 2. Analyze Voice (Optional, for emotion/style)
-    final voiceData = await _voiceAnalysisService.analyzeVoice(audioPath);
-    final emotion = voiceData['emotion'] ?? 'Neutral';
+      if (inputAudioUrl == null) {
+        throw Exception('Failed to upload voice recording');
+      }
 
-    // 3. Generate Audio using ElevenLabs
-    // Use the lyrics as text for speech generation
-    // In a real music app, we might want to structure this better or use a music model
-    final File? generatedAudioFile = await _elevenLabsService.generateSpeech(
-      text: lyrics.isNotEmpty ? lyrics : idea,
-    );
+      // 2. Call Supabase Edge Function
+      final response = await _supabase.functions.invoke(
+        'generate-song',
+        body: {
+          'idea': idea,
+          'audio_path': fileName, // Pass the path/filename, function can construct URL if needed
+          'tags': tags,
+          'user_id': _supabase.auth.currentUser?.id,
+          'singer_id': singerId,
+        },
+      );
 
-    if (generatedAudioFile == null) {
-      throw Exception('Failed to generate audio from ElevenLabs');
+      if (response.status != 200) {
+        throw Exception('Edge Function Error: ${response.status} - ${response.data}');
+      }
+
+      // The Edge Function returns the created song record
+      return Map<String, dynamic>.from(response.data);
+
+    } catch (e) {
+      print('Song Generation Error: $e');
+      rethrow;
     }
-
-    // 4. Upload Audio to Supabase Storage
-    final String fileName = 'song_${DateTime.now().millisecondsSinceEpoch}.mp3';
-    final String? audioUrl = await _supabaseSongService.uploadSongAudio(generatedAudioFile, fileName);
-
-    if (audioUrl == null) {
-      throw Exception('Failed to upload audio to storage');
-    }
-
-    // 5. Save Song Record to Supabase Database
-    final songRecord = await _supabaseSongService.createSong(
-      title: 'Song about $idea', // Simple title generation
-      audioUrl: audioUrl,
-      lyrics: lyrics,
-      idea: idea,
-      tags: tags,
-      emotion: emotion,
-      duration: 30, // Mock duration or calculate from file
-      coverUrl: 'https://picsum.photos/200?random=${DateTime.now().millisecondsSinceEpoch}',
-    );
-
-    if (songRecord == null) {
-      throw Exception('Failed to save song record to database');
-    }
-
-    return songRecord;
   }
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:sonoul/services/song_generation_service.dart';
+import 'package:sonoul/features/dash/dash_controller.dart';
 
 class CreateSingleController extends GetxController {
   final SongGenerationService _songService = Get.put(SongGenerationService());
@@ -81,10 +82,26 @@ class CreateSingleController extends GetxController {
 
     try {
       isGenerating.value = true;
+      
+      // Get current singer ID
+      String singerId = '';
+      if (Get.isRegistered<DashController>()) {
+        final dashController = Get.find<DashController>();
+        if (dashController.currentSinger != null) {
+          singerId = dashController.currentSinger!.id;
+        }
+      }
+      
+      if (singerId.isEmpty) {
+        Get.snackbar('Error', 'No singer selected');
+        return;
+      }
+
       final songData = await _songService.generateSong(
         idea: ideaController.text,
         audioPath: recordedFilePath.value,
-        tags: selectedTags,
+        tags: selectedTags.toList(),
+        singerId: singerId,
       );
       
       Get.snackbar('Success', 'Song generated: ${songData['title']}', backgroundColor: Colors.green, colorText: Colors.white);
