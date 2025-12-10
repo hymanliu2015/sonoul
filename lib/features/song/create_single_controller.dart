@@ -87,12 +87,14 @@ class CreateSingleController extends GetxController {
         tags: selectedTags,
       );
       
-      // Navigate to result or album page (Mock)
       Get.snackbar('Success', 'Song generated: ${songData['title']}', backgroundColor: Colors.green, colorText: Colors.white);
-      // In real app, save to DB and navigate
+      
+      // Navigate to Album Page to see the new song
+      // We might need to refresh the album controller if it's already in memory
+      Get.offNamed('/album'); 
       
     } catch (e) {
-      Get.snackbar('Error', 'Failed to generate song');
+      Get.snackbar('Error', 'Failed to generate song: $e', backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isGenerating.value = false;
     }

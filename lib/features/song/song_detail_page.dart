@@ -12,7 +12,7 @@ class SongDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(controller.song['title']),
+        title: Text(controller.song['title'] ?? 'Unknown Title'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -39,19 +39,19 @@ class SongDetailPage extends StatelessWidget {
                   ),
                 ],
                 image: DecorationImage(
-                  image: NetworkImage(controller.song['cover_url']),
+                  image: NetworkImage(controller.song['cover_url'] ?? 'https://picsum.photos/200'),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
             const SizedBox(height: 40),
             Text(
-              controller.song['title'],
+              controller.song['title'] ?? 'Unknown Title',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(
-              controller.song['artist'],
+              controller.song['artist'] ?? 'Unknown Artist',
               style: const TextStyle(fontSize: 18, color: Colors.grey),
             ),
             const SizedBox(height: 40),

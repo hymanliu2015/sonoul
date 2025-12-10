@@ -38,7 +38,12 @@ class SongDetailController extends GetxController {
     if (isPlaying.value) {
       await _audioPlayer.pause();
     } else {
-      await _audioPlayer.play(UrlSource(song['audio_url']));
+      final audioUrl = song['audio_url'];
+      if (audioUrl != null && audioUrl.isNotEmpty) {
+        await _audioPlayer.play(UrlSource(audioUrl));
+      } else {
+        Get.snackbar('Error', 'Audio URL is missing');
+      }
     }
   }
 
@@ -48,8 +53,12 @@ class SongDetailController extends GetxController {
   }
 
   void shareSong() {
+    final title = song['title'] ?? 'Unknown Title';
+    final artist = song['artist'] ?? 'Unknown Artist';
+    final audioUrl = song['audio_url'] ?? '';
+    
     SharePlus.instance.share(
-        ShareParams(text: 'Check out my new song "${song['title']}" by ${song['artist']}! Listen here: ${song['audio_url']}')
+        ShareParams(text: 'Check out my new song "$title" by $artist! Listen here: $audioUrl')
     );
   }
 }
