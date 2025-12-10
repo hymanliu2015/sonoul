@@ -1,5 +1,9 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
 import 'package:sonoul/features/singer/singer_model.dart';
 import 'package:sonoul/routes/app_routes.dart';
@@ -155,5 +159,113 @@ class DashController extends GetxController {
   
   void onPageChanged(int index) {
     currentSingerIndex.value = index;
+  }
+
+  // Share Feature
+  final RxBool isGeneratingShare = false.obs;
+
+  Future<void> generateShareImage(String type) async {
+    if (currentSinger == null) return;
+    
+    isGeneratingShare.value = true;
+    ToastUtils.shotToast('Generating share image...');
+    
+    try {
+      // Prepare data based on share type
+      final Map<String, dynamic> shareData = {
+        'singer_name': currentSinger!.name,
+        'singer_avatar': currentSinger!.avatarUrl,
+        'type': type,
+      };
+
+      // If sharing song, get latest song info
+      if (type == 'song') {
+        final songs = await _songService.getUserSongs(singerId: currentSinger!.id);
+        if (songs.isNotEmpty) {
+          shareData['song_title'] = songs.first['title'] ?? 'My Song';
+          shareData['song_cover'] = songs.first['audio_url'] ?? '';
+        }
+      }
+
+      // Call Supabase Edge Function to generate image
+      final res = await _supabase.functions.invoke(
+        'generate-share-image',
+        body: shareData,
+      );
+
+      if (res.status == 200 && res.data != null) {
+        final imageUrl = res.data['image_url'];
+        if (imageUrl != null) {
+          // Share the generated image URL
+          await _shareImage(imageUrl, currentSinger!.name, type);
+        } else {
+          // Fallback: share text with singer info
+          await _shareText(currentSinger!.name, type);
+        }
+      } else {
+        // Fallback to text sharing
+        await _shareText(currentSinger!.name, type);
+      }
+      
+    } catch (e) {
+      debugPrint('Error generating share: $e');
+      // Fallback to text sharing
+      await _shareText(currentSinger!.name, type);
+    } finally {
+      isGeneratingShare.value = false;
+    }
+  }
+
+  Future<void> _shareImage(String imageUrl, String singerName, String type) async {
+    try {
+      // Download image to temp file
+      final response = await http.get(Uri.parse(imageUrl));
+      if (response.statusCode == 200) {
+        final tempDir = await getTemporaryDirectory();
+        final file = File('${tempDir.path}/share_$singerName.png');
+        await file.writeAsBytes(response.bodyBytes);
+        
+        // Get share text
+        final shareText = _getShareText(singerName, type);
+
+        final params = ShareParams(
+          files: [XFile(file.path)],
+          text: shareText,
+          subject: 'Check out $singerName on Sonoul!',
+        );
+
+        final result = await SharePlus.instance.share(params);
+
+        if (result.status == ShareResultStatus.dismissed) {
+          debugPrint('Did you not like the pictures?');
+        }
+      } else {
+        // Fallback to text
+        await _shareText(singerName, type);
+      }
+    } catch (e) {
+      debugPrint('Error sharing image: $e');
+      await _shareText(singerName, type);
+    }
+  }
+
+  Future<void> _shareText(String singerName, String type) async {
+    final shareText = _getShareText(singerName, type);
+    await SharePlus.instance.share(
+      ShareParams(text: shareText,subject:'Check out $singerName on Sonoul!' ),
+    );
+  }
+
+  String _getShareText(String singerName, String type) {
+    switch (type) {
+      case 'profile':
+        return '🎤 Check out my virtual singer "$singerName" on Sonoul! #Sonoul #VirtualSinger';
+      case 'song':
+        return '🎵 Listen to my latest AI-generated song by "$singerName" on Sonoul! #Sonoul #AIMusic';
+      case 'album':
+        return '🎶 Discover my music collection by "$singerName" on Sonoul! #Sonoul #VirtualSinger';
+      default:
+        return '🎤 Check out "$singerName" on Sonoul!';
+    }
   }
 }

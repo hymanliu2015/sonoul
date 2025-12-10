@@ -247,7 +247,157 @@ class DashPage extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
+          const SizedBox(height: 16),
+          // Share Button
+          GestureDetector(
+            onTap: () => _showShareBottomSheet(Get.context!),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.share_rounded, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  const CustomText(
+                    text: 'Share',
+                    textFontSize: 14,
+                    textColor: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  void _showShareBottomSheet(BuildContext context) {
+    final singer = controller.currentSinger;
+    if (singer == null) return;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const CustomText(
+              text: 'Share Your Singer',
+              textFontSize: 20,
+              fontWeight: FontWeight.bold,
+              textColor: AppColors.textPrimary,
+            ),
+            const SizedBox(height: 24),
+            _buildShareOption(
+              icon: Icons.person_rounded,
+              title: 'Share Profile',
+              subtitle: 'Share singer image and name',
+              onTap: () {
+                Navigator.pop(context);
+                controller.generateShareImage('profile');
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildShareOption(
+              icon: Icons.music_note_rounded,
+              title: 'Share Latest Song',
+              subtitle: 'Include your latest song info',
+              onTap: () {
+                Navigator.pop(context);
+                controller.generateShareImage('song');
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildShareOption(
+              icon: Icons.album_rounded,
+              title: 'Share Album',
+              subtitle: 'Showcase your music collection',
+              onTap: () {
+                Navigator.pop(context);
+                controller.generateShareImage('album');
+              },
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShareOption({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: AppColors.primary, size: 22),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    text: title,
+                    textFontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    textColor: AppColors.textPrimary,
+                  ),
+                  const SizedBox(height: 2),
+                  CustomText(
+                    text: subtitle,
+                    textFontSize: 12,
+                    textColor: AppColors.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey.shade400, size: 16),
+          ],
+        ),
       ),
     );
   }
