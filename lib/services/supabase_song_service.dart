@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
 
@@ -17,7 +18,7 @@ class SupabaseSongService extends GetxService {
       final String publicUrl = _supabase.storage.from('songs').getPublicUrl(path);
       return publicUrl;
     } catch (e) {
-      print('Error uploading audio: $e');
+      debugPrint('Error uploading audio: $e');
       return null;
     }
   }
@@ -31,17 +32,35 @@ class SupabaseSongService extends GetxService {
           .from('songs')
           .select()
           .eq('user_id', user.id);
-          
+
       if (singerId != null && singerId.isNotEmpty) {
         query = query.eq('singer_id', singerId);
       }
-          
+
       final response = await query.order('created_at', ascending: false);
-      
+
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
-      print('Error fetching user songs: $e');
+      debugPrint('Error fetching user songs: $e');
       return [];
+    }
+  }
+
+  Future<int> getUserSongCount() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return 0;
+
+      final response = await _supabase
+          .from('songs')
+          .select('id') // Only select ID to minimize data transfer
+          .eq('user_id', user.id)
+          .count(CountOption.exact); // Use count option
+      
+      return response.count;
+    } catch (e) {
+      debugPrint('Error fetching song count: $e');
+      return 0;
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sonoul/services/supabase_song_service.dart';
@@ -44,7 +45,7 @@ class SongGenerationService extends GetxService {
       return Map<String, dynamic>.from(response.data);
 
     } catch (e) {
-      print('Song Generation Error: $e');
+      debugPrint('Song Generation Error: $e');
       rethrow;
     }
   }

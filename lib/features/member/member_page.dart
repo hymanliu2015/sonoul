@@ -129,20 +129,20 @@ class MemberPage extends GetView<MemberController> {
       children: [
         _buildMockCard(
           title: 'Weekly Premium',
-          price: '\$2.99 / week',
-          productId: 'sonoul_premium_weekly',
+          price: '\$4.99 / week',
+          productId: 'sonoul_week',
         ),
         const SizedBox(height: 16),
         _buildMockCard(
           title: 'Monthly Premium',
           price: '\$9.99 / month',
-          productId: 'sonoul_premium_monthly',
+          productId: 'sonoul_monthly',
         ),
         const SizedBox(height: 16),
         _buildMockCard(
           title: 'Yearly Premium',
-          price: '\$99.99 / year',
-          productId: 'sonoul_premium_yearly',
+          price: '\$69.99 / year',
+          productId: 'sonoul_annual',
           isBestValue: true,
         ),
       ],

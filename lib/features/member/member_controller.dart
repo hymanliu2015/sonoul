@@ -3,24 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MemberController extends GetxController {
   final InAppPurchase _iap = InAppPurchase.instance;
   
   RxBool isAvailable = false.obs;
   RxBool isLoading = false.obs;
-  RxString selectedProductId = 'sonoul_premium_yearly'.obs; // Default to yearly
+  RxString selectedProductId = 'sonoul_annual'.obs; // Default to yearly
 
   RxList<ProductDetails> products = <ProductDetails>[].obs;
 
 
   // Example product IDs
+  // Product IDs
   final Set<String> _kIds = <String>{
-    'sonoul_premium_weekly',
-    'sonoul_premium_monthly', 
-    'sonoul_premium_yearly'
+    'sonoul_week',
+    'sonoul_monthly', 
+    'sonoul_annual'
   };
   
   late StreamSubscription<List<PurchaseDetails>> _subscription;
@@ -74,7 +77,7 @@ class MemberController extends GetxController {
     // Mock data for UI testing
     products.value = [
       ProductDetails(
-        id: 'sonoul_premium_weekly',
+        id: 'sonoul_week',
         title: 'Weekly Premium',
         description: 'Weekly subscription',
         price: '\$4.99',
@@ -82,7 +85,7 @@ class MemberController extends GetxController {
         currencyCode: 'USD',
       ),
       ProductDetails(
-        id: 'sonoul_premium_monthly',
+        id: 'sonoul_monthly',
         title: 'Monthly Premium',
         description: 'Monthly subscription',
         price: '\$9.99',
@@ -90,7 +93,7 @@ class MemberController extends GetxController {
         currencyCode: 'USD',
       ),
       ProductDetails(
-        id: 'sonoul_premium_yearly',
+        id: 'sonoul_annual',
         title: 'Yearly Premium',
         description: 'Yearly subscription',
         price: '\$69.99',
@@ -126,9 +129,17 @@ class MemberController extends GetxController {
   // Mock buy for testing UI without real IAP
   void mockBuy(String productId) {
     isLoading.value = true;
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () async {
+      // Simulate successful verification
+      await _verifyPurchase(
+        productId: productId,
+        purchaseToken: 'mock_token_${DateTime.now().millisecondsSinceEpoch}',
+        platform: 'android',
+      );
+      
       isLoading.value = false;
       ToastUtils.shotToast('Subscribed to $productId (Mock)', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
+      Get.back(); // Go back to previous screen
     });
   }
 
@@ -146,14 +157,55 @@ class MemberController extends GetxController {
           ToastUtils.shotToast('Purchase failed', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored) {
-          // Deliver product
-          // Verify with Supabase here
+          
+          // Verify with Supabase
+          await _verifyPurchase(
+            productId: purchaseDetails.productID,
+            purchaseToken: purchaseDetails.verificationData.serverVerificationData,
+            platform: GetPlatform.isIOS ? 'ios' : 'android',
+          );
+          
           ToastUtils.shotToast('Purchase successful!', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
         }
         if (purchaseDetails.pendingCompletePurchase) {
           await _iap.completePurchase(purchaseDetails);
         }
       }
+    }
+  }
+
+  Future<void> _verifyPurchase({
+    required String productId,
+    required String purchaseToken,
+    required String platform,
+  }) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final user = supabase.auth.currentUser;
+      if (user == null) return;
+
+      final res = await supabase.functions.invoke(
+        'handle-subscription',
+        body: {
+          'user_id': user.id,
+          'product_id': productId,
+          'purchase_token': purchaseToken,
+          'platform': platform,
+        },
+      );
+      
+      if (res.status != 200) {
+        throw Exception('Failed to verify subscription: ${res.data}');
+      }
+      
+      // Refresh user status in DashController
+      if (Get.isRegistered<DashController>()) {
+        await Get.find<DashController>().checkSubscription();
+      }
+      
+    } catch (e) {
+      debugPrint("Verification error: $e");
+      // Don't block the user, but maybe retry later or show error
     }
   }
 }

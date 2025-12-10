@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
 import 'package:sonoul/features/singer/singer_model.dart';
 import 'package:sonoul/routes/app_routes.dart';
-import 'package:sonoul/utils/sp_util.dart';
+import 'package:sonoul/services/supabase_song_service.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -18,6 +18,9 @@ class DashController extends GetxController {
   final RxInt currentSingerIndex = 0.obs;
   final RxBool isLoading = false.obs;
 
+  final RxBool isPremium = false.obs;
+  final SupabaseSongService _songService = Get.put(SupabaseSongService());
+
   // Helper to get current singer safely
   Singer? get currentSinger => singers.isNotEmpty ? singers[currentSingerIndex.value] : null;
 
@@ -25,6 +28,36 @@ class DashController extends GetxController {
   void onInit() {
     super.onInit();
     fetchSingers();
+    checkSubscription();
+  }
+
+  Future<void> checkSubscription() async {
+    if (!isLoggedIn) return;
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return;
+
+      final response = await _supabase
+          .from('subscriptions')
+          .select()
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .maybeSingle();
+
+      if (response != null) {
+        final endDate = DateTime.parse(response['end_date']);
+        if (endDate.isAfter(DateTime.now())) {
+          isPremium.value = true;
+        } else {
+          isPremium.value = false;
+        }
+      } else {
+        isPremium.value = false;
+      }
+    } catch (e) {
+      debugPrint("Error checking subscription: $e");
+      isPremium.value = false;
+    }
   }
 
   Future<void> fetchSingers() async {
@@ -46,16 +79,12 @@ class DashController extends GetxController {
       
     } catch (e) {
       debugPrint("Error fetching singers: $e");
-      // Don't show toast on init to avoid annoyance, just log
     } finally {
       isLoading.value = false;
     }
   }
 
   void addMockSinger(String name, String avatar) {
-    // This might still be used by SingerController for optimistic update, 
-    // but ideally we should reload or add the real object.
-    // For now, let's keep it but maybe trigger a reload?
     fetchSingers();
   }
 
@@ -71,7 +100,7 @@ class DashController extends GetxController {
   void goToCreateSinger() {
     if (requireAuth()) {
       // Limit check: Max 2 singers for free users
-      if (singers.length >= 2) {
+      if (!isPremium.value && singers.length >= 2) {
         ToastUtils.shotToast('Free limit reached (Max 2 singers). Upgrade to create more!');
         Get.toNamed(AppRoutes.member);
         return;
@@ -80,7 +109,7 @@ class DashController extends GetxController {
     }
   }
 
-  void goToCreateSingle() {
+  Future<void> goToCreateSingle() async {
     if (requireAuth()) {
       if (singers.isEmpty) {
          ToastUtils.shotToast('Please create a singer first');
@@ -89,11 +118,13 @@ class DashController extends GetxController {
       }
       
       // Limit check: Max 5 songs for free users
-      final createdSongs = SpUtil.getInt('created_song_count', defValue: 0) ?? 0;
-      if (createdSongs >= 5) {
-        ToastUtils.shotToast('Free limit reached (Max 5 songs). Upgrade to create more!');
-        Get.toNamed(AppRoutes.member);
-        return;
+      if (!isPremium.value) {
+        final songCount = await _songService.getUserSongCount();
+        if (songCount >= 5) {
+          ToastUtils.shotToast('Free limit reached (Max 5 songs). Upgrade to create more!');
+          Get.toNamed(AppRoutes.member);
+          return;
+        }
       }
       
       Get.toNamed(AppRoutes.createSingle);
