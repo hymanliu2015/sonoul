@@ -103,7 +103,6 @@ class DashController extends GetxController {
 
   void goToCreateSinger() {
     if (requireAuth()) {
-      // Limit check: Max 2 singers for free users
       if (!isPremium.value && singers.length >= 2) {
         ToastUtils.shotToast('Free limit reached (Max 2 singers). Upgrade to create more!');
         Get.toNamed(AppRoutes.member);
@@ -121,7 +120,6 @@ class DashController extends GetxController {
          return;
       }
       
-      // Limit check: Max 5 songs for free users
       if (!isPremium.value) {
         final songCount = await _songService.getUserSongCount();
         if (songCount >= 5) {
@@ -164,108 +162,89 @@ class DashController extends GetxController {
   // Share Feature
   final RxBool isGeneratingShare = false.obs;
 
-  Future<void> generateShareImage(String type) async {
+  /// Share singer info (avatar image + name) with a random song file
+  Future<void> shareSingerWithSong() async {
     if (currentSinger == null) return;
     
     isGeneratingShare.value = true;
-    ToastUtils.shotToast('Generating share image...');
+    ToastUtils.shotToast('Preparing to share...');
     
     try {
-      // Prepare data based on share type
-      final Map<String, dynamic> shareData = {
-        'singer_name': currentSinger!.name,
-        'singer_avatar': currentSinger!.avatarUrl,
-        'type': type,
-      };
-
-      // If sharing song, get latest song info
-      if (type == 'song') {
-        final songs = await _songService.getUserSongs(singerId: currentSinger!.id);
-        if (songs.isNotEmpty) {
-          shareData['song_title'] = songs.first['title'] ?? 'My Song';
-          shareData['song_cover'] = songs.first['audio_url'] ?? '';
+      final tempDir = await getTemporaryDirectory();
+      final List<XFile> filesToShare = [];
+      
+      // 1. Download singer avatar image
+      if (currentSinger!.avatarUrl.isNotEmpty) {
+        try {
+          final avatarResponse = await http.get(Uri.parse(currentSinger!.avatarUrl));
+          if (avatarResponse.statusCode == 200) {
+            final avatarFile = File('${tempDir.path}/singer_${currentSinger!.name}.png');
+            await avatarFile.writeAsBytes(avatarResponse.bodyBytes);
+            filesToShare.add(XFile(avatarFile.path));
+          }
+        } catch (e) {
+          debugPrint('Error downloading avatar: $e');
         }
       }
-
-      // Call Supabase Edge Function to generate image
-      final res = await _supabase.functions.invoke(
-        'generate-share-image',
-        body: shareData,
-      );
-
-      if (res.status == 200 && res.data != null) {
-        final imageUrl = res.data['image_url'];
-        if (imageUrl != null) {
-          // Share the generated image URL
-          await _shareImage(imageUrl, currentSinger!.name, type);
-        } else {
-          // Fallback: share text with singer info
-          await _shareText(currentSinger!.name, type);
+      
+      // 2. Get random song from user's songs
+      final songs = await _songService.getUserSongs(singerId: currentSinger!.id);
+      String? songTitle;
+      
+      if (songs.isNotEmpty) {
+        // Pick a random song
+        final randomIndex = DateTime.now().millisecondsSinceEpoch % songs.length;
+        final randomSong = songs[randomIndex];
+        songTitle = randomSong['title'] ?? 'My Song';
+        final audioUrl = randomSong['audio_url'];
+        
+        // Download the song file if available
+        if (audioUrl != null && audioUrl.toString().isNotEmpty) {
+          try {
+            final songResponse = await http.get(Uri.parse(audioUrl));
+            if (songResponse.statusCode == 200) {
+              final extension = audioUrl.toString().split('.').last.split('?').first;
+              final songFile = File('${tempDir.path}/song_$songTitle.$extension');
+              await songFile.writeAsBytes(songResponse.bodyBytes);
+              filesToShare.add(XFile(songFile.path));
+            }
+          } catch (e) {
+            debugPrint('Error downloading song: $e');
+          }
         }
+      }
+      
+      // 3. Prepare share text
+      String shareText = '🎤 Check out my virtual singer "${currentSinger!.name}" on Sonoul!';
+      if (songTitle != null) {
+        shareText += '\n🎵 Featured song: "$songTitle"';
+      }
+      shareText += '\n\n#Sonoul #VirtualSinger #AIMusic';
+      
+      // 4. Share with files
+      if (filesToShare.isNotEmpty) {
+        final params = ShareParams(
+          files: filesToShare,
+          text: shareText,
+          subject: 'Check out ${currentSinger!.name} on Sonoul!',
+        );
+        
+        await SharePlus.instance.share(params);
       } else {
-        // Fallback to text sharing
-        await _shareText(currentSinger!.name, type);
+        // Fallback to text-only share
+        await SharePlus.instance.share(
+          ShareParams(
+            text: shareText,
+            subject: 'Check out ${currentSinger!.name} on Sonoul!',
+          ),
+        );
       }
       
     } catch (e) {
-      debugPrint('Error generating share: $e');
-      // Fallback to text sharing
-      await _shareText(currentSinger!.name, type);
+      debugPrint('Error sharing: $e');
+      ToastUtils.shotToast('Failed to share. Please try again.');
     } finally {
       isGeneratingShare.value = false;
-    }
-  }
-
-  Future<void> _shareImage(String imageUrl, String singerName, String type) async {
-    try {
-      // Download image to temp file
-      final response = await http.get(Uri.parse(imageUrl));
-      if (response.statusCode == 200) {
-        final tempDir = await getTemporaryDirectory();
-        final file = File('${tempDir.path}/share_$singerName.png');
-        await file.writeAsBytes(response.bodyBytes);
-        
-        // Get share text
-        final shareText = _getShareText(singerName, type);
-
-        final params = ShareParams(
-          files: [XFile(file.path)],
-          text: shareText,
-          subject: 'Check out $singerName on Sonoul!',
-        );
-
-        final result = await SharePlus.instance.share(params);
-
-        if (result.status == ShareResultStatus.dismissed) {
-          debugPrint('Did you not like the pictures?');
-        }
-      } else {
-        // Fallback to text
-        await _shareText(singerName, type);
-      }
-    } catch (e) {
-      debugPrint('Error sharing image: $e');
-      await _shareText(singerName, type);
-    }
-  }
-
-  Future<void> _shareText(String singerName, String type) async {
-    final shareText = _getShareText(singerName, type);
-    await SharePlus.instance.share(
-      ShareParams(text: shareText,subject:'Check out $singerName on Sonoul!' ),
-    );
-  }
-
-  String _getShareText(String singerName, String type) {
-    switch (type) {
-      case 'profile':
-        return '🎤 Check out my virtual singer "$singerName" on Sonoul! #Sonoul #VirtualSinger';
-      case 'song':
-        return '🎵 Listen to my latest AI-generated song by "$singerName" on Sonoul! #Sonoul #AIMusic';
-      case 'album':
-        return '🎶 Discover my music collection by "$singerName" on Sonoul! #Sonoul #VirtualSinger';
-      default:
-        return '🎤 Check out "$singerName" on Sonoul!';
     }
   }
 }

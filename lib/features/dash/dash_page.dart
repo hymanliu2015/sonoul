@@ -84,47 +84,41 @@ class DashPage extends StatelessWidget {
                             child: _buildSingerDisplay(singer.name, singer.avatarUrl),
                           ),
                           
-                          // Bottom Section: Action Buttons
-                          Expanded(
-                            flex: 2,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(32),
-                                  topRight: Radius.circular(32),
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 20,
-                                    offset: Offset(0, -5),
-                                  ),
-                                ],
+                          // Bottom Section: Action Buttons (Compact)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                topRight: Radius.circular(24),
                               ),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _buildActionButton(
-                                      icon: Icons.mic_rounded,
-                                      title: 'Create New Song',
-                                      subtitle: 'Write lyrics & generate music',
-                                      color: AppColors.primary,
-                                      onTap: controller.goToCreateSingle,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildActionButton(
-                                      icon: Icons.album_rounded,
-                                      title: 'My Album',
-                                      subtitle: 'Listen to your collection',
-                                      color: AppColors.secondary,
-                                      onTap: controller.goToAlbum,
-                                    ),
-                                  ],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 10,
+                                  offset: Offset(0, -2),
                                 ),
-                              ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildCompactActionButton(
+                                  icon: Icons.mic_rounded,
+                                  title: 'Create New Song',
+                                  color: AppColors.primary,
+                                  onTap: controller.goToCreateSingle,
+                                ),
+                                const SizedBox(height: 8),
+                                _buildCompactActionButton(
+                                  icon: Icons.album_rounded,
+                                  title: 'My Album',
+                                  color: AppColors.secondary,
+                                  onTap: controller.goToAlbum,
+                                ),
+                                const SizedBox(height: 8),
+                              ],
                             ),
                           ),
                         ],
@@ -132,27 +126,7 @@ class DashPage extends StatelessWidget {
                     },
                   ),
                 ),
-                // Page Indicator (Global)
-                if (controller.singers.length > 1)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0, top: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(controller.singers.length, (index) {
-                        return Obx(() => Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: controller.currentSingerIndex.value == index
-                                ? AppColors.primary
-                                : Colors.grey.shade300,
-                          ),
-                        ));
-                      }),
-                    ),
-                  ),
+
               ],
             );
           }),
@@ -204,6 +178,27 @@ class DashPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Page Indicator Dots
+          // if (controller.singers.length > 1)
+          //   Padding(
+          //     padding: const EdgeInsets.only(top: 16),
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: List.generate(controller.singers.length, (index) {
+          //         return Obx(() => Container(
+          //           margin: const EdgeInsets.symmetric(horizontal: 4),
+          //           width: 8,
+          //           height: 8,
+          //           decoration: BoxDecoration(
+          //             shape: BoxShape.circle,
+          //             color: controller.currentSingerIndex.value == index
+          //                 ? AppColors.primary
+          //                 : Colors.grey.shade300,
+          //           ),
+          //         ));
+          //       }),
+          //     ),
+          //   ),
           // 3D-like Avatar Container
           Container(
             width: 280,
@@ -313,145 +308,141 @@ class DashPage extends StatelessWidget {
               textColor: AppColors.textPrimary,
             ),
             const SizedBox(height: 24),
-            _buildShareOption(
-              icon: Icons.person_rounded,
-              title: 'Share Profile',
-              subtitle: 'Share singer image and name',
-              onTap: () {
-                Navigator.pop(context);
-                controller.generateShareImage('profile');
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildShareOption(
-              icon: Icons.music_note_rounded,
-              title: 'Share Latest Song',
-              subtitle: 'Include your latest song info',
-              onTap: () {
-                Navigator.pop(context);
-                controller.generateShareImage('song');
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildShareOption(
-              icon: Icons.album_rounded,
-              title: 'Share Album',
-              subtitle: 'Showcase your music collection',
-              onTap: () {
-                Navigator.pop(context);
-                controller.generateShareImage('album');
-              },
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShareOption({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Row(
-          children: [
+            // Singer Preview Card
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
               ),
-              child: Icon(icon, color: AppColors.primary, size: 22),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  CustomText(
-                    text: title,
-                    textFontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    textColor: AppColors.textPrimary,
+                  // Singer Avatar
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: (singer.avatarUrl.isNotEmpty)
+                            ? NetworkImage(singer.avatarUrl)
+                            : const NetworkImage('https://api.dicebear.com/7.x/avataaars/png?seed=default'),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 2),
-                  CustomText(
-                    text: subtitle,
-                    textFontSize: 12,
-                    textColor: AppColors.textSecondary,
+                  const SizedBox(width: 16),
+                  // Singer Info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomText(
+                          text: singer.name,
+                          textFontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          textColor: AppColors.textPrimary,
+                        ),
+                        const SizedBox(height: 4),
+                        const CustomText(
+                          text: 'Virtual Singer',
+                          textFontSize: 12,
+                          textColor: AppColors.textSecondary,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.music_note_rounded, size: 14, color: AppColors.primary),
+                            const SizedBox(width: 4),
+                            const CustomText(
+                              text: 'Includes random song',
+                              textFontSize: 12,
+                              textColor: AppColors.primary,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey.shade400, size: 16),
+            const SizedBox(height: 24),
+            // Share Button
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                controller.shareSingerWithSong();
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.share_rounded, color: Colors.white, size: 20),
+                    SizedBox(width: 8),
+                    CustomText(
+                      text: 'Share Now',
+                      textFontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      textColor: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildActionButton({
+  Widget _buildCompactActionButton({
     required IconData icon,
     required String title,
-    required String subtitle,
     required Color color,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.grey.shade100),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(icon, color: color, size: 20),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    text: title,
-                    textFontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    textColor: AppColors.textPrimary,
-                  ),
-                  const SizedBox(height: 4),
-                  CustomText(
-                    text: subtitle,
-                    textFontSize: 13,
-                    textColor: AppColors.textSecondary,
-                  ),
-                ],
+              child: CustomText(
+                text: title,
+                textFontSize: 15,
+                fontWeight: FontWeight.w600,
+                textColor: AppColors.textPrimary,
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey.shade400, size: 18),
+            Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey.shade400, size: 14),
           ],
         ),
       ),
     );
   }
 }
+
