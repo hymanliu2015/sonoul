@@ -21,12 +21,6 @@ class AuthMiddleware extends GetMiddleware{
       return const RouteSettings(name: AppRoutes.guide);
     }
 
-    // 3. Singer Check
-    final hasCreatedSinger = SpUtil.getBool('has_created_singer', defValue: false) ?? false;
-    if (!hasCreatedSinger) {
-      return const RouteSettings(name: AppRoutes.singer);
-    }
-
     return null;
   }
 

@@ -53,7 +53,6 @@ class SingerController extends GetxController {
         return;
       }
 
-      await SpUtil.putBool('has_created_singer', true);
       await SpUtil.putString('singer_name', singerName);
       await SpUtil.putString('singer_avatar', avatarPath.value);
 
