@@ -88,7 +88,7 @@ class CreateSinglePage extends StatelessWidget {
             title: const Text('Instrumental', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             value: controller.isInstrumental.value,
             onChanged: (val) => controller.isInstrumental.value = val,
-            activeColor: AppColors.primary,
+            activeThumbColor: AppColors.primary,
             contentPadding: EdgeInsets.zero,
           )),
           const SizedBox(height: 40),
