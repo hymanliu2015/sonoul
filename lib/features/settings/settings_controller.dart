@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:sonoul/common/config/config.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
@@ -63,7 +64,7 @@ class SettingsController extends GetxController {
   }
 
   Future<void> contactSupport() async {
-    final url = Uri.parse('mailto:support@sonoul.app?subject=Sonoul Support Request');
+    final url = Uri.parse('mailto:starcodehero@outlook.com?subject=Sonoul Support Request');
     try {
       if (await canLaunchUrl(url)) {
         await launchUrl(url);
@@ -76,7 +77,7 @@ class SettingsController extends GetxController {
   }
 
   Future<void> openPrivacyPolicy() async {
-    final url = Uri.parse('https://sonoul.app/privacy');
+    final url = Uri.parse(AppConfig.privacyPolicy);
     try {
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -89,7 +90,7 @@ class SettingsController extends GetxController {
   }
 
   Future<void> openTermsOfService() async {
-    final url = Uri.parse('https://sonoul.app/terms');
+    final url = Uri.parse(AppConfig.termsOfUse);
     try {
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);

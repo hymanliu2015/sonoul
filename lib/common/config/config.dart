@@ -10,4 +10,7 @@ class AppConfig{
   static const String elevenLabsApiUrl = "https://api.elevenlabs.io/v1";
   static const String defaultVoiceId = "JBFqnCBsd6RMkjVDRZzb"; // Example voice ID
   static const String defaultModelId = "eleven_multilingual_v2";
+
+  static const String termsOfUse = "https://doc-hosting.flycricket.io/sonoul-terms-of-use/f8499e8c-a544-4003-b76d-86c15925d1f5/terms";
+  static const String privacyPolicy = "https://doc-hosting.flycricket.io/sonoul-privacy-policy/4d1ae348-8254-4e2f-90fe-53d7b50358ab/privacy";
 }
