@@ -5,26 +5,38 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:sonoul/services/song_generation_service.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
+import 'package:sonoul/utils/toast_util.dart';
 
-class CreateSingleController extends GetxController {
+class CreateSingleController extends GetxController with GetSingleTickerProviderStateMixin {
   final SongGenerationService _songService = Get.put(SongGenerationService());
   final AudioRecorder _audioRecorder = AudioRecorder();
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+  late TabController tabController;
   final TextEditingController ideaController = TextEditingController();
   
   RxBool isRecording = false.obs;
   RxString recordedFilePath = ''.obs;
   RxBool isGenerating = false.obs;
   RxList<String> selectedTags = <String>[].obs;
+  RxBool isInstrumental = false.obs;
   
   final List<String> availableTags = ['Pop', 'Rock', 'Ballad', 'Electronic', 'Jazz', 'R&B'];
+
+  DateTime? _recordingStartTime;
+
+  @override
+  void onInit() {
+    super.onInit();
+    tabController = TabController(length: 2, vsync: this);
+  }
 
   @override
   void onClose() {
     _audioRecorder.dispose();
     _audioPlayer.dispose();
     ideaController.dispose();
+    tabController.dispose();
     super.onClose();
   }
 
@@ -44,8 +56,9 @@ class CreateSingleController extends GetxController {
         
         await _audioRecorder.start(const RecordConfig(), path: path);
         isRecording.value = true;
+        _recordingStartTime = DateTime.now();
       } else {
-        Get.snackbar('Permission', 'Microphone permission required');
+        ToastUtils.shotToast('Microphone permission required');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -56,6 +69,16 @@ class CreateSingleController extends GetxController {
     try {
       final path = await _audioRecorder.stop();
       if (path != null) {
+        final duration = DateTime.now().difference(_recordingStartTime!);
+        if (duration.inSeconds < 5) {
+          ToastUtils.shotToast('Recording must be at least 5 seconds');
+          isRecording.value = false;
+          return;
+        }
+        
+        // Logic to trim to 10s would ideally happen here or on backend
+        // For now, we just accept the file if it's > 5s
+        
         recordedFilePath.value = path;
         isRecording.value = false;
       }
@@ -71,49 +94,84 @@ class CreateSingleController extends GetxController {
   }
 
   Future<void> generateSong() async {
-    if (ideaController.text.isEmpty) {
-      Get.snackbar('Error', 'Please enter a song idea');
-      return;
+    if (tabController.index == 0) {
+      // Basic Mode
+      await _generateBasicSong();
+    } else {
+      // Emotional Mode
+      await _generateEmotionalSong();
     }
-    if (recordedFilePath.value.isEmpty) {
-      Get.snackbar('Error', 'Please record your voice');
+  }
+
+  Future<void> _generateBasicSong() async {
+    if (ideaController.text.isEmpty) {
+      ToastUtils.shotToast('Please enter a prompt');
       return;
     }
 
     try {
       isGenerating.value = true;
-      
-      // Get current singer ID
-      String singerId = '';
-      if (Get.isRegistered<DashController>()) {
-        final dashController = Get.find<DashController>();
-        if (dashController.currentSinger != null) {
-          singerId = dashController.currentSinger!.id;
-        }
-      }
-      
-      if (singerId.isEmpty) {
-        Get.snackbar('Error', 'No singer selected');
-        return;
-      }
+      String singerId = _getSingerId();
+      if (singerId.isEmpty) return;
 
       final songData = await _songService.generateSong(
         idea: ideaController.text,
-        audioPath: recordedFilePath.value,
+        audioPath: '', // No audio for basic mode text-to-song
         tags: selectedTags.toList(),
         singerId: singerId,
+        isInstrumental: isInstrumental.value,
       );
       
-      Get.snackbar('Success', 'Song generated: ${songData['title']}', backgroundColor: Colors.green, colorText: Colors.white);
-      
-      // Navigate to Album Page to see the new song
-      // We might need to refresh the album controller if it's already in memory
-      Get.offNamed('/album'); 
-      
+      _handleSuccess(songData);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to generate song: $e', backgroundColor: Colors.red, colorText: Colors.white);
+      _handleError(e);
     } finally {
       isGenerating.value = false;
     }
+  }
+
+  Future<void> _generateEmotionalSong() async {
+    if (recordedFilePath.value.isEmpty) {
+      ToastUtils.shotToast('Please record some audio');
+      return;
+    }
+
+    try {
+      isGenerating.value = true;
+      String singerId = _getSingerId();
+      if (singerId.isEmpty) return;
+
+      // Call new service method for emotional song
+      final songData = await _songService.generateSongFromEmotion(
+        audioPath: recordedFilePath.value,
+        singerId: singerId,
+      );
+      
+      _handleSuccess(songData);
+    } catch (e) {
+      _handleError(e);
+    } finally {
+      isGenerating.value = false;
+    }
+  }
+
+  String _getSingerId() {
+    if (Get.isRegistered<DashController>()) {
+      final dashController = Get.find<DashController>();
+      if (dashController.currentSinger != null) {
+        return dashController.currentSinger!.id;
+      }
+    }
+    ToastUtils.shotToast('No singer selected');
+    return '';
+  }
+
+  void _handleSuccess(dynamic songData) {
+    ToastUtils.shotToast('Success');
+    Get.offNamed('/album'); 
+  }
+
+  void _handleError(dynamic e) {
+    ToastUtils.shotToast('Error: $e');
   }
 }

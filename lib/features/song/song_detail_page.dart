@@ -33,13 +33,13 @@ class SongDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
+                    color: Colors.black.withOpacity(0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
                 ],
                 image: DecorationImage(
-                  image: NetworkImage(controller.song['cover_url'] ?? 'https://picsum.photos/200'),
+                  image: NetworkImage(controller.song['cover_url'] ?? 'https://via.placeholder.com/300'),
                   fit: BoxFit.cover,
                 ),
               ),
