@@ -60,6 +60,9 @@ class SongGenerationService extends GetxService {
   Future<Map<String, dynamic>> generateSongFromEmotion({
     required String audioPath,
     required String singerId,
+    String? idea,
+    List<String>? tags,
+    bool isInstrumental = false,
   }) async {
     try {
       final File audioFile = File(audioPath);
@@ -71,14 +74,23 @@ class SongGenerationService extends GetxService {
       final uri = Uri.parse('${AppConfig.supabaseUrl}/functions/v1/generate-song');
       final request = http.MultipartRequest('POST', uri);
       
+      final session = _supabase.auth.currentSession;
+      if (session == null) {
+        throw Exception('User not logged in');
+      }
+
       // Add Headers
       request.headers.addAll({
-        'Authorization': 'Bearer ${AppConfig.supabaseAnonKey}',
+        'Authorization': 'Bearer ${session.accessToken}',
+        'apikey': AppConfig.supabaseAnonKey,
       });
 
       // Add Fields
       request.fields['user_id'] = _supabase.auth.currentUser?.id ?? '';
       request.fields['singer_id'] = singerId;
+      if (idea != null) request.fields['idea'] = idea;
+      if (tags != null) request.fields['tags'] = jsonEncode(tags);
+      request.fields['is_instrumental'] = isInstrumental.toString();
 
       // Add File
       request.files.add(await http.MultipartFile.fromPath(

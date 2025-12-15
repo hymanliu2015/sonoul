@@ -15,163 +15,149 @@ class CreateSinglePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Create New Single'),
         centerTitle: true,
-        bottom: TabBar(
-          controller: controller.tabController,
-          tabs: const [
-            Tab(text: 'Basic Mode'),
-            Tab(text: 'Emotional Mode'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            // 1. Audio Recorder Section
+            _buildAudioRecorder(),
+            const SizedBox(height: 30),
+            
+            // 2. Metadata Section
+            _buildMetadataInputs(),
+            
+            const SizedBox(height: 40),
+            
+            // 3. Generate Button
+            _buildGenerateButton(),
           ],
-          labelColor: AppColors.primary,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: AppColors.primary,
         ),
       ),
-      body: TabBarView(
-        controller: controller.tabController,
-        children: [
-          _buildBasicMode(),
-          _buildEmotionalMode(),
-        ],
-      ),
     );
   }
 
-  Widget _buildBasicMode() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'What is your song about?',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: controller.ideaController,
-            maxLines: 3,
-            decoration: InputDecoration(
-              hintText: 'e.g., A summer love story on the beach...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 30),
-          const Text(
-            'Select Style',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          Obx(() => Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: controller.availableTags.map((tag) {
-              final isSelected = controller.selectedTags.contains(tag);
-              return FilterChip(
-                label: Text(tag),
-                selected: isSelected,
-                onSelected: (_) => controller.toggleTag(tag),
-                selectedColor: AppColors.accent.withValues(alpha: 0.2),
-                checkmarkColor: AppColors.accent,
-                labelStyle: TextStyle(
-                  color: isSelected ? AppColors.accent : Colors.black,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              );
-            }).toList(),
-          )),
-          const SizedBox(height: 30),
-          Obx(() => SwitchListTile(
-            title: const Text('Instrumental', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            value: controller.isInstrumental.value,
-            onChanged: (val) => controller.isInstrumental.value = val,
-            activeThumbColor: AppColors.primary,
-            contentPadding: EdgeInsets.zero,
-          )),
-          const SizedBox(height: 40),
-          _buildGenerateButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmotionalMode() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Record your emotion',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Hum a melody or express your feelings (min 5s)',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 60),
-          Obx(() => GestureDetector(
-            onTap: () {
-              if (controller.isRecording.value) {
-                controller.stopRecording();
-              } else {
-                controller.startRecording();
-              }
-            },
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: controller.isRecording.value ? Colors.red : AppColors.primary,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: (controller.isRecording.value ? Colors.red : AppColors.primary).withValues(alpha: 0.4),
-                    blurRadius: 20,
-                    spreadRadius: 5,
-                  )
-                ],
-              ),
-              child: Icon(
-                controller.isRecording.value ? Icons.stop : Icons.mic,
-                color: Colors.white,
-                size: 60,
-              ),
-            ),
-          )),
-          const SizedBox(height: 20),
-          Obx(() => Text(
-            controller.isRecording.value ? 'Recording...' : 'Tap to Record',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: controller.isRecording.value ? Colors.red : Colors.grey,
-            ),
-          )),
-          const SizedBox(height: 40),
-          Obx(() {
-            if (controller.recordedFilePath.value.isNotEmpty && !controller.isRecording.value) {
-              return Column(
-                children: [
-                  TextButton.icon(
-                    onPressed: controller.playRecording,
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('Play Recording'),
-                  ),
-                  const SizedBox(height: 20),
-                  _buildGenerateButton(),
-                ],
-              );
+  Widget _buildAudioRecorder() {
+    return Column(
+      children: [
+        const Text(
+          'Record your emotion (Required)',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Hum a melody or express your feelings (min 5s)',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+        const SizedBox(height: 30),
+        Obx(() => GestureDetector(
+          onTap: () {
+            if (controller.isRecording.value) {
+              controller.stopRecording();
+            } else {
+              controller.startRecording();
             }
-            return const SizedBox.shrink();
-          }),
-        ],
-      ),
+          },
+          child: Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: controller.isRecording.value ? Colors.red : AppColors.primary,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: (controller.isRecording.value ? Colors.red : AppColors.primary).withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                )
+              ],
+            ),
+            child: Icon(
+              controller.isRecording.value ? Icons.stop : Icons.mic,
+              color: Colors.white,
+              size: 50,
+            ),
+          ),
+        )),
+        const SizedBox(height: 15),
+        Obx(() => Text(
+          controller.isRecording.value ? 'Recording...' : 'Tap to Record',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: controller.isRecording.value ? Colors.red : Colors.grey,
+          ),
+        )),
+        const SizedBox(height: 20),
+        Obx(() {
+          if (controller.recordedFilePath.value.isNotEmpty && !controller.isRecording.value) {
+            return TextButton.icon(
+              onPressed: controller.playRecording,
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('Play Recording'),
+            );
+          }
+          return const SizedBox.shrink();
+        }),
+      ],
+    );
+  }
+
+  Widget _buildMetadataInputs() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'What is your song about? (Optional)',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: controller.ideaController,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'e.g., A summer love story on the beach...',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 30),
+        const Text(
+          'Select Style (Optional)',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 10),
+        Obx(() => Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: controller.availableTags.map((tag) {
+            final isSelected = controller.selectedTags.contains(tag);
+            return FilterChip(
+              label: Text(tag),
+              selected: isSelected,
+              onSelected: (_) => controller.toggleTag(tag),
+              selectedColor: AppColors.accent.withValues(alpha: 0.2),
+              checkmarkColor: AppColors.accent,
+              labelStyle: TextStyle(
+                color: isSelected ? AppColors.accent : Colors.black,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            );
+          }).toList(),
+        )),
+        const SizedBox(height: 30),
+        Obx(() => SwitchListTile(
+          title: const Text('Instrumental', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          value: controller.isInstrumental.value,
+          onChanged: (val) => controller.isInstrumental.value = val,
+          activeThumbColor: AppColors.primary,
+          contentPadding: EdgeInsets.zero,
+        )),
+      ],
     );
   }
 

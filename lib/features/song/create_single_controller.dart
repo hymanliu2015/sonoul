@@ -7,12 +7,11 @@ import 'package:sonoul/services/song_generation_service.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
 
-class CreateSingleController extends GetxController with GetSingleTickerProviderStateMixin {
+class CreateSingleController extends GetxController {
   final SongGenerationService _songService = Get.put(SongGenerationService());
   final AudioRecorder _audioRecorder = AudioRecorder();
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  late TabController tabController;
   final TextEditingController ideaController = TextEditingController();
   
   RxBool isRecording = false.obs;
@@ -32,7 +31,6 @@ class CreateSingleController extends GetxController with GetSingleTickerProvider
   @override
   void onInit() {
     super.onInit();
-    tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -40,7 +38,6 @@ class CreateSingleController extends GetxController with GetSingleTickerProvider
     _audioRecorder.dispose();
     _audioPlayer.dispose();
     ideaController.dispose();
-    tabController.dispose();
     super.onClose();
   }
 
@@ -99,43 +96,6 @@ class CreateSingleController extends GetxController with GetSingleTickerProvider
   }
 
   Future<void> generateSong() async {
-    if (tabController.index == 0) {
-      // Basic Mode
-      await _generateBasicSong();
-    } else {
-      // Emotional Mode
-      await _generateEmotionalSong();
-    }
-  }
-
-  Future<void> _generateBasicSong() async {
-    if (ideaController.text.isEmpty) {
-      ToastUtils.shotToast('Please enter a prompt');
-      return;
-    }
-
-    try {
-      isGenerating.value = true;
-      String singerId = _getSingerId();
-      if (singerId.isEmpty) return;
-
-      final songData = await _songService.generateSong(
-        idea: ideaController.text,
-        audioPath: '', // No audio for basic mode text-to-song
-        tags: selectedTags.toList(),
-        singerId: singerId,
-        isInstrumental: isInstrumental.value,
-      );
-      
-      _handleSuccess(songData);
-    } catch (e) {
-      _handleError(e);
-    } finally {
-      isGenerating.value = false;
-    }
-  }
-
-  Future<void> _generateEmotionalSong() async {
     if (recordedFilePath.value.isEmpty) {
       ToastUtils.shotToast('Please record some audio');
       return;
@@ -146,10 +106,13 @@ class CreateSingleController extends GetxController with GetSingleTickerProvider
       String singerId = _getSingerId();
       if (singerId.isEmpty) return;
 
-      // Call new service method for emotional song
+      // Call service with all data
       final songData = await _songService.generateSongFromEmotion(
         audioPath: recordedFilePath.value,
         singerId: singerId,
+        idea: ideaController.text.isNotEmpty ? ideaController.text : null,
+        tags: selectedTags.isNotEmpty ? selectedTags.toList() : null,
+        isInstrumental: isInstrumental.value,
       );
       
       _handleSuccess(songData);
