@@ -65,9 +65,11 @@ class SongGenerationService extends GetxService {
     bool isInstrumental = false,
   }) async {
     try {
-      final File audioFile = File(audioPath);
-      if (!audioFile.existsSync()) {
-        throw Exception('Audio file not found');
+      if (audioPath.isNotEmpty) {
+        final File audioFile = File(audioPath);
+        if (!audioFile.existsSync()) {
+          throw Exception('Audio file not found');
+        }
       }
 
       // Call Supabase Edge Function directly with Multipart Request
@@ -92,11 +94,13 @@ class SongGenerationService extends GetxService {
       if (tags != null) request.fields['tags'] = jsonEncode(tags);
       request.fields['is_instrumental'] = isInstrumental.toString();
 
-      // Add File
-      request.files.add(await http.MultipartFile.fromPath(
-        'audio_file',
-        audioFile.path,
-      ));
+      // Add File if exists
+      if (audioPath.isNotEmpty) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'audio_file',
+          audioPath,
+        ));
+      }
 
       // Send Request
       final streamedResponse = await request.send();

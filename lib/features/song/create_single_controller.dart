@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
+import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/services/song_generation_service.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
@@ -27,11 +28,6 @@ class CreateSingleController extends GetxController {
   ];
 
   DateTime? _recordingStartTime;
-
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   @override
   void onClose() {
@@ -96,8 +92,8 @@ class CreateSingleController extends GetxController {
   }
 
   Future<void> generateSong() async {
-    if (recordedFilePath.value.isEmpty) {
-      ToastUtils.shotToast('Please record some audio');
+    if (ideaController.text.trim().isEmpty) {
+      ToastUtils.shotToast('Please describe your song idea');
       return;
     }
 
@@ -136,7 +132,10 @@ class CreateSingleController extends GetxController {
 
   void _handleSuccess(dynamic songData) {
     ToastUtils.shotToast('Song generation started! It will appear in your album shortly.');
-    Get.offNamed('/album'); 
+    // Small delay to allow DB propagation if needed? No, user can pull to refresh.
+    Get.back(); // Go back to create page or album?
+    // User flow: Create -> Album. The original code did Get.offNamed('/album'). This is fine.
+    Get.offNamed(AppRoutes.album); 
   }
 
   void _handleError(dynamic e) {

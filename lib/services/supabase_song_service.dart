@@ -39,7 +39,8 @@ class SupabaseSongService extends GetxService {
 
       final response = await query.order('created_at', ascending: false);
 
-      return List<Map<String, dynamic>>.from(response);
+      return response;
+
     } catch (e) {
       debugPrint('Error fetching user songs: $e');
       return [];

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/song/song_detail_controller.dart';
+import 'package:video_player/video_player.dart';
+
 
 class SongDetailPage extends StatelessWidget {
   final SongDetailController controller = Get.put(SongDetailController());
@@ -26,24 +28,43 @@ class SongDetailPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+            Obx(() {
+               if (controller.isVideoInitialized.value && controller.videoController != null) {
+                 return Container(
+                   width: double.infinity,
+                   height: 300,
+                   decoration: BoxDecoration(
+                     borderRadius: BorderRadius.circular(20),
+                     color: Colors.black,
+                   ),
+                   child: ClipRRect(
+                     borderRadius: BorderRadius.circular(20),
+                     child: AspectRatio(
+                       aspectRatio: controller.videoController!.value.aspectRatio,
+                       child: VideoPlayer(controller.videoController!),
+                     ),
+                   ),
+                 );
+               }
+               return Container(
+                width: 250,
+                height: 250,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                  image: DecorationImage(
+                    image: NetworkImage(controller.song['cover_url'] ?? 'https://via.placeholder.com/300'),
+                    fit: BoxFit.cover,
                   ),
-                ],
-                image: DecorationImage(
-                  image: NetworkImage(controller.song['cover_url'] ?? 'https://via.placeholder.com/300'),
-                  fit: BoxFit.cover,
                 ),
-              ),
-            ),
+              );
+            }),
             const SizedBox(height: 40),
             Text(
               controller.song['title'] ?? 'Unknown Title',

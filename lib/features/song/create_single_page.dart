@@ -41,7 +41,7 @@ class CreateSinglePage extends StatelessWidget {
     return Column(
       children: [
         const Text(
-          'Record your emotion (Required)',
+          'Record your emotion (Optional)',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
@@ -109,7 +109,7 @@ class CreateSinglePage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'What is your song about? (Optional)',
+          'What is your song about? (Required)',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
