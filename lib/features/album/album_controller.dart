@@ -1,7 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/services/supabase_song_service.dart';
-import 'package:sonoul/features/dash/dash_controller.dart';
 
 class AlbumController extends GetxController {
   final SupabaseSongService _songService = Get.put(SupabaseSongService());
@@ -18,18 +18,14 @@ class AlbumController extends GetxController {
   Future<void> fetchSongs() async {
     try {
       isLoading.value = true;
+      debugPrint('AlbumController: Fetching all songs for current user');
       
-      String? singerId;
-      if (Get.isRegistered<DashController>()) {
-        final dashController = Get.find<DashController>();
-        if (dashController.currentSinger != null) {
-          singerId = dashController.currentSinger!.id;
-        }
-      }
-      
-      final userSongs = await _songService.getUserSongs(singerId: singerId);
+      // Fetch all songs for user (no singer filter)
+      final userSongs = await _songService.getUserSongs();
+      debugPrint('AlbumController: Fetched ${userSongs.length} songs');
       songs.assignAll(userSongs);
     } catch (e) {
+      debugPrint('AlbumController: Error fetching songs: $e');
       Get.snackbar('Error', 'Failed to load songs: $e');
     } finally {
       isLoading.value = false;
