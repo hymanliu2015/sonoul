@@ -28,21 +28,24 @@ class AlbumPage extends StatelessWidget {
         
         if (controller.songs.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.music_note, size: 64, color: Colors.grey),
-                const SizedBox(height: 16),
-                const Text(
-                  'No songs yet',
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton(
-                  onPressed: () => Get.toNamed(AppRoutes.createSingle),
-                  child: const Text('Create your first song'),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.music_note, size: 64, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No songs yet',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () => Get.toNamed(AppRoutes.createSingle),
+                    child: const Text('Create your first song'),
+                  ),
+                ],
+              ),
             ),
           );
         }
