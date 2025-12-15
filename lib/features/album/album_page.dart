@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:sonoul/components/custom_appbar.dart';
 import 'package:sonoul/features/album/album_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-import 'dart:typed_data';
 
 class AlbumPage extends StatelessWidget {
   final AlbumController controller = Get.put(AlbumController());
@@ -118,24 +116,6 @@ class AlbumPage extends StatelessWidget {
   }
 
   Widget _buildCoverOrThumbnail(Map<String, dynamic> song) {
-    // If we have a cover URL, prefer it (unless it's just a placeholder and we have a video?)
-    // Actually user said explicitly: "use video first frame"
-    // So if video_url is present, we try to use it.
-
-    if (song['video_url'] != null) {
-      return FutureBuilder<Uint8List?>(
-        future: _generateThumbnail(song['video_url']),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data != null) {
-            return Image.memory(snapshot.data!, fit: BoxFit.cover);
-          }
-          // Fallback to cover_url or placeholder while loading
-          return _buildNetworkImage(song['cover_url']);
-        },
-      );
-    }
-
     return _buildNetworkImage(song['cover_url']);
   }
 
@@ -146,21 +126,5 @@ class AlbumPage extends StatelessWidget {
       errorBuilder: (context, error, stackTrace) =>
           Container(color: Colors.grey, child: const Icon(Icons.music_note)),
     );
-  }
-
-  Future<Uint8List?> _generateThumbnail(String videoUrl) async {
-    try {
-      final uint8list = await VideoThumbnail.thumbnailData(
-        video: videoUrl,
-        imageFormat: ImageFormat.JPEG,
-        maxWidth: 128,
-        // specify the width of the thumbnail, let the height auto-scaled to keep the source aspect ratio
-        quality: 75,
-      );
-      return uint8list;
-    } catch (e) {
-      debugPrint('Error generating thumbnail: $e');
-      return null;
-    }
   }
 }
