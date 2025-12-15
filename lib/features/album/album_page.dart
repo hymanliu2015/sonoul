@@ -82,8 +82,16 @@ class AlbumPage extends StatelessWidget {
                   subtitle: Text(song['created_at'] != null 
                       ? DateTime.parse(song['created_at']).toString().split(' ')[0] 
                       : 'Unknown Date'),
-                  trailing: const Icon(Icons.play_circle_fill, size: 32),
-                  onTap: () => controller.openSongDetail(song),
+                  trailing: song['status'] == 'processing'
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.play_circle_fill, size: 32),
+                  onTap: song['status'] == 'processing'
+                      ? null
+                      : () => controller.openSongDetail(song),
                 ),
               );
             },

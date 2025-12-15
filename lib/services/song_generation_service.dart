@@ -2,6 +2,9 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:sonoul/common/config/config.dart';
 import 'package:sonoul/services/supabase_song_service.dart';
 
 class SongGenerationService extends GetxService {
@@ -59,30 +62,39 @@ class SongGenerationService extends GetxService {
     required String singerId,
   }) async {
     try {
-      // 1. Upload User's Voice Recording to Storage
       final File audioFile = File(audioPath);
-      final String fileName = 'emotion_input_${DateTime.now().millisecondsSinceEpoch}.m4a';
-      final String? inputAudioUrl = await _supabaseSongService.uploadSongAudio(audioFile, fileName);
-
-      if (inputAudioUrl == null) {
-        throw Exception('Failed to upload voice recording');
+      if (!audioFile.existsSync()) {
+        throw Exception('Audio file not found');
       }
 
-      // 2. Call Supabase Edge Function
-      final response = await _supabase.functions.invoke(
-        'generate-song-emotion',
-        body: {
-          'audio_path': fileName,
-          'user_id': _supabase.auth.currentUser?.id,
-          'singer_id': singerId,
-        },
-      );
+      // Call Supabase Edge Function directly with Multipart Request
+      final uri = Uri.parse('${AppConfig.supabaseUrl}/functions/v1/generate-song');
+      final request = http.MultipartRequest('POST', uri);
+      
+      // Add Headers
+      request.headers.addAll({
+        'Authorization': 'Bearer ${AppConfig.supabaseAnonKey}',
+      });
 
-      if (response.status != 200) {
-        throw Exception('Edge Function Error: ${response.status} - ${response.data}');
+      // Add Fields
+      request.fields['user_id'] = _supabase.auth.currentUser?.id ?? '';
+      request.fields['singer_id'] = singerId;
+
+      // Add File
+      request.files.add(await http.MultipartFile.fromPath(
+        'audio_file',
+        audioFile.path,
+      ));
+
+      // Send Request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode != 200) {
+        throw Exception('Edge Function Error: ${response.statusCode} - ${response.body}');
       }
 
-      return Map<String, dynamic>.from(response.data);
+      return Map<String, dynamic>.from(jsonDecode(response.body));
 
     } catch (e) {
       debugPrint('Emotion Song Generation Error: $e');

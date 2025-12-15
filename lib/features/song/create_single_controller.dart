@@ -21,7 +21,11 @@ class CreateSingleController extends GetxController with GetSingleTickerProvider
   RxList<String> selectedTags = <String>[].obs;
   RxBool isInstrumental = false.obs;
   
-  final List<String> availableTags = ['Pop', 'Rock', 'Ballad', 'Electronic', 'Jazz', 'R&B'];
+  final List<String> availableTags = [
+    'Pop', 'Rock', 'Ballad', 'Electronic', 'Jazz', 'R&B', 
+    'Hip Hop', 'Classical', 'Country', 'Blues', 'Soul', 'Reggae', 
+    'Metal', 'Folk', 'Disco', 'House', 'Techno', 'Ambient'
+  ];
 
   DateTime? _recordingStartTime;
 
@@ -44,6 +48,7 @@ class CreateSingleController extends GetxController with GetSingleTickerProvider
     if (selectedTags.contains(tag)) {
       selectedTags.remove(tag);
     } else {
+      selectedTags.clear(); // Enforce single selection
       selectedTags.add(tag);
     }
   }
@@ -167,7 +172,7 @@ class CreateSingleController extends GetxController with GetSingleTickerProvider
   }
 
   void _handleSuccess(dynamic songData) {
-    ToastUtils.shotToast('Success');
+    ToastUtils.shotToast('Song generation started! It will appear in your album shortly.');
     Get.offNamed('/album'); 
   }
 
