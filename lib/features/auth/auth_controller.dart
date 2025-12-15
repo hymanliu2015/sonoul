@@ -110,13 +110,13 @@ class AuthController extends GetxController {
         // 不需要 body，因为函数只需要 JWT (supabase.functions.invoke() 会自动添加)
       );
 
-      if (res.data != null) {
-        // Edge Function 内部返回 4xx 或 5xx 错误时，会抛出 SupabaseFunctionsException
+      // Check if response contains an error
+      if (res.data != null && res.data['error'] != null) {
         debugPrint('Edge Function 错误: ${res.data}');
-        throw res.data;
+        throw Exception(res.data['error']);
       }
 
-      // 3. 删除成功：在客户端登出用户
+      // Success: sign out and navigate to login
       debugPrint('账户删除成功，执行客户端登出...');
       await _supabase.auth.signOut();
       Get.offAllNamed(AppRoutes.login);

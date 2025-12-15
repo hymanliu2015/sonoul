@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
+import 'package:sonoul/utils/loading_util.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -64,43 +65,8 @@ class MemberController extends GetxController {
     } catch (e) {
       debugPrint("Store init error: $e");
     }
-    
-    // Always load mock data if empty (for testing/emulator)
-    if (products.isEmpty) {
-       _addMockProducts();
-    }
-    
+
     isLoading.value = false;
-  }
-  
-  void _addMockProducts() {
-    // Mock data for UI testing
-    products.value = [
-      ProductDetails(
-        id: 'sonoul_week',
-        title: 'Weekly Premium',
-        description: 'Weekly subscription',
-        price: '\$4.99',
-        rawPrice: 4.99,
-        currencyCode: 'USD',
-      ),
-      ProductDetails(
-        id: 'sonoul_monthly',
-        title: 'Monthly Premium',
-        description: 'Monthly subscription',
-        price: '\$9.99',
-        rawPrice: 9.99,
-        currencyCode: 'USD',
-      ),
-      ProductDetails(
-        id: 'sonoul_annual',
-        title: 'Yearly Premium',
-        description: 'Yearly subscription',
-        price: '\$69.99',
-        rawPrice: 69.99,
-        currencyCode: 'USD',
-      ),
-    ];
   }
 
   void selectProduct(String productId) {
@@ -129,6 +95,7 @@ class MemberController extends GetxController {
   // Mock buy for testing UI without real IAP
   void mockBuy(String productId) {
     isLoading.value = true;
+    LoadingUtils().showLoading();
     Future.delayed(const Duration(seconds: 2), () async {
       // Simulate successful verification
       await _verifyPurchase(
@@ -138,6 +105,7 @@ class MemberController extends GetxController {
       );
       
       isLoading.value = false;
+      LoadingUtils().hideLoading();
       ToastUtils.shotToast('Subscribed to $productId (Mock)', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
       Get.back(); // Go back to previous screen
     });

@@ -99,7 +99,10 @@ class SettingsPage extends StatelessWidget {
                           Get.back();
                           controller.logout();
                         },
-                        child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                        child: const Text(
+                          'Logout',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ),
                     ],
                   ),
@@ -116,22 +119,10 @@ class SettingsPage extends StatelessWidget {
               subtitle: 'Permanently delete your account',
               onTap: () {
                 Get.dialog(
-                  AlertDialog(
-                    title: const Text('Delete Account'),
-                    content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Get.back(),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Get.back();
-                          controller.deleteAccount();
-                        },
-                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                      ),
-                    ],
+                  _DeleteAccountDialog(
+                    onDeleteConfirmed: () {
+                      controller.deleteAccount();
+                    },
                   ),
                 );
               },
@@ -141,13 +132,15 @@ class SettingsPage extends StatelessWidget {
             ),
           ]),
           const SizedBox(height: 32),
-          Obx(() => Center(
-            child: CustomText(
-              text: 'Version ${controller.appVersion.value}',
-              textColor: AppColors.textSecondary,
-              textFontSize: 12,
+          Obx(
+            () => Center(
+              child: CustomText(
+                text: 'Version ${controller.appVersion.value}',
+                textColor: AppColors.textSecondary,
+                textFontSize: 12,
+              ),
             ),
-          )),
+          ),
           const SizedBox(height: 40),
         ],
       ),
@@ -171,9 +164,7 @@ class SettingsPage extends StatelessWidget {
       color: Colors.white,
       borderRadius: BorderRadius.circular(16),
       padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -244,6 +235,136 @@ class SettingsPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// Custom Delete Account Dialog with Long Press Button
+class _DeleteAccountDialog extends StatefulWidget {
+  final VoidCallback onDeleteConfirmed;
+
+  const _DeleteAccountDialog({required this.onDeleteConfirmed});
+
+  @override
+  State<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
+}
+
+class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
+  double _progress = 0.0;
+  bool _isHolding = false;
+  static const int _holdDurationSeconds = 5;
+
+  void _startHolding() {
+    setState(() {
+      _isHolding = true;
+      _progress = 0.0;
+    });
+    _animateProgress();
+  }
+
+  void _stopHolding() {
+    setState(() {
+      _isHolding = false;
+      _progress = 0.0;
+    });
+  }
+
+  void _animateProgress() async {
+    const totalSteps = 50; // Updates per second * duration
+    const stepDuration = Duration(milliseconds: 100);
+
+    for (int i = 0; i < totalSteps && _isHolding; i++) {
+      await Future.delayed(stepDuration);
+      if (_isHolding && mounted) {
+        setState(() {
+          _progress = (i + 1) / totalSteps;
+        });
+
+        if (_progress >= 1.0) {
+          Get.back();
+          widget.onDeleteConfirmed();
+          return;
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Row(
+        children: [
+          Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
+          SizedBox(width: 8),
+          Text('Delete Account'),
+        ],
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Are you sure you want to delete your account? This action cannot be undone.',
+            style: TextStyle(fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Hold the button below for $_holdDurationSeconds seconds to confirm deletion.',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onLongPressStart: (_) => _startHolding(),
+          onLongPressEnd: (_) => _stopHolding(),
+          onLongPressCancel: _stopHolding,
+          child: Container(
+            width: 120,
+            height: 44,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.red.shade50,
+              border: Border.all(color: Colors.red, width: 1),
+            ),
+            child: Stack(
+              children: [
+                // Progress indicator
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(7),
+                  child: LinearProgressIndicator(
+                    value: _progress,
+                    backgroundColor: Colors.transparent,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.red.shade200,
+                    ),
+                    minHeight: 44,
+                  ),
+                ),
+                // Button text
+                Center(
+                  child: Text(
+                    _isHolding
+                        ? '${(_holdDurationSeconds * (1 - _progress)).ceil()}s...'
+                        : 'Hold to Delete',
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

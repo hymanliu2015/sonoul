@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sonoul/components/custom_appbar.dart';
 import 'package:sonoul/features/album/album_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
@@ -13,9 +14,8 @@ class AlbumPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Album'),
-        centerTitle: true,
+      appBar: CustomAppbar(
+        text: "My Album",
         actions: [
           IconButton(
             icon: const Icon(Icons.add),

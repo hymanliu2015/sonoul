@@ -59,7 +59,7 @@ class SongDetailPage extends StatelessWidget {
                     ),
                   ],
                   image: DecorationImage(
-                    image: NetworkImage(controller.song['cover_url'] ?? 'https://via.placeholder.com/300'),
+                    image: NetworkImage(controller.song['cover_url'] ?? 'https://picsum.photos/200'),
                     fit: BoxFit.cover,
                   ),
                 ),

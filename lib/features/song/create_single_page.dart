@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/components/custom_appbar.dart';
 import 'package:sonoul/features/song/create_single_controller.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
 
@@ -12,9 +13,8 @@ class CreateSinglePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create New Single'),
-        centerTitle: true,
+      appBar: CustomAppbar(
+        text: "Create New Single'",
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
