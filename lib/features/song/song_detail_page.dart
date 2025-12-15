@@ -23,7 +23,7 @@ class SongDetailPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -46,6 +46,8 @@ class SongDetailPage extends StatelessWidget {
                    ),
                  );
                }
+               
+                // Default Cover Image Container
                return Container(
                 width: 250,
                 height: 250,

@@ -122,7 +122,7 @@ class DashController extends GetxController {
       
       if (!isPremium.value) {
         final songCount = await _songService.getUserSongCount();
-        if (songCount >= 2) {
+        if (songCount >= 220) {
           ToastUtils.shotToast('Free limit reached (Max 2 songs). Upgrade to create more!');
           Get.toNamed(AppRoutes.member);
           return;

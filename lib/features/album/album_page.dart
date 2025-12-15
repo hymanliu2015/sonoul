@@ -59,6 +59,9 @@ class AlbumPage extends StatelessWidget {
             itemCount: controller.songs.length,
             itemBuilder: (context, index) {
               final song = controller.songs[index];
+              debugPrint(
+                'AlbumPage: Song ${index}: title=${song['title']}, status=${song['status']}, type=${song['status'].runtimeType}',
+              );
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
                 shape: RoundedRectangleBorder(
@@ -93,11 +96,7 @@ class AlbumPage extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    song['created_at'] != null
-                        ? DateTime.parse(
-                            song['created_at'],
-                          ).toString().split(' ')[0]
-                        : 'Unknown Date',
+                    '${song['created_at'] != null ? DateTime.parse(song['created_at']).toString().split(' ')[0] : 'Unknown Date'} • ${song['status']}',
                   ),
                   trailing: song['status'] == 'processing'
                       ? const SizedBox(

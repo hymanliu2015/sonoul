@@ -25,8 +25,12 @@ class SupabaseSongService extends GetxService {
 
   Future<List<Map<String, dynamic>>> getUserSongs({String? singerId}) async {
     try {
+      debugPrint('SupabaseSongService: Fetching songs...');
       final user = _supabase.auth.currentUser;
-      if (user == null) return [];
+      if (user == null) {
+        debugPrint('SupabaseSongService: No current user');
+        return [];
+      }
 
       var query = _supabase
           .from('songs')
@@ -38,11 +42,15 @@ class SupabaseSongService extends GetxService {
       }
 
       final response = await query.order('created_at', ascending: false);
+      debugPrint('SupabaseSongService: Got response: ${response.length} songs');
 
-      return response;
+      // Explicit type conversion
+      return List<Map<String, dynamic>>.from(
+        response.map((item) => Map<String, dynamic>.from(item))
+      );
 
     } catch (e) {
-      debugPrint('Error fetching user songs: $e');
+      debugPrint('SupabaseSongService: Error fetching user songs: $e');
       return [];
     }
   }

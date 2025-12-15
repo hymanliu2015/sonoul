@@ -14,7 +14,7 @@ class CreateSinglePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppbar(
-        text: "Create New Single'",
+        text: "Create New Single",
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),

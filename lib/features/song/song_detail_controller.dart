@@ -12,44 +12,42 @@ class SongDetailController extends GetxController {
   RxBool isPlaying = false.obs;
   Rx<Duration> duration = Duration.zero.obs;
   Rx<Duration> position = Duration.zero.obs;
+  
   RxBool isVideoInitialized = false.obs;
+  RxBool isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     song = Get.arguments as Map<String, dynamic>;
     
+    // Always init Audio (Master)
+    _initializeAudio();
+
+    // Check Video (Visual/Background)
     final videoUrl = song['video_url'];
     if (videoUrl != null && videoUrl.toString().isNotEmpty) {
-      _initializeVideo(videoUrl);
-    } else {
-      _initializeAudio();
+      _initializeVideo(videoUrl.toString());
     }
   }
 
   Future<void> _initializeVideo(String url) async {
     try {
+      debugPrint('SongDetailController: Initializing background video: $url');
       videoController = VideoPlayerController.networkUrl(Uri.parse(url));
       await videoController!.initialize();
+      await videoController!.setVolume(0); // Mute video so it doesn't clash with audio
+      await videoController!.setLooping(true); // Loop video like a canvas
+      await videoController!.play(); // Auto-play
       isVideoInitialized.value = true;
-      duration.value = videoController!.value.duration;
-
-      videoController!.addListener(() {
-        final value = videoController!.value;
-        isPlaying.value = value.isPlaying;
-        position.value = value.position;
-        if (value.duration > Duration.zero) {
-           duration.value = value.duration;
-        }
-      });
     } catch (e) {
-      debugPrint('Error initializing video: $e');
-      // Fallback to audio if video fails?
-      _initializeAudio();
+      debugPrint('SongDetailController: Error initializing video: $e');
+      // Just ignore video failure, audio is main.
     }
   }
 
   void _initializeAudio() {
+    debugPrint('SongDetailController: Initializing audio mode');
     _audioPlayer.onDurationChanged.listen((d) {
       duration.value = d;
     });
@@ -60,54 +58,64 @@ class SongDetailController extends GetxController {
     
     _audioPlayer.onPlayerStateChanged.listen((state) {
       isPlaying.value = state == PlayerState.playing;
+      // Sync video play state with audio? 
+      // User said "Video auto play", maybe independent?
+      // Let's keep video looping independently for now, unless user pauses?
+      if (videoController != null && videoController!.value.isInitialized) {
+         if (state == PlayerState.playing) {
+           videoController!.play();
+         } else {
+           videoController!.pause();
+         }
+      }
     });
+
+    // Pre-load audio
+    final audioUrl = song['audio_url'];
+    if (audioUrl != null && audioUrl.isNotEmpty) {
+      try {
+        _audioPlayer.setSourceUrl(audioUrl);
+      } catch (e) {
+         debugPrint('SongDetailController: Error setting audio source: $e');
+      }
+    }
   }
 
   @override
   void onClose() {
-
     _audioPlayer.dispose();
     videoController?.dispose();
     super.onClose();
   }
 
   Future<void> togglePlay() async {
-    if (videoController != null && videoController!.value.isInitialized) {
-      if (videoController!.value.isPlaying) {
-        await videoController!.pause();
-      } else {
-        await videoController!.play();
-      }
+    // Only controls Audio
+    if (isPlaying.value) {
+      await _audioPlayer.pause();
     } else {
-      if (isPlaying.value) {
-        await _audioPlayer.pause();
+      final audioUrl = song['audio_url'];
+      if (audioUrl != null && audioUrl.isNotEmpty) {
+         try {
+           await _audioPlayer.play(UrlSource(audioUrl));
+         } catch (e) {
+           Get.snackbar('Error', 'Could not play audio');
+         }
       } else {
-        final audioUrl = song['audio_url'];
-        if (audioUrl != null && audioUrl.isNotEmpty) {
-          await _audioPlayer.play(UrlSource(audioUrl));
-        } else {
-          Get.snackbar('Error', 'Audio URL is missing');
-        }
+        Get.snackbar('Error', 'Audio URL is missing');
       }
     }
   }
 
   void seek(double value) {
+    // Only seeks Audio
     final position = Duration(seconds: value.toInt());
-    if (videoController != null && videoController!.value.isInitialized) {
-      videoController!.seekTo(position);
-    } else {
-      _audioPlayer.seek(position);
-    }
+    _audioPlayer.seek(position);
   }
 
   void shareSong() {
     final title = song['title'] ?? 'Unknown Title';
     final artist = song['artist'] ?? 'Unknown Artist';
     final audioUrl = song['audio_url'] ?? '';
-    
-    SharePlus.instance.share(
-        ShareParams(text: 'Check out my new song "$title" by $artist! Listen here: $audioUrl')
-    );
+    Share.share('Check out my new song "$title" by $artist! Listen here: $audioUrl');
   }
 }
