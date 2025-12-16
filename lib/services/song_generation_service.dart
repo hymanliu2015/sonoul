@@ -33,14 +33,14 @@ class SongGenerationService extends GetxService {
           .from('songs')
           .insert({
             'user_id': user.id,
+            'singer_id': singerId, // Top-level column
             'prompt': idea,
             'tags': tags,
-            'style': tags.join(','), // Using tags as style for now, or extract logic
+            'style': tags.join(','),
             'title': idea.length > 20 ? '${idea.substring(0, 20)}...' : idea,
             'instrumental': isInstrumental,
             'status': 'pending',
             'meta': {
-              'singer_id': singerId,
               'input_audio_url': inputAudioUrl,
               'source': 'generateSong',
             }
@@ -83,16 +83,15 @@ class SongGenerationService extends GetxService {
           .from('songs')
           .insert({
             'user_id': user.id,
+            'singer_id': singerId,
             'prompt': idea ?? 'Emotion based song',
             'tags': tags ?? [],
             'style': tags?.join(',') ?? 'Emotion',
             'instrumental': isInstrumental,
             'status': 'pending',
             'meta': {
-              'singer_id': singerId,
               'input_audio_url': inputAudioUrl,
               'source': 'generateSongFromEmotion',
-              // Add specific emotion weights if needed
               'audioWeight': 0.65, 
               'styleWeight': 0.65,
             }
