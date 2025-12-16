@@ -74,6 +74,8 @@ class MemberController extends GetxController {
   }
 
   void buySelectedProduct() {
+    isLoading.value = true;
+    LoadingUtils().showLoading();
     if (products.isNotEmpty) {
       final product = products.firstWhereOrNull((p) => p.id == selectedProductId.value);
       if (product != null) {
@@ -179,12 +181,20 @@ class MemberController extends GetxController {
       
       // Refresh user status in DashController
       if (Get.isRegistered<DashController>()) {
-        await Get.find<DashController>().checkSubscription();
+        final dash = Get.find<DashController>();
+        dash.isPremium.value = true; // Immediate local update
+        await dash.checkSubscription(); // Server-confirmed refresh
       }
       
     } catch (e) {
       debugPrint("Verification error: $e");
       // Don't block the user, but maybe retry later or show error
+    } finally {
+      // Ensure UI stops loading if anything falls through
+      if (isLoading.value) {
+        isLoading.value = false;
+        LoadingUtils().hideLoading();
+      }
     }
   }
 }
