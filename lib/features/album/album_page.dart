@@ -13,7 +13,9 @@ class AlbumPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppbar(
-        text: "My Album",
+        text: controller.singerName != null && controller.singerName!.isNotEmpty
+            ? "${controller.singerName}'s Album"
+            : "My Album",
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -50,15 +52,40 @@ class AlbumPage extends StatelessWidget {
           );
         }
 
+        final hasProcessing = controller.songs
+            .any((s) => s['status'] == 'processing');
+
         return RefreshIndicator(
           onRefresh: controller.fetchSongs,
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: controller.songs.length,
+            itemCount: controller.songs.length + (hasProcessing ? 1 : 0),
             itemBuilder: (context, index) {
-              final song = controller.songs[index];
+              // 顶部“正在生成中”提示卡片
+              if (hasProcessing && index == 0) {
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  color: Colors.blue.shade50,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.auto_awesome, color: Colors.blue),
+                    title: const Text(
+                      '正在为你创作新歌',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: const Text(
+                      'AI 正在后台谱写你的音乐，大约需要 1–2 分钟。\n你可以先听听其他作品，稍后下拉刷新就能看到新歌。',
+                    ),
+                  ),
+                );
+              }
+
+              final realIndex = hasProcessing ? index - 1 : index;
+              final song = controller.songs[realIndex];
               debugPrint(
-                'AlbumPage: Song $index: title=${song['title']}, status=${song['status']}, type=${song['status'].runtimeType}',
+                'AlbumPage: Song $realIndex: title=${song['title']}, status=${song['status']}, type=${song['status'].runtimeType}',
               );
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),

@@ -9,9 +9,18 @@ class AlbumController extends GetxController {
   final RxList<Map<String, dynamic>> songs = <Map<String, dynamic>>[].obs;
   final RxBool isLoading = false.obs;
 
+  // 当前专辑对应的虚拟歌手（可为空，表示所有歌手）
+  late final String? singerId;
+  late final String? singerName;
+
   @override
   void onInit() {
     super.onInit();
+
+    final args = Get.arguments;
+    singerId = args != null ? args['singerId'] as String? : null;
+    singerName = args != null ? args['singerName'] as String? : null;
+
     fetchSongs();
     
     // Listen for real-time song updates
@@ -38,10 +47,12 @@ class AlbumController extends GetxController {
       if (showLoading) {
         isLoading.value = true;
       }
-      debugPrint('AlbumController: Fetching all songs for current user (loading: $showLoading)');
+      debugPrint(
+        'AlbumController: Fetching songs for current user, singerId=$singerId (loading: $showLoading)',
+      );
       
-      // Fetch all songs for user (no singer filter)
-      final userSongs = await _songService.getUserSongs();
+      // 按当前虚拟歌手过滤歌曲；如果 singerId 为空，则为用户全部歌曲
+      final userSongs = await _songService.getUserSongs(singerId: singerId);
       debugPrint('AlbumController: Fetched ${userSongs.length} songs');
       songs.assignAll(userSongs);
     } catch (e) {

@@ -130,9 +130,9 @@ class DashController extends GetxController {
   Future<void> goToCreateSingle() async {
     if (requireAuth()) {
       if (singers.isEmpty) {
-         ToastUtils.shotToast('Please create a singer first');
-         Get.toNamed(AppRoutes.singer);
-         return;
+        ToastUtils.shotToast('Please create a singer first');
+        Get.toNamed(AppRoutes.singer);
+        return;
       }
       
       if (!isPremium.value) {
@@ -144,13 +144,26 @@ class DashController extends GetxController {
         }
       }
       
-      Get.toNamed(AppRoutes.createSingle);
+      // 进入单曲创作页时，携带当前虚拟歌手信息，后续生成的歌曲会绑定该 singer
+      Get.toNamed(AppRoutes.createSingle, arguments: {
+        'singerId': currentSinger?.id,
+        'singerName': currentSinger?.name,
+      });
     }
   }
 
   void goToAlbum() {
     if (requireAuth()) {
-      Get.toNamed(AppRoutes.album);
+      // 进入专辑页时，按当前虚拟歌手过滤，只展示该歌手的歌曲
+      if (currentSinger == null) {
+        ToastUtils.shotToast('Please create a singer first');
+        Get.toNamed(AppRoutes.singer);
+        return;
+      }
+      Get.toNamed(AppRoutes.album, arguments: {
+        'singerId': currentSinger!.id,
+        'singerName': currentSinger!.name,
+      });
     }
   }
   
