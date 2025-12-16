@@ -127,7 +127,19 @@ class SupabaseSongService extends GetxService {
     debugPrint('SupabaseSongService: Initializing Realtime Subscription for user ${user.id}');
 
     _subscription = _supabase.channel('public:songs');
-    _subscription!.onPostgresChanges(
+    _subscription!
+    .onPostgresChanges(
+      event: PostgresChangeEvent.insert,
+      schema: 'public',
+      table: 'songs',
+      callback: (payload) {
+        final newRecord = payload.newRecord;
+        if (newRecord['user_id'] == user.id) {
+          _songGeneratedController.value = newRecord;
+        }
+      },
+    )
+    .onPostgresChanges(
       event: PostgresChangeEvent.update,
       schema: 'public',
       table: 'songs',
@@ -156,6 +168,7 @@ class SupabaseSongService extends GetxService {
            _songGeneratedController.value = newRecord;
         }
       },
-    ).subscribe();
+    )
+    .subscribe();
   }
 }
