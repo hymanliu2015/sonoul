@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/components/custom_appbar.dart';
 import 'package:sonoul/features/song/song_detail_controller.dart';
 import 'package:video_player/video_player.dart';
 
@@ -13,9 +14,8 @@ class SongDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(controller.song['title'] ?? 'Unknown Title'),
-        centerTitle: true,
+      appBar: CustomAppbar(
+        text: controller.song['title'] ?? 'Unknown Title',
         actions: [
           IconButton(
             icon: const Icon(Icons.share),

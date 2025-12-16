@@ -47,20 +47,23 @@ class _CustomAppbarState extends State<CustomAppbar> {
       elevation: 0,
       backgroundColor: widget.backgroundColor,
       title: widget.title ?? CustomText(text: widget.text ?? ""),
-      leading: GestureDetector(
-        onTap: () {
-          Get.back();
-        },
-        child: Center(
-          child:
-              widget.leading ??
-              CustomImage(
+      leading: widget.leading != null
+          ? GestureDetector(
+              onTap: () {
+                Get.back();
+              },
+              child: Center(child: widget.leading),
+            )
+          : IconButton(
+              onPressed: () {
+                Get.back();
+              },
+              icon: CustomImage(
                 imageUrl: AppAssets.iconBack,
                 width: 24,
                 height: 24,
               ),
-        ),
-      ),
+            ),
       leadingWidth: widget.leadingWidth,
       actions: widget.actions,
       centerTitle: true,
