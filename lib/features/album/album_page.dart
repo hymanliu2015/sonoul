@@ -78,11 +78,14 @@ class AlbumPage extends StatelessWidget {
                         children: [
                           _buildCoverOrThumbnail(song),
                           if (song['video_url'] != null)
-                            const Center(
-                              child: Icon(
-                                Icons.play_circle_outline,
-                                color: Colors.white,
-                                size: 24,
+                            Container(
+                              color: Colors.black.withOpacity(0.2), // Slight overlay for better icon visibility
+                              child: const Center(
+                                child: Icon(
+                                  Icons.play_circle_outline,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
                               ),
                             ),
                         ],
@@ -96,13 +99,24 @@ class AlbumPage extends StatelessWidget {
                   subtitle: Text(
                     '${song['created_at'] != null ? DateTime.parse(song['created_at']).toString().split(' ')[0] : 'Unknown Date'} • ${song['status']}',
                   ),
-                  trailing: song['status'] == 'processing'
-                      ? const SizedBox(
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (song['status'] == 'processing')
+                        const SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.play_circle_fill, size: 32),
+                      else
+                        const Icon(Icons.play_circle_fill, size: 32),
+                      
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                        onPressed: () => controller.deleteSong(song['id']),
+                      ),
+                    ],
+                  ),
                   onTap: song['status'] == 'processing'
                       ? null
                       : () => controller.openSongDetail(song),
@@ -116,12 +130,20 @@ class AlbumPage extends StatelessWidget {
   }
 
   Widget _buildCoverOrThumbnail(Map<String, dynamic> song) {
-    return _buildNetworkImage(song['cover_url']);
+    if (song.isEmpty) return const SizedBox();
+    // Debug print keys to verify data structure
+    // debugPrint('Song keys: ${song.keys.toList()}');
+    // debugPrint('Song Data: $song');
+    
+    return _buildNetworkImage(song['cover_url'], song['id']);
   }
 
-  Widget _buildNetworkImage(String? url) {
+  Widget _buildNetworkImage(String? url, dynamic id) {
+    // Use ID as seed to ensure consistent but unique images for each song
+    final String fallbackUrl = 'https://picsum.photos/seed/${id ?? 'default'}/200';
+    
     return Image.network(
-      url ?? 'https://picsum.photos/200',
+      url ?? fallbackUrl,
       fit: BoxFit.cover,
       errorBuilder: (context, error, stackTrace) =>
           Container(color: Colors.grey, child: const Icon(Icons.music_note)),

@@ -55,6 +55,24 @@ class SupabaseSongService extends GetxService {
     }
   }
 
+  Future<void> deleteSong(String songId) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return;
+
+      await _supabase
+          .from('songs')
+          .delete()
+          .eq('id', songId)
+          .eq('user_id', user.id); // Security: ensure user owns the song
+          
+      debugPrint('SupabaseSongService: Deleted song $songId');
+    } catch (e) {
+      debugPrint('SupabaseSongService: Error deleting song: $e');
+      rethrow;
+    }
+  }
+
   Future<int> getUserSongCount() async {
     try {
       final user = _supabase.auth.currentUser;
@@ -71,5 +89,73 @@ class SupabaseSongService extends GetxService {
       debugPrint('Error fetching song count: $e');
       return 0;
     }
+  }
+
+  // Broadcast stream for song completion
+  final Rx<Map<String, dynamic>?> _songGeneratedController = Rx<Map<String, dynamic>?>(null);
+  Stream<Map<String, dynamic>?> get onSongGenerated => _songGeneratedController.stream;
+
+  RealtimeChannel? _subscription;
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Listen to auth state changes
+    _supabase.auth.onAuthStateChange.listen((data) {
+      final AuthChangeEvent event = data.event;
+      if (event == AuthChangeEvent.signedIn) {
+        initializeRealtimeSubscription();
+      } else if (event == AuthChangeEvent.signedOut) {
+        _subscription?.unsubscribe();
+        _subscription = null;
+      }
+    });
+    
+    // Attempt to initialize if already logged in
+    if (_supabase.auth.currentUser != null) {
+      initializeRealtimeSubscription();
+    }
+  }
+
+  void initializeRealtimeSubscription() {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+    
+    // Avoid duplicate subscriptions
+    if (_subscription != null) return;
+
+    debugPrint('SupabaseSongService: Initializing Realtime Subscription for user ${user.id}');
+
+    _subscription = _supabase.channel('public:songs');
+    _subscription!.onPostgresChanges(
+      event: PostgresChangeEvent.update,
+      schema: 'public',
+      table: 'songs',
+      // Removed column filter to ensure we get all events, then filter locally
+      // This is safer if user_id isn't in the changeset or for other RLS reasons
+      callback: (payload) {
+        // debugPrint('Supabase Realtime Update Payload: ${payload.toString()}');
+        final newRecord = payload.newRecord;
+        
+        // Check if this update belongs to the current user
+        if (newRecord['user_id'] == user.id) {
+           debugPrint('Supabase Realtime: Song update for user ${user.id} - Status: ${newRecord['status']}');
+           
+           if (newRecord['status'] == 'completed') {
+             Get.snackbar(
+              'Song Ready', 
+              'Your song "${newRecord['title'] ?? 'Untitled'}" has been generated!',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: const Color(0xFF4CAF50),
+              colorText: const Color(0xFFFFFFFF),
+              duration: const Duration(seconds: 4),
+            );
+           }
+           
+           // Trigger global stream update for ANY status change so UI can update
+           _songGeneratedController.value = newRecord;
+        }
+      },
+    ).subscribe();
   }
 }

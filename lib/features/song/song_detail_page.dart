@@ -32,7 +32,9 @@ class SongDetailPage extends StatelessWidget {
                if (controller.isVideoInitialized.value && controller.videoController != null) {
                  return Container(
                    width: double.infinity,
-                   height: 300,
+                   constraints: BoxConstraints(
+                     maxHeight: MediaQuery.of(context).size.height * 0.6,
+                   ),
                    decoration: BoxDecoration(
                      borderRadius: BorderRadius.circular(20),
                      color: Colors.black,
@@ -61,7 +63,7 @@ class SongDetailPage extends StatelessWidget {
                     ),
                   ],
                   image: DecorationImage(
-                    image: NetworkImage(controller.song['cover_url'] ?? 'https://picsum.photos/200'),
+                    image: NetworkImage(controller.song['cover_url'] ?? 'https://picsum.photos/seed/${controller.song['id'] ?? 'default'}/200'),
                     fit: BoxFit.cover,
                   ),
                 ),
