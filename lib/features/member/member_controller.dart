@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
-import 'package:sonoul/utils/loading_util.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +13,7 @@ class MemberController extends GetxController {
   
   RxBool isAvailable = false.obs;
   RxBool isLoading = false.obs;
+  RxBool isPurchasing = false.obs;
   RxString selectedProductId = 'sonoul_annual'.obs; // Default to yearly
 
   RxList<ProductDetails> products = <ProductDetails>[].obs;
@@ -74,43 +74,24 @@ class MemberController extends GetxController {
   }
 
   void buySelectedProduct() {
-    isLoading.value = true;
-    LoadingUtils().showLoading();
+    isPurchasing.value = true;
     if (products.isNotEmpty) {
       final product = products.firstWhereOrNull((p) => p.id == selectedProductId.value);
       if (product != null) {
         buyProduct(product);
       } else {
-        // Mock buy if product not found in real list (e.g. emulator)
-        mockBuy(selectedProductId.value);
+        isPurchasing.value = false;
+        ToastUtils.shotToast('Products not available', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
       }
     } else {
-      mockBuy(selectedProductId.value);
+      isPurchasing.value = false;
+      ToastUtils.shotToast('Products not available', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
     }
   }
 
   void buyProduct(ProductDetails product) {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
     _iap.buyNonConsumable(purchaseParam: purchaseParam);
-  }
-  
-  // Mock buy for testing UI without real IAP
-  void mockBuy(String productId) {
-    isLoading.value = true;
-    LoadingUtils().showLoading();
-    Future.delayed(const Duration(seconds: 2), () async {
-      // Simulate successful verification
-      await _verifyPurchase(
-        productId: productId,
-        purchaseToken: 'mock_token_${DateTime.now().millisecondsSinceEpoch}',
-        platform: 'android',
-      );
-      
-      isLoading.value = false;
-      LoadingUtils().hideLoading();
-      ToastUtils.shotToast('Subscribed to $productId (Mock)', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
-      Get.back(); // Go back to previous screen
-    });
   }
 
   void restorePurchases() {
@@ -120,27 +101,24 @@ class MemberController extends GetxController {
   void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
     for (var purchaseDetails in purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.pending) {
-        isLoading.value = true;
-        LoadingUtils().showLoading();
+        isPurchasing.value = true;
       } else {
         if (purchaseDetails.status == PurchaseStatus.error) {
           // Handle error
           ToastUtils.shotToast('Purchase failed', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
-          isLoading.value = false;
-          LoadingUtils().hideLoading();
+          isPurchasing.value = false;
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored) {
           
           // Verify with Supabase
-          isLoading.value = true;
+          isPurchasing.value = true;
           await _verifyPurchase(
             productId: purchaseDetails.productID,
             purchaseToken: purchaseDetails.verificationData.serverVerificationData,
             platform: GetPlatform.isIOS ? 'ios' : 'android',
           );
           
-          isLoading.value = false;
-          LoadingUtils().hideLoading();
+          isPurchasing.value = false;
           ToastUtils.shotToast('Purchase successful!', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
           
           if (Get.isRegistered<DashController>()) {
@@ -191,10 +169,8 @@ class MemberController extends GetxController {
       debugPrint("Verification error: $e");
       // Don't block the user, but maybe retry later or show error
     } finally {
-      // Ensure UI stops loading if anything falls through
-      if (isLoading.value) {
-        isLoading.value = false;
-        LoadingUtils().hideLoading();
+      if (isPurchasing.value) {
+        isPurchasing.value = false;
       }
     }
   }

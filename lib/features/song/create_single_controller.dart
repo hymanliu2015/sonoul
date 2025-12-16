@@ -102,12 +102,11 @@ class CreateSingleController extends GetxController {
       String singerId = _getSingerId();
       if (singerId.isEmpty) return;
 
-      // Call service with all data
-      final songData = await _songService.generateSongFromEmotion(
-        audioPath: recordedFilePath.value,
+      final songData = await _songService.generateSong(
+        idea: ideaController.text,
+        audioPath: null,
+        tags: selectedTags.isNotEmpty ? selectedTags.toList() : [],
         singerId: singerId,
-        idea: ideaController.text.isNotEmpty ? ideaController.text : null,
-        tags: selectedTags.isNotEmpty ? selectedTags.toList() : null,
         isInstrumental: isInstrumental.value,
       );
       

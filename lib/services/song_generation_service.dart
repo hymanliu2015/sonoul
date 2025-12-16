@@ -20,7 +20,6 @@ class SongGenerationService extends GetxService {
   }) async {
     try {
       String? fileName;
-      // 1. Upload User's Voice Recording to Storage (if provided)
       if (audioPath != null && audioPath.isNotEmpty) {
         final File audioFile = File(audioPath);
         fileName = 'voice_input_${DateTime.now().millisecondsSinceEpoch}.m4a';
@@ -31,12 +30,11 @@ class SongGenerationService extends GetxService {
         }
       }
 
-      // 2. Call Supabase Edge Function
       final response = await _supabase.functions.invoke(
         'generate-song',
         body: {
-          'idea': idea,
-          'audio_path': fileName, // Can be null
+          'prompt': idea,
+          'music_length_ms': 10000,
           'tags': tags,
           'user_id': _supabase.auth.currentUser?.id,
           'singer_id': singerId,
@@ -48,7 +46,6 @@ class SongGenerationService extends GetxService {
         throw Exception('Edge Function Error: ${response.status} - ${response.data}');
       }
 
-      // The Edge Function returns the created song record
       return Map<String, dynamic>.from(response.data);
 
     } catch (e) {

@@ -86,16 +86,16 @@ class MemberPage extends GetView<MemberController> {
                     children: [
                       // Continue Button with proper styling
                       GestureDetector(
-                        onTap: controller.isLoading.value ? null : controller.buySelectedProduct,
+                        onTap: controller.isPurchasing.value ? null : controller.buySelectedProduct,
                         child: Container(
                           width: double.infinity,
                           height: 56,
                           decoration: BoxDecoration(
-                            color: controller.isLoading.value ? AppColors.primary.withValues(alpha: 0.5) : AppColors.primary,
+                            color: controller.isPurchasing.value ? AppColors.primary.withValues(alpha: 0.5) : AppColors.primary,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           alignment: Alignment.center,
-                          child: controller.isLoading.value
+                          child: controller.isPurchasing.value
                               ? const LoadingHelper(size: 24, color: Colors.white)
                               : const Text(
                                   'Continue',
@@ -110,13 +110,13 @@ class MemberPage extends GetView<MemberController> {
                       const SizedBox(height: 20),
                       // Restore Purchases Button
                       GestureDetector(
-                        onTap: controller.isLoading.value ? null : controller.restorePurchases,
+                        onTap: controller.isPurchasing.value ? null : controller.restorePurchases,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           child: Text(
                             'Restore Purchases',
                             style: TextStyle(
-                              color: controller.isLoading.value ? AppColors.textSecondary : AppColors.primary,
+                              color: controller.isPurchasing.value ? AppColors.textSecondary : AppColors.primary,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -150,7 +150,7 @@ class MemberPage extends GetView<MemberController> {
                 ),
               ],
             ),
-            if (controller.isLoading.value)
+            if (controller.isPurchasing.value)
               Container(
                 color: Colors.black.withValues(alpha: 0.2),
                 child: const Center(child: LoadingHelper()),
