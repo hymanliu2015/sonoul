@@ -2,9 +2,6 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:sonoul/common/config/config.dart';
 import 'package:sonoul/services/supabase_song_service.dart';
 
 class SongGenerationService extends GetxService {
@@ -19,34 +16,39 @@ class SongGenerationService extends GetxService {
     bool isInstrumental = false,
   }) async {
     try {
-      String? fileName;
+      String? inputAudioUrl;
       if (audioPath != null && audioPath.isNotEmpty) {
         final File audioFile = File(audioPath);
-        fileName = 'voice_input_${DateTime.now().millisecondsSinceEpoch}.m4a';
-        final String? inputAudioUrl = await _supabaseSongService.uploadSongAudio(audioFile, fileName);
-
-        if (inputAudioUrl == null) {
-          throw Exception('Failed to upload voice recording');
+        if (audioFile.existsSync()) {
+          final fileName = 'voice_input_${DateTime.now().millisecondsSinceEpoch}.m4a';
+          inputAudioUrl = await _supabaseSongService.uploadSongAudio(audioFile, fileName);
         }
       }
 
-      final response = await _supabase.functions.invoke(
-        'generate-song',
-        body: {
-          'prompt': idea,
-          'music_length_ms': 10000,
-          'tags': tags,
-          'user_id': _supabase.auth.currentUser?.id,
-          'singer_id': singerId,
-          'is_instrumental': isInstrumental,
-        },
-      );
+      final user = _supabase.auth.currentUser;
+      if (user == null) throw Exception('User not logged in');
 
-      if (response.status != 200) {
-        throw Exception('Edge Function Error: ${response.status} - ${response.data}');
-      }
+      // Insert into songs table to trigger the Webhook
+      final response = await _supabase
+          .from('songs')
+          .insert({
+            'user_id': user.id,
+            'prompt': idea,
+            'tags': tags,
+            'style': tags.join(','), // Using tags as style for now, or extract logic
+            'title': idea.length > 20 ? '${idea.substring(0, 20)}...' : idea,
+            'instrumental': isInstrumental,
+            'status': 'pending',
+            'meta': {
+              'singer_id': singerId,
+              'input_audio_url': inputAudioUrl,
+              'source': 'generateSong',
+            }
+          })
+          .select()
+          .single();
 
-      return Map<String, dynamic>.from(response.data);
+      return Map<String, dynamic>.from(response);
 
     } catch (e) {
       debugPrint('Song Generation Error: $e');
@@ -62,52 +64,43 @@ class SongGenerationService extends GetxService {
     bool isInstrumental = false,
   }) async {
     try {
+      String? inputAudioUrl;
       if (audioPath.isNotEmpty) {
         final File audioFile = File(audioPath);
-        if (!audioFile.existsSync()) {
-          throw Exception('Audio file not found');
+        if (audioFile.existsSync()) {
+          final fileName = 'emotion_input_${DateTime.now().millisecondsSinceEpoch}.m4a';
+          inputAudioUrl = await _supabaseSongService.uploadSongAudio(audioFile, fileName);
+        } else {
+           throw Exception('Audio file not found');
         }
       }
 
-      // Call Supabase Edge Function directly with Multipart Request
-      final uri = Uri.parse('${AppConfig.supabaseUrl}/functions/v1/generate-song');
-      final request = http.MultipartRequest('POST', uri);
-      
-      final session = _supabase.auth.currentSession;
-      if (session == null) {
-        throw Exception('User not logged in');
-      }
+      final user = _supabase.auth.currentUser;
+      if (user == null) throw Exception('User not logged in');
 
-      // Add Headers
-      request.headers.addAll({
-        'Authorization': 'Bearer ${session.accessToken}',
-        'apikey': AppConfig.supabaseAnonKey,
-      });
+      // Insert into songs table to trigger the Webhook
+      final response = await _supabase
+          .from('songs')
+          .insert({
+            'user_id': user.id,
+            'prompt': idea ?? 'Emotion based song',
+            'tags': tags ?? [],
+            'style': tags?.join(',') ?? 'Emotion',
+            'instrumental': isInstrumental,
+            'status': 'pending',
+            'meta': {
+              'singer_id': singerId,
+              'input_audio_url': inputAudioUrl,
+              'source': 'generateSongFromEmotion',
+              // Add specific emotion weights if needed
+              'audioWeight': 0.65, 
+              'styleWeight': 0.65,
+            }
+          })
+          .select()
+          .single();
 
-      // Add Fields
-      request.fields['user_id'] = _supabase.auth.currentUser?.id ?? '';
-      request.fields['singer_id'] = singerId;
-      if (idea != null) request.fields['idea'] = idea;
-      if (tags != null) request.fields['tags'] = jsonEncode(tags);
-      request.fields['is_instrumental'] = isInstrumental.toString();
-
-      // Add File if exists
-      if (audioPath.isNotEmpty) {
-        request.files.add(await http.MultipartFile.fromPath(
-          'audio_file',
-          audioPath,
-        ));
-      }
-
-      // Send Request
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode != 200) {
-        throw Exception('Edge Function Error: ${response.statusCode} - ${response.body}');
-      }
-
-      return Map<String, dynamic>.from(jsonDecode(response.body));
+      return Map<String, dynamic>.from(response);
 
     } catch (e) {
       debugPrint('Emotion Song Generation Error: $e');
