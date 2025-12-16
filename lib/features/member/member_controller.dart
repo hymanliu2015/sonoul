@@ -118,22 +118,33 @@ class MemberController extends GetxController {
   void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
     for (var purchaseDetails in purchaseDetailsList) {
       if (purchaseDetails.status == PurchaseStatus.pending) {
-        // Show pending UI
+        isLoading.value = true;
+        LoadingUtils().showLoading();
       } else {
         if (purchaseDetails.status == PurchaseStatus.error) {
           // Handle error
           ToastUtils.shotToast('Purchase failed', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+          isLoading.value = false;
+          LoadingUtils().hideLoading();
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored) {
           
           // Verify with Supabase
+          isLoading.value = true;
           await _verifyPurchase(
             productId: purchaseDetails.productID,
             purchaseToken: purchaseDetails.verificationData.serverVerificationData,
             platform: GetPlatform.isIOS ? 'ios' : 'android',
           );
           
+          isLoading.value = false;
+          LoadingUtils().hideLoading();
           ToastUtils.shotToast('Purchase successful!', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
+          
+          if (Get.isRegistered<DashController>()) {
+            await Get.find<DashController>().checkSubscription();
+          }
+          Get.back();
         }
         if (purchaseDetails.pendingCompletePurchase) {
           await _iap.completePurchase(purchaseDetails);

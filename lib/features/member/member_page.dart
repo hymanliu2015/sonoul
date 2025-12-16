@@ -7,7 +7,6 @@ import 'package:sonoul/components/custom_box.dart';
 import 'package:sonoul/components/custom_text.dart';
 import 'package:sonoul/features/member/member_controller.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
-import 'package:sonoul/utils/toast_util.dart';
 
 class MemberPage extends GetView<MemberController> {
   const MemberPage({super.key});
@@ -28,124 +27,134 @@ class MemberPage extends GetView<MemberController> {
         backgroundColor: Colors.transparent,
       ),
       body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: LoadingHelper());
-        }
-        return Column(
+        return Stack(
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.star_rounded, size: 80, color: Colors.orange),
-                    const SizedBox(height: 20),
-                    const CustomText(
-                      text: 'Unlock Full Potential',
-                      textFontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      textColor: AppColors.textPrimary,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    const CustomText(
-                      text: 'Get unlimited AI songs, high quality downloads, and more.',
-                      textFontSize: 16,
-                      textColor: AppColors.textSecondary,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 40),
-                      ...controller.products.map((product) => _buildProductCard(product)),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Bottom Area
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Continue Button with proper styling
-                  GestureDetector(
-                    onTap: controller.buySelectedProduct,
-                    child: Container(
-                      width: double.infinity,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'Continue',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
+            Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.star_rounded, size: 80, color: Colors.orange),
+                        const SizedBox(height: 20),
+                        const CustomText(
+                          text: 'Unlock Full Potential',
+                          textFontSize: 28,
                           fontWeight: FontWeight.bold,
+                          textColor: AppColors.textPrimary,
+                          textAlign: TextAlign.center,
                         ),
-                      ),
+                        const SizedBox(height: 10),
+                        const CustomText(
+                          text: 'Get unlimited AI songs, high quality downloads, and more.',
+                          textFontSize: 16,
+                          textColor: AppColors.textSecondary,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 40),
+                        if (controller.products.isEmpty)
+                          const CustomText(
+                            text: 'Loading products...',
+                            textFontSize: 14,
+                            textColor: AppColors.textSecondary,
+                            textAlign: TextAlign.center,
+                          )
+                        else
+                          ...controller.products.map((product) => _buildProductCard(product)),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  // Restore Purchases Button
-                  GestureDetector(
-                    onTap: controller.restorePurchases,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: const Text(
-                        'Restore Purchases',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Terms of Service
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      GestureDetector(
-                        onTap: () => ToastUtils.shotToast('Opening Terms of Service...'),
-                        child: const Text(
-                          'Privacy Policy',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => ToastUtils.shotToast('Opening Terms of Service...'),
-                        child: const Text(
-                          'Terms of Service',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
-                        ),
+                ),
+                
+                // Bottom Area
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, -4),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8), // Safe area padding
-                ],
-              ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Continue Button with proper styling
+                      GestureDetector(
+                        onTap: controller.isLoading.value ? null : controller.buySelectedProduct,
+                        child: Container(
+                          width: double.infinity,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: controller.isLoading.value ? AppColors.primary.withValues(alpha: 0.5) : AppColors.primary,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child: controller.isLoading.value
+                              ? const LoadingHelper(size: 24, color: Colors.white)
+                              : const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Restore Purchases Button
+                      GestureDetector(
+                        onTap: controller.isLoading.value ? null : controller.restorePurchases,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            'Restore Purchases',
+                            style: TextStyle(
+                              color: controller.isLoading.value ? AppColors.textSecondary : AppColors.primary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Terms of Service
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: const [
+                          Text(
+                            'Privacy Policy',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            'Terms of Service',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8), // Safe area padding
+                    ],
+                  ),
+                ),
+              ],
             ),
+            if (controller.isLoading.value)
+              Container(
+                color: Colors.black.withValues(alpha: 0.2),
+                child: const Center(child: LoadingHelper()),
+              ),
           ],
         );
       }),
