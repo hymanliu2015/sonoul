@@ -167,6 +167,7 @@ class MemberController extends GetxController {
 
       final res = await supabase.functions.invoke(
         'handle-subscription',
+        method: HttpMethod.post,
         body: {
           'user_id': user.id,
           'product_id': productId,

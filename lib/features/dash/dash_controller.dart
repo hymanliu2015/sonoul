@@ -24,6 +24,7 @@ class DashController extends GetxController {
 
   final RxBool isPremium = false.obs;
   final SupabaseSongService _songService = Get.put(SupabaseSongService());
+  RealtimeChannel? _subsRealtime;
 
   // Helper to get current singer safely
   Singer? get currentSinger => singers.isNotEmpty ? singers[currentSingerIndex.value] : null;
@@ -33,6 +34,18 @@ class DashController extends GetxController {
     super.onInit();
     fetchSingers();
     checkSubscription();
+    _supabase.auth.onAuthStateChange.listen((data) {
+      final event = data.event;
+      if (event == AuthChangeEvent.signedIn) {
+        _initializeSubscriptionsRealtime();
+      } else if (event == AuthChangeEvent.signedOut) {
+        _subsRealtime?.unsubscribe();
+        _subsRealtime = null;
+      }
+    });
+    if (_supabase.auth.currentUser != null) {
+      _initializeSubscriptionsRealtime();
+    }
   }
 
   Future<void> checkSubscription() async {
@@ -46,6 +59,8 @@ class DashController extends GetxController {
           .select()
           .eq('user_id', user.id)
           .eq('status', 'active')
+          .order('end_date', ascending: false)
+          .limit(1)
           .maybeSingle();
 
       if (response != null) {
@@ -157,6 +172,49 @@ class DashController extends GetxController {
   
   void onPageChanged(int index) {
     currentSingerIndex.value = index;
+  }
+
+  void _initializeSubscriptionsRealtime() {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+    if (_subsRealtime != null) return;
+    _subsRealtime = _supabase.channel('public:subscriptions');
+    _subsRealtime!
+      .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'subscriptions',
+        callback: (payload) {
+          final record = payload.newRecord;
+          if (record['user_id'] == user.id) {
+            final status = record['status'];
+            final endDateStr = record['end_date'];
+            if (status == 'active' && endDateStr != null) {
+              final endDate = DateTime.parse(endDateStr);
+              isPremium.value = endDate.isAfter(DateTime.now());
+            }
+          }
+        },
+      )
+      .onPostgresChanges(
+        event: PostgresChangeEvent.update,
+        schema: 'public',
+        table: 'subscriptions',
+        callback: (payload) {
+          final record = payload.newRecord;
+          if (record['user_id'] == user.id) {
+            final status = record['status'];
+            final endDateStr = record['end_date'];
+            if (status == 'active' && endDateStr != null) {
+              final endDate = DateTime.parse(endDateStr);
+              isPremium.value = endDate.isAfter(DateTime.now());
+            } else {
+              isPremium.value = false;
+            }
+          }
+        },
+      )
+      .subscribe();
   }
 
   // Share Feature
