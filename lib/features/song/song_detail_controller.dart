@@ -116,6 +116,6 @@ class SongDetailController extends GetxController {
     final title = song['title'] ?? 'Unknown Title';
     final artist = song['artist'] ?? 'Unknown Artist';
     final audioUrl = song['audio_url'] ?? '';
-    Share.share('Check out my new song "$title" by $artist! Listen here: $audioUrl');
+    SharePlus.instance.share(ShareParams(text: 'Check out my new song "$title" by $artist! Listen here: $audioUrl'));
   }
 }

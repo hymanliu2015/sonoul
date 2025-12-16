@@ -58,7 +58,7 @@ class AlbumPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final song = controller.songs[index];
               debugPrint(
-                'AlbumPage: Song ${index}: title=${song['title']}, status=${song['status']}, type=${song['status'].runtimeType}',
+                'AlbumPage: Song $index: title=${song['title']}, status=${song['status']}, type=${song['status'].runtimeType}',
               );
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -79,7 +79,7 @@ class AlbumPage extends StatelessWidget {
                           _buildCoverOrThumbnail(song),
                           if (song['video_url'] != null)
                             Container(
-                              color: Colors.black.withOpacity(0.2), // Slight overlay for better icon visibility
+                              color: Colors.black.withValues(alpha: 0.2), // Slight overlay for better icon visibility
                               child: const Center(
                                 child: Icon(
                                   Icons.play_circle_outline,
@@ -103,11 +103,15 @@ class AlbumPage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (song['status'] == 'processing')
-                        const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
+                        _isTimedOut(song['created_at'])
+                            ? const Icon(Icons.error_outline, color: Colors.orange, size: 32)
+                            : const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                      else if (song['status'] == 'failed')
+                         const Icon(Icons.error, color: Colors.red, size: 32)
                       else
                         const Icon(Icons.play_circle_fill, size: 32),
                       
@@ -117,7 +121,7 @@ class AlbumPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  onTap: song['status'] == 'processing'
+                  onTap: (song['status'] == 'processing' && !_isTimedOut(song['created_at']))
                       ? null
                       : () => controller.openSongDetail(song),
                 ),
@@ -148,5 +152,13 @@ class AlbumPage extends StatelessWidget {
       errorBuilder: (context, error, stackTrace) =>
           Container(color: Colors.grey, child: const Icon(Icons.music_note)),
     );
+  }
+
+  bool _isTimedOut(String? createdAt) {
+    if (createdAt == null) return false;
+    final created = DateTime.parse(createdAt);
+    final now = DateTime.now();
+    // 10 minutes timeout
+    return now.difference(created).inMinutes > 10;
   }
 }
