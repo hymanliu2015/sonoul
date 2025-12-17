@@ -5,7 +5,7 @@ import 'package:sonoul/features/album/album_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
 
 class AlbumPage extends StatelessWidget {
-  AlbumPage({super.key});
+  const AlbumPage({super.key});
 
   @override
   Widget build(BuildContext context) {
