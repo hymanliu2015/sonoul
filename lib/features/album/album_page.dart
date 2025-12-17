@@ -5,12 +5,22 @@ import 'package:sonoul/features/album/album_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
 
 class AlbumPage extends StatelessWidget {
-  final AlbumController controller = Get.put(AlbumController());
-
   AlbumPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Use Get.put with permanent: false to allow recreation when needed
+    // Check if we should refresh based on arguments
+    final args = Get.arguments;
+    final shouldRefresh = args != null && args['refresh'] == true;
+    
+    // Delete existing controller if refresh is requested
+    if (shouldRefresh && Get.isRegistered<AlbumController>()) {
+      Get.delete<AlbumController>();
+    }
+    
+    final controller = Get.put(AlbumController());
+    
     return Scaffold(
       appBar: CustomAppbar(
         text: controller.singerName != null && controller.singerName!.isNotEmpty

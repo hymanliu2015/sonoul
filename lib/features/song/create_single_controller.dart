@@ -14,17 +14,32 @@ class CreateSingleController extends GetxController {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   final TextEditingController ideaController = TextEditingController();
-  
+
   RxBool isRecording = false.obs;
   RxString recordedFilePath = ''.obs;
   RxBool isGenerating = false.obs;
   RxList<String> selectedTags = <String>[].obs;
   RxBool isInstrumental = false.obs;
-  
+
   final List<String> availableTags = [
-    'Pop', 'Rock', 'Ballad', 'Electronic', 'Jazz', 'R&B', 
-    'Hip Hop', 'Classical', 'Country', 'Blues', 'Soul', 'Reggae', 
-    'Metal', 'Folk', 'Disco', 'House', 'Techno', 'Ambient'
+    'Pop',
+    'Rock',
+    'Ballad',
+    'Electronic',
+    'Jazz',
+    'R&B',
+    'Hip Hop',
+    'Classical',
+    'Country',
+    'Blues',
+    'Soul',
+    'Reggae',
+    'Metal',
+    'Folk',
+    'Disco',
+    'House',
+    'Techno',
+    'Ambient',
   ];
 
   DateTime? _recordingStartTime;
@@ -50,8 +65,9 @@ class CreateSingleController extends GetxController {
     try {
       if (await _audioRecorder.hasPermission()) {
         final directory = await getApplicationDocumentsDirectory();
-        final path = '${directory.path}/my_voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
-        
+        final path =
+            '${directory.path}/my_voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
         await _audioRecorder.start(const RecordConfig(), path: path);
         isRecording.value = true;
         _recordingStartTime = DateTime.now();
@@ -73,10 +89,10 @@ class CreateSingleController extends GetxController {
           isRecording.value = false;
           return;
         }
-        
+
         // Logic to trim to 10s would ideally happen here or on backend
         // For now, we just accept the file if it's > 5s
-        
+
         recordedFilePath.value = path;
         isRecording.value = false;
       }
@@ -109,7 +125,7 @@ class CreateSingleController extends GetxController {
         singerId: singerId,
         isInstrumental: isInstrumental.value,
       );
-      
+
       _handleSuccess(songData);
     } catch (e) {
       _handleError(e);
@@ -130,11 +146,29 @@ class CreateSingleController extends GetxController {
   }
 
   void _handleSuccess(dynamic songData) {
-    ToastUtils.shotToast('Song generation started! It will appear in your album shortly.');
-    // Small delay to allow DB propagation if needed? No, user can pull to refresh.
-    Get.back(); // Go back to create page or album?
-    // User flow: Create -> Album. The original code did Get.offNamed('/album'). This is fine.
-    Get.offNamed(AppRoutes.album); 
+    ToastUtils.shotToast(
+      'Song generation started! It will appear in your album shortly.',
+    );
+
+    // Get singer info for album page
+    String? singerId;
+    String? singerName;
+    if (Get.isRegistered<DashController>()) {
+      final dashController = Get.find<DashController>();
+      singerId = dashController.currentSinger?.id;
+      singerName = dashController.currentSinger?.name;
+    }
+
+    // Use Get.offNamed to replace current page with album page
+    // Pass arguments and force refresh
+    Get.offNamed(
+      AppRoutes.album,
+      arguments: {
+        'singerId': singerId,
+        'singerName': singerName,
+        'refresh': true,
+      },
+    );
   }
 
   void _handleError(dynamic e) {
