@@ -62,14 +62,23 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                TextField(
+                Obx(() => TextField(
                   controller: passwordController,
-                  obscureText: true,
+                  obscureText: !controller.isPasswordVisible.value,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Password',
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white70,
+                      ),
+                      onPressed: () => controller.togglePasswordVisibility(),
+                    ),
                     filled: true,
                     fillColor: Colors.white.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
@@ -77,7 +86,7 @@ class LoginPage extends StatelessWidget {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: 40),
                 Obx(() => ElevatedButton(
                   onPressed: controller.isLoading.value

@@ -8,7 +8,12 @@ import 'package:fluttertoast/fluttertoast.dart';
 class AuthController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  RxBool isLoading = false.obs;
+  final RxBool isLoading = false.obs;
+  final RxBool isPasswordVisible = false.obs;
+
+  void togglePasswordVisibility() {
+    isPasswordVisible.value = !isPasswordVisible.value;
+  }
 
   // Login
   Future<void> login(String email, String password) async {
