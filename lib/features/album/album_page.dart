@@ -72,11 +72,11 @@ class AlbumPage extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.auto_awesome, color: Colors.blue),
                     title: const Text(
-                      '正在为你创作新歌',
+                      'Creating a new song for you.',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: const Text(
-                      'AI 正在后台谱写你的音乐，大约需要 1–2 分钟。\n你可以先听听其他作品，稍后下拉刷新就能看到新歌。',
+                      'Our AI is composing your music in the background. This usually takes about 1–2 minutes.\nFeel free to listen to other tracks in the meantime.Simply pull down to refresh later to see your new song.',
                     ),
                   ),
                 );

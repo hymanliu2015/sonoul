@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -119,8 +118,8 @@ class MemberController extends GetxController {
           );
           
           isPurchasing.value = false;
-          ToastUtils.shotToast('Purchase successful!', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, AppColors.greenMain, Colors.white);
-          
+          debugPrint("Purchase successful!'");
+
           if (Get.isRegistered<DashController>()) {
             await Get.find<DashController>().checkSubscription();
           }
