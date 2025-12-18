@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/components/custom_appbar.dart';
 import 'package:sonoul/components/custom_text.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 
@@ -13,9 +14,7 @@ class DashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+      appBar: CustomAppbar(
         title: const Text(
           'Sonoul',
           style: TextStyle(
@@ -25,7 +24,6 @@ class DashPage extends StatelessWidget {
             fontFamily: 'Outfit', // Assuming a nice font, or default
           ),
         ),
-        centerTitle: true,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(2),
