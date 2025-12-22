@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sonoul/common/helper/loading_helper.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
-import 'package:sonoul/common/res/app_colors.dart';
-import 'package:sonoul/common/helper/loading_helper.dart';
 
 class LoginPage extends StatelessWidget {
   final AuthController controller = Get.put(AuthController());
@@ -15,115 +15,257 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.background, AppColors.backgroundDark],
+            colors: [
+              AppColors.greenDeep,
+              Color(0xFF0A1F1B),
+              Color(0xFF051512),
+            ],
           ),
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Icon(
-                  Icons.music_note,
-                  size: 80,
-                  color: AppColors.accent,
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Welcome Back',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 40),
-                TextField(
-                  controller: emailController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: const TextStyle(color: Colors.white70),
-                    prefixIcon: const Icon(Icons.email, color: Colors.white70),
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.1),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Obx(() => TextField(
-                  controller: passwordController,
-                  obscureText: !controller.isPasswordVisible.value,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: const TextStyle(color: Colors.white70),
-                    prefixIcon: const Icon(Icons.lock, color: Colors.white70),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.isPasswordVisible.value
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                        color: Colors.white70,
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo / Icon
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [AppColors.greenDark, AppColors.greenDeep],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      onPressed: () => controller.togglePasswordVisibility(),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.1),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                )),
-                const SizedBox(height: 40),
-                Obx(() => ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () {
-                          controller.login(
-                            emailController.text.trim(),
-                            passwordController.text.trim(),
-                          );
-                        },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppColors.accent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: controller.isLoading.value
-                      ? const LoadingHelper(size: 24, color: Colors.white)
-                      : const Text(
-                          'Login',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.greenPrimary.withValues(alpha: 0.4),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
                         ),
-                )),
-                const SizedBox(height: 20),
-                TextButton(
-                  onPressed: () => Get.toNamed(AppRoutes.register),
-                  child: const Text(
-                    'Don\'t have an account? Register',
-                    style: TextStyle(color: AppColors.accentLight),
+                      ],
+                      border: Border.all(
+                        color: AppColors.greenLight.withValues(alpha: 0.5),
+                        width: 2,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.music_note_rounded,
+                      size: 50,
+                      color: AppColors.greenLight,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 32),
+                  
+                  // Welcome Text
+                  const Text(
+                    'Welcome Back',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textOnDark,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Sign in to continue to Sonoul',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+
+                  // Form Container
+                  _buildGlassCard(
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          controller: emailController,
+                          label: 'Email',
+                          icon: Icons.email_outlined,
+                        ),
+                        const SizedBox(height: 20),
+                        Obx(() => _buildTextField(
+                          controller: passwordController,
+                          label: 'Password',
+                          icon: Icons.lock_outline,
+                          isPassword: true,
+                          isPasswordVisible: controller.isPasswordVisible.value,
+                          onToggleVisibility: controller.togglePasswordVisibility,
+                        )),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Login Button
+                  Obx(() => GestureDetector(
+                    onTap: controller.isLoading.value
+                        ? null
+                        : () {
+                            controller.login(
+                              emailController.text.trim(),
+                              passwordController.text.trim(),
+                            );
+                          },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.greenLight, AppColors.greenPrimary],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.greenPrimary.withValues(alpha: 0.4),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: controller.isLoading.value
+                          ? const Center(
+                              child: LoadingHelper(size: 24, color: Colors.white),
+                            )
+                          : const Text(
+                              'Sign In',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                    ),
+                  )),
+
+                  const SizedBox(height: 24),
+                  
+                  // Register Link
+                  TextButton(
+                    onPressed: () => Get.toNamed(AppRoutes.register),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white,
+                    ),
+                    child: RichText(
+                      text: TextSpan(
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                        children: const [
+                          TextSpan(text: "Don't have an account? "),
+                          TextSpan(
+                            text: 'Register',
+                            style: TextStyle(
+                              color: AppColors.greenLight,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildGlassCard({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    bool isPasswordVisible = false,
+    VoidCallback? onToggleVisibility,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textOnDark,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          obscureText: isPassword && !isPasswordVisible,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+          cursorColor: AppColors.greenLight,
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: Colors.white.withValues(alpha: 0.5), size: 22),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      isPasswordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      color: Colors.white.withValues(alpha: 0.5),
+                      size: 22,
+                    ),
+                    onPressed: onToggleVisibility,
+                  )
+                : null,
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.05),
+            hintText: label == 'Email' ? 'Enter your email' : 'Enter your password',
+            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: AppColors.greenLight, width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+        ),
+      ],
     );
   }
 }
