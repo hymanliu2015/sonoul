@@ -12,19 +12,64 @@ class SingerController extends GetxController {
   RxString avatarPath = ''.obs;
   RxBool isLoading = false.obs;
   RxString name = ''.obs;
-
-  void pickImage() {
-    avatarPath.value = "https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}";
-  }
+  RxString avatarPrompt = ''.obs;
 
   void onNameChanged(String value) {
     name.value = value;
   }
 
+  void onPromptChanged(String value) {
+    avatarPrompt.value = value;
+  }
+
+  Future<void> generateAvatar() async {
+    final prompt = avatarPrompt.value.trim();
+    if (prompt.isEmpty) {
+      ToastUtils.shotToast('Please enter an avatar prompt');
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      // Call the generate-image Edge Function
+      final res = await _supabase.functions.invoke(
+        'generate-image',
+        method: HttpMethod.post,
+        body: {'prompt': prompt},
+      );
+
+      final data = res.data;
+      if (data == null || data['data'] == null || data['data'].isEmpty) {
+        throw "Failed to generate image";
+      }
+
+      // Assuming standard OpenAI response format: { data: [{ url: "..." }] }
+      final imageUrl = data['data'][0]['url'];
+      avatarPath.value = imageUrl;
+      ToastUtils.shotToast('Avatar generated successfully!');
+
+    } catch (e) {
+      debugPrint("Error generating avatar: $e");
+      ToastUtils.shotToast('Error generating avatar: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> createSinger() async {
     final singerName = name.value.trim();
+    final prompt = avatarPrompt.value.trim();
+
     if (singerName.isEmpty) {
       ToastUtils.shotToast('Please enter a name');
+      return;
+    }
+    if (prompt.isEmpty) {
+      ToastUtils.shotToast('Please enter an avatar prompt');
+      return;
+    }
+    if (avatarPath.value.isEmpty) {
+      ToastUtils.shotToast('Please generate an avatar first');
       return;
     }
 
@@ -43,6 +88,7 @@ class SingerController extends GetxController {
         body: {
           'name': singerName,
           'avatar_url': avatarPath.value,
+          'prompt': prompt, // Optional: save the prompt if the backend supports it
         },
       );
 
@@ -58,10 +104,7 @@ class SingerController extends GetxController {
 
       // Mock: Add to DashController directly
       if (Get.isRegistered<DashController>()) {
-        final avatar = avatarPath.value.isNotEmpty
-            ? avatarPath.value
-            : "https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}";
-        Get.find<DashController>().addMockSinger(singerName, avatar);
+        Get.find<DashController>().addMockSinger(singerName, avatarPath.value);
       }
 
       ToastUtils.shotToast('Singer created successfully!');
@@ -74,10 +117,7 @@ class SingerController extends GetxController {
 
       // Mock: Add to DashController directly
       if (Get.isRegistered<DashController>()) {
-        final avatar = avatarPath.value.isNotEmpty
-            ? avatarPath.value
-            : "https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}";
-        Get.find<DashController>().addMockSinger(singerName, avatar);
+        Get.find<DashController>().addMockSinger(singerName, avatarPath.value);
       }
 
       ToastUtils.shotToast('Simulating success');
