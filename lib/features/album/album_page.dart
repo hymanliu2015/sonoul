@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sonoul/components/custom_appbar.dart';
+import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/features/album/album_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
 
@@ -9,188 +9,520 @@ class AlbumPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Use Get.put with permanent: false to allow recreation when needed
-    // Check if we should refresh based on arguments
     final args = Get.arguments;
     final shouldRefresh = args != null && args['refresh'] == true;
-    
-    // Delete existing controller if refresh is requested
+
     if (shouldRefresh && Get.isRegistered<AlbumController>()) {
       Get.delete<AlbumController>();
     }
-    
+
     final controller = Get.put(AlbumController());
-    
+
     return Scaffold(
-      appBar: CustomAppbar(
-        text: controller.singerName != null && controller.singerName!.isNotEmpty
-            ? "${controller.singerName}'s Album"
-            : "My Album",
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        centerTitle: true,
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.greenLight.withValues(alpha: 0.5), width: 1.5),
+            ),
+            child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textOnDark, size: 18),
+          ),
+        ),
+        title: Text(
+          controller.singerName != null && controller.singerName!.isNotEmpty
+              ? "${controller.singerName}'s Album"
+              : "My Album",
+          style: const TextStyle(
+            color: AppColors.textOnDark,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => Get.toNamed(AppRoutes.createSingle),
+          GestureDetector(
+            onTap: () => Get.toNamed(AppRoutes.createSingle),
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.greenPrimary.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.greenLight.withValues(alpha: 0.5), width: 1.5),
+              ),
+              child: const Icon(Icons.add, color: AppColors.greenLight, size: 20),
+            ),
           ),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.greenDeep,
+              Color(0xFF0A1F1B),
+              Color(0xFF051512),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Obx(() {
+            if (controller.isLoading.value) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.greenLight),
+                        strokeWidth: 3,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Loading songs...',
+                      style: TextStyle(
+                        color: AppColors.textOnDark,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
 
-        if (controller.songs.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.music_note, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'No songs yet',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+            if (controller.songs.isEmpty) {
+              return _buildEmptyState();
+            }
+
+            final hasProcessing = controller.songs
+                .any((s) => s['status'] == 'pending' || s['status'] == 'processing');
+
+            return RefreshIndicator(
+              onRefresh: controller.fetchSongs,
+              color: AppColors.greenLight,
+              backgroundColor: AppColors.greenDeep,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: controller.songs.length + (hasProcessing ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (hasProcessing && index == 0) {
+                    return _buildProcessingCard();
+                  }
+
+                  final realIndex = hasProcessing ? index - 1 : index;
+                  final song = controller.songs[realIndex];
+                  return _buildSongCard(song, controller);
+                },
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.greenLight.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.music_note_rounded,
+                size: 56,
+                color: AppColors.greenLight.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              'No Songs Yet',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textOnDark,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Create your first AI-generated song\nand watch the magic happen!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.white.withValues(alpha: 0.6),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            GestureDetector(
+              onTap: () => Get.toNamed(AppRoutes.createSingle),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.greenLight, AppColors.greenPrimary],
                   ),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () => Get.toNamed(AppRoutes.createSingle),
-                    child: const Text('Create your first song'),
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.greenPrimary.withValues(alpha: 0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                    SizedBox(width: 8),
+                    Text(
+                      'Create Song',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProcessingCard() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.greenPrimary.withValues(alpha: 0.2),
+            AppColors.greenDark.withValues(alpha: 0.2),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.greenLight.withValues(alpha: 0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.greenLight.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: AppColors.greenLight,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Creating your song...',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: AppColors.textOnDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'AI is composing music. Usually takes 1-2 minutes.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSongCard(Map<String, dynamic> song, AlbumController controller) {
+    final status = song['status'] as String?;
+    final isPlayable = status != 'pending' && 
+                       (status != 'processing' || _isTimedOut(song['created_at']));
+
+    return GestureDetector(
+      onTap: isPlayable ? () => controller.openSongDetail(song) : null,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            // Cover Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                width: 64,
+                height: 64,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _buildCoverImage(song),
+                    if (song['video_url'] != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.3),
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.play_circle_outline,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Song Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    song['title'] ?? 'Untitled',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: AppColors.textOnDark,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        song['created_at'] != null
+                            ? DateTime.parse(song['created_at']).toString().split(' ')[0]
+                            : 'Unknown',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildStatusBadge(status),
+                    ],
                   ),
                 ],
               ),
             ),
-          );
-        }
-
-        final hasProcessing = controller.songs
-            .any((s) => s['status'] == 'pending' || s['status'] == 'processing');
-
-        return RefreshIndicator(
-          onRefresh: controller.fetchSongs,
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.songs.length + (hasProcessing ? 1 : 0),
-            itemBuilder: (context, index) {
-              // 顶部“正在生成中”提示卡片
-              if (hasProcessing && index == 0) {
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  color: Colors.blue.shade50,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ListTile(
-                    leading: const Icon(Icons.auto_awesome, color: Colors.blue),
-                    title: const Text(
-                      'Creating a new song for you.',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+            // Actions
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildStatusIcon(song),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: () => controller.deleteSong(song['id']),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
                     ),
-                    subtitle: const Text(
-                      'Our AI is composing your music in the background. This usually takes about 1–2 minutes.\nFeel free to listen to other tracks in the meantime.Simply pull down to refresh later to see your new song.',
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: Colors.white.withValues(alpha: 0.4),
+                      size: 20,
                     ),
                   ),
-                );
-              }
-
-              final realIndex = hasProcessing ? index - 1 : index;
-              final song = controller.songs[realIndex];
-              debugPrint(
-                'AlbumPage: Song $realIndex: title=${song['title']}, status=${song['status']}, type=${song['status'].runtimeType}',
-              );
-              return Card(
-                margin: const EdgeInsets.only(bottom: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 4,
-                child: ListTile(
-                  contentPadding: const EdgeInsets.all(10),
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          _buildCoverOrThumbnail(song),
-                          if (song['video_url'] != null)
-                            Container(
-                              color: Colors.black.withValues(alpha: 0.2), // Slight overlay for better icon visibility
-                              child: const Center(
-                                child: Icon(
-                                  Icons.play_circle_outline,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  title: Text(
-                    song['title'] ?? 'Untitled',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    '${song['created_at'] != null ? DateTime.parse(song['created_at']).toString().split(' ')[0] : 'Unknown Date'} • ${song['status']}',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (song['status'] == 'pending')
-                        const Icon(Icons.hourglass_empty, color: Colors.orange, size: 32)
-                      else if (song['status'] == 'processing')
-                        _isTimedOut(song['created_at'])
-                            ? const Icon(Icons.error_outline, color: Colors.orange, size: 32)
-                            : const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                      else if (song['status'] == 'failed')
-                         const Icon(Icons.error, color: Colors.red, size: 32)
-                      else
-                        const Icon(Icons.play_circle_fill, size: 32),
-                      
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                        onPressed: () => controller.deleteSong(song['id']),
-                      ),
-                    ],
-                  ),
-                  onTap: (song['status'] == 'pending' || 
-                          song['status'] == 'processing' && !_isTimedOut(song['created_at']))
-                      ? null
-                      : () => controller.openSongDetail(song),
-                ),
-              );
-            },
-          ),
-        );
-      }),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildCoverOrThumbnail(Map<String, dynamic> song) {
-    if (song.isEmpty) return const SizedBox();
-    // Debug print keys to verify data structure
-    // debugPrint('Song keys: ${song.keys.toList()}');
-    // debugPrint('Song Data: $song');
-    
-    return _buildNetworkImage(song['cover_url'], song['id']);
+  Widget _buildStatusBadge(String? status) {
+    Color color;
+    String text;
+
+    switch (status) {
+      case 'pending':
+        color = Colors.orange;
+        text = 'Pending';
+        break;
+      case 'processing':
+        color = Colors.blue;
+        text = 'Processing';
+        break;
+      case 'completed':
+        color = AppColors.greenLight;
+        text = 'Ready';
+        break;
+      case 'failed':
+        color = Colors.red;
+        text = 'Failed';
+        break;
+      default:
+        color = Colors.grey;
+        text = status ?? 'Unknown';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 10,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
   }
 
-  Widget _buildNetworkImage(String? url, dynamic id) {
-    // Use ID as seed to ensure consistent but unique images for each song
-    final String fallbackUrl = 'https://picsum.photos/seed/${id ?? 'default'}/200';
-    
+  Widget _buildStatusIcon(Map<String, dynamic> song) {
+    final status = song['status'] as String?;
+
+    if (status == 'pending') {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        child: const Icon(
+          Icons.hourglass_empty,
+          color: Colors.orange,
+          size: 28,
+        ),
+      );
+    } else if (status == 'processing') {
+      if (_isTimedOut(song['created_at'])) {
+        return Container(
+          padding: const EdgeInsets.all(8),
+          child: const Icon(
+            Icons.error_outline,
+            color: Colors.orange,
+            size: 28,
+          ),
+        );
+      }
+      return Container(
+        padding: const EdgeInsets.all(8),
+        child: const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.greenLight),
+          ),
+        ),
+      );
+    } else if (status == 'failed') {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        child: const Icon(
+          Icons.error,
+          color: Colors.red,
+          size: 28,
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.greenLight, AppColors.greenPrimary],
+        ),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.greenPrimary.withValues(alpha: 0.4),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: const Icon(
+        Icons.play_arrow_rounded,
+        color: Colors.white,
+        size: 24,
+      ),
+    );
+  }
+
+  Widget _buildCoverImage(Map<String, dynamic> song) {
+    final url = song['cover_url'] as String?;
+    final fallbackUrl = 'https://picsum.photos/seed/${song['id'] ?? 'default'}/200';
+
     return Image.network(
       url ?? fallbackUrl,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) =>
-          Container(color: Colors.grey, child: const Icon(Icons.music_note)),
+      errorBuilder: (context, error, stackTrace) => Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppColors.greenDark, AppColors.greenDeep],
+          ),
+        ),
+        child: const Icon(Icons.music_note, color: AppColors.greenLight),
+      ),
     );
   }
 
@@ -198,7 +530,6 @@ class AlbumPage extends StatelessWidget {
     if (createdAt == null) return false;
     final created = DateTime.parse(createdAt);
     final now = DateTime.now();
-    // 10 minutes timeout
     return now.difference(created).inMinutes > 10;
   }
 }
