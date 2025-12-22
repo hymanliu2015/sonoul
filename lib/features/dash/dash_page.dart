@@ -226,20 +226,6 @@ class DashPage extends StatelessWidget {
             fontWeight: FontWeight.bold,
             textColor: AppColors.textPrimary,
           ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const CustomText(
-              text: 'Virtual Singer',
-              textFontSize: 12,
-              textColor: AppColors.primary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
           const SizedBox(height: 16),
           // Share Button
           GestureDetector(

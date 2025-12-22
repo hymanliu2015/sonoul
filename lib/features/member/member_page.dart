@@ -16,15 +16,7 @@ class MemberPage extends GetView<MemberController> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const CustomAppbar(
-        title: Text(
-          'Premium Member',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
+        text: 'Premium Member',
       ),
       body: Obx(() {
         return Stack(
@@ -150,11 +142,6 @@ class MemberPage extends GetView<MemberController> {
                 ),
               ],
             ),
-            if (controller.isPurchasing.value)
-              Container(
-                color: Colors.black.withValues(alpha: 0.2),
-                child: const Center(child: LoadingHelper()),
-              ),
           ],
         );
       }),

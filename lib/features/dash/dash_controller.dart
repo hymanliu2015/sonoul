@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:sonoul/utils/dio_util.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
@@ -119,7 +120,6 @@ class DashController extends GetxController {
   void goToCreateSinger() {
     if (requireAuth()) {
       if (!isPremium.value && singers.length >= 2) {
-        ToastUtils.shotToast('Free limit reached (Max 2 singers). Upgrade to create more!');
         Get.toNamed(AppRoutes.member);
         return;
       }
@@ -247,10 +247,13 @@ class DashController extends GetxController {
       // 1. Download singer avatar image
       if (currentSinger!.avatarUrl.isNotEmpty) {
         try {
-          final avatarResponse = await http.get(Uri.parse(currentSinger!.avatarUrl));
+          final avatarResponse = await DioUtils().get(
+            currentSinger!.avatarUrl,
+            options: Options(responseType: ResponseType.bytes),
+          );
           if (avatarResponse.statusCode == 200) {
             final avatarFile = File('${tempDir.path}/singer_${currentSinger!.name}.png');
-            await avatarFile.writeAsBytes(avatarResponse.bodyBytes);
+            await avatarFile.writeAsBytes(avatarResponse.data);
             filesToShare.add(XFile(avatarFile.path));
           }
         } catch (e) {
@@ -272,11 +275,14 @@ class DashController extends GetxController {
         // Download the song file if available
         if (audioUrl != null && audioUrl.toString().isNotEmpty) {
           try {
-            final songResponse = await http.get(Uri.parse(audioUrl));
+            final songResponse = await DioUtils().get(
+              audioUrl,
+              options: Options(responseType: ResponseType.bytes),
+            );
             if (songResponse.statusCode == 200) {
               final extension = audioUrl.toString().split('.').last.split('?').first;
               final songFile = File('${tempDir.path}/song_$songTitle.$extension');
-              await songFile.writeAsBytes(songResponse.bodyBytes);
+              await songFile.writeAsBytes(songResponse.data);
               filesToShare.add(XFile(songFile.path));
             }
           } catch (e) {

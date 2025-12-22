@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MemberController extends GetxController {
@@ -17,8 +16,6 @@ class MemberController extends GetxController {
 
   RxList<ProductDetails> products = <ProductDetails>[].obs;
 
-
-  // Example product IDs
   // Product IDs
   final Set<String> _kIds = <String>{
     'sonoul_week',
@@ -80,11 +77,11 @@ class MemberController extends GetxController {
         buyProduct(product);
       } else {
         isPurchasing.value = false;
-        ToastUtils.shotToast('Products not available', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+        ToastUtils.shotToast('Products not available');
       }
     } else {
       isPurchasing.value = false;
-      ToastUtils.shotToast('Products not available', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      ToastUtils.shotToast('Products not available');
     }
   }
 
@@ -104,7 +101,7 @@ class MemberController extends GetxController {
       } else {
         if (purchaseDetails.status == PurchaseStatus.error) {
           // Handle error
-          ToastUtils.shotToast('Purchase failed', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+          ToastUtils.shotToast('Purchase failed');
           isPurchasing.value = false;
         } else if (purchaseDetails.status == PurchaseStatus.purchased ||
             purchaseDetails.status == PurchaseStatus.restored) {
