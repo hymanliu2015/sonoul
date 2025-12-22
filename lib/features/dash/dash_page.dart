@@ -63,6 +63,23 @@ class DashPage extends StatelessWidget {
         ),
         child: SafeArea(
           child: Obx(() {
+            // 首次加载且没有缓存数据时显示 loading
+            if (controller.isLoading.value && controller.singers.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading your singers...',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              );
+            }
+            
             if (controller.singers.isEmpty) {
               return Center(child: _buildEmptySingerState());
             }

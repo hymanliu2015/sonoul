@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sonoul/utils/dio_util.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -34,10 +36,13 @@ class DashController extends GetxController {
   // Helper to get current singer safely
   Singer? get currentSinger => singers.isNotEmpty ? singers[currentSingerIndex.value] : null;
 
+  static const String _singersCacheKey = 'cached_singers';
+
   @override
   void onInit() {
     super.onInit();
-    fetchSingers();
+    _loadCachedSingers(); // 先加载缓存
+    fetchSingers(); // 后台更新最新数据
     checkSubscription();
     _supabase.auth.onAuthStateChange.listen((data) {
       final event = data.event;
@@ -84,11 +89,40 @@ class DashController extends GetxController {
     }
   }
 
-  Future<void> fetchSingers() async {
+  /// 从本地缓存加载歌手列表
+  Future<void> _loadCachedSingers() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedJson = prefs.getString(_singersCacheKey);
+      if (cachedJson != null) {
+        final List<dynamic> list = jsonDecode(cachedJson);
+        singers.value = list.map((e) => Singer.fromJson(e)).toList();
+        debugPrint('Loaded ${singers.length} singers from cache');
+      }
+    } catch (e) {
+      debugPrint('Error loading cached singers: $e');
+    }
+  }
+
+  /// 保存歌手列表到本地缓存
+  Future<void> _cacheSingers(List<dynamic> singersList) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_singersCacheKey, jsonEncode(singersList));
+      debugPrint('Cached ${singersList.length} singers');
+    } catch (e) {
+      debugPrint('Error caching singers: $e');
+    }
+  }
+
+  Future<void> fetchSingers({bool showLoading = true}) async {
     if (!isLoggedIn) return;
 
     try {
-      isLoading.value = true;
+      // 只有当没有缓存数据时才显示 loading
+      if (showLoading && singers.isEmpty) {
+        isLoading.value = true;
+      }
       
       final res = await _supabase.functions.invoke(
         'api_singers',
@@ -99,6 +133,8 @@ class DashController extends GetxController {
       if (data != null && data['data'] != null) {
         final List<dynamic> list = data['data'];
         singers.value = list.map((e) => Singer.fromJson(e)).toList();
+        // 缓存到本地
+        _cacheSingers(list);
       }
       
     } catch (e) {
