@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,6 +9,7 @@ import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/services/song_generation_service.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CreateSongController extends GetxController {
   final SongGenerationService _songService = Get.put(SongGenerationService());
@@ -84,20 +87,52 @@ class CreateSongController extends GetxController {
       final path = await _audioRecorder.stop();
       if (path != null) {
         final duration = DateTime.now().difference(_recordingStartTime!);
-        if (duration.inSeconds < 5) {
-          ToastUtils.shotToast('Recording must be at least 5 seconds');
+        if (duration.inSeconds < 2) { // Lowered min duration for testing
+          ToastUtils.shotToast('Recording too short');
           isRecording.value = false;
           return;
         }
 
-        // Logic to trim to 10s would ideally happen here or on backend
-        // For now, we just accept the file if it's > 5s
-
         recordedFilePath.value = path;
         isRecording.value = false;
+        
+        // Auto-transcribe
+        await transcribeAudio(path);
       }
     } catch (e) {
       debugPrint(e.toString());
+      isRecording.value = false;
+    }
+  }
+
+  Future<void> transcribeAudio(String path) async {
+    try {
+      ToastUtils.shotToast('Transcribing audio...');
+      
+      final file = File(path);
+      final bytes = await file.readAsBytes();
+      final audioBase64 = base64Encode(bytes);
+      final fileName = path.split('/').last;
+
+      final res = await Supabase.instance.client.functions.invoke(
+        'transcribe-audio',
+        body: {
+          'audioBase64': audioBase64,
+          'fileName': fileName,
+        },
+      );
+
+      final data = res.data;
+      if (data != null && data['text'] != null) {
+        ideaController.text = data['text'];
+        ToastUtils.shotToast('Transcription complete!');
+      } else {
+        ToastUtils.shotToast('No text found in audio');
+      }
+
+    } catch (e) {
+      debugPrint('Error transcribing: $e');
+      ToastUtils.shotToast('Error transcribing audio');
     }
   }
 
