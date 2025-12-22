@@ -23,55 +23,29 @@ class SingerPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            Obx(() => Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                shape: BoxShape.circle,
-                image: controller.avatarPath.value.isNotEmpty
-                    ? DecorationImage(
-                        image: NetworkImage(controller.avatarPath.value),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
-                border: Border.all(color: AppColors.primary, width: 2),
-              ),
-              child: controller.avatarPath.value.isEmpty
-                  ? const Icon(Icons.person, size: 80, color: Colors.grey)
-                  : null,
-            )),
-            const SizedBox(height: 20),
-            TextField(
-              onChanged: controller.onPromptChanged,
-              decoration: InputDecoration(
-                labelText: 'Avatar Prompt',
-                hintText: 'Describe the avatar...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+            GestureDetector(
+              onTap: controller.pickImage,
+              child: Obx(() => Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  shape: BoxShape.circle,
+                  image: controller.avatarPath.value.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(controller.avatarPath.value),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                  border: Border.all(color: AppColors.primary, width: 2),
                 ),
-                prefixIcon: const Icon(Icons.image),
-              ),
+                child: controller.avatarPath.value.isEmpty
+                    ? const Icon(Icons.camera_alt, size: 50, color: Colors.grey)
+                    : null,
+              )),
             ),
             const SizedBox(height: 10),
-            Obx(() => SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: controller.isGenerating.value ? null : controller.generateAvatar,
-                icon: controller.isGenerating.value 
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.auto_awesome),
-                label: Text(controller.isGenerating.value ? 'Generating...' : 'Generate Avatar'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            )),
+            const Text('Tap to upload avatar', style: TextStyle(color: Colors.grey)),
             const SizedBox(height: 40),
             TextField(
               controller: nameController,

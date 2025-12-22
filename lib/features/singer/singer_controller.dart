@@ -12,8 +12,6 @@ class SingerController extends GetxController {
   RxString avatarPath = ''.obs;
   RxBool isLoading = false.obs;
   RxString name = ''.obs;
-  RxString prompt = ''.obs;
-  RxBool isGenerating = false.obs;
 
   void pickImage() {
     avatarPath.value = "https://api.dicebear.com/7.x/avataaars/png?seed=${DateTime.now().millisecondsSinceEpoch}";
@@ -21,47 +19,6 @@ class SingerController extends GetxController {
 
   void onNameChanged(String value) {
     name.value = value;
-  }
-
-  void onPromptChanged(String value) {
-    prompt.value = value;
-  }
-
-  Future<void> generateAvatar() async {
-    final promptText = prompt.value.trim();
-    if (promptText.isEmpty) {
-      ToastUtils.shotToast('Please enter a prompt');
-      return;
-    }
-
-    try {
-      isGenerating.value = true;
-      // Close keyboard
-      FocusManager.instance.primaryFocus?.unfocus();
-      
-      final res = await _supabase.functions.invoke(
-        'generate-image',
-        method: HttpMethod.post,
-        body: {
-          'prompt': promptText,
-        },
-      );
-
-      final data = res.data;
-      if (data == null || data['data'] == null || (data['data'] as List).isEmpty) {
-        throw "No image data returned";
-      }
-      
-      final imageUrl = data['data'][0]['url'];
-      avatarPath.value = imageUrl;
-      ToastUtils.shotToast('Avatar generated successfully!');
-      
-    } catch (e) {
-      debugPrint("Error generating avatar: $e");
-      ToastUtils.shotToast('Failed to generate avatar');
-    } finally {
-      isGenerating.value = false;
-    }
   }
 
   Future<void> createSinger() async {
