@@ -1,173 +1,127 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MemberController extends GetxController {
-  final InAppPurchase _iap = InAppPurchase.instance;
-  
-  RxBool isAvailable = false.obs;
+  /// 是否正在加载商品/套餐
   RxBool isLoading = false.obs;
+
+  /// 是否正在发起购买/恢复
   RxBool isPurchasing = false.obs;
-  RxString selectedProductId = 'sonoul_annual'.obs; // Default to yearly
 
-  RxList<ProductDetails> products = <ProductDetails>[].obs;
+  /// 当前可用套餐列表（来自 RevenueCat Offerings）
+  RxList<Package> packages = <Package>[].obs;
 
-  // Product IDs
-  final Set<String> _kIds = <String>{
-    'sonoul_week',
-    'sonoul_monthly', 
-    'sonoul_annual'
-  };
-  
-  late StreamSubscription<List<PurchaseDetails>> _subscription;
+  /// 选中的套餐 identifier（package.identifier）
+  RxString selectedPackageId = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    final Stream<List<PurchaseDetails>> purchaseUpdated = _iap.purchaseStream;
-    _subscription = purchaseUpdated.listen((List<PurchaseDetails> purchaseDetailsList) {
-      _listenToPurchaseUpdated(purchaseDetailsList);
-    }, onDone: () {
-      _subscription.cancel();
-    }, onError: (error) {
-      // handle error here.
-    });
-    initStore();
+    _loadOfferings();
   }
 
-  @override
-  void onClose() {
-    _subscription.cancel();
-    super.onClose();
-  }
-
-  Future<void> initStore() async {
+  /// 加载 RevenueCat 后台配置的 Offerings / Packages
+  Future<void> _loadOfferings() async {
     isLoading.value = true;
     try {
-      final bool available = await _iap.isAvailable();
-      isAvailable.value = available;
-      
-      if (available) {
-        final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
-        if (response.notFoundIDs.isNotEmpty) {
-          debugPrint("Products not found: ${response.notFoundIDs}");
-        }
-        products.value = response.productDetails;
-      }
-    } catch (e) {
-      debugPrint("Store init error: $e");
-    }
-
-    isLoading.value = false;
-  }
-
-  void selectProduct(String productId) {
-    selectedProductId.value = productId;
-  }
-
-  void buySelectedProduct() {
-    isPurchasing.value = true;
-    if (products.isNotEmpty) {
-      final product = products.firstWhereOrNull((p) => p.id == selectedProductId.value);
-      if (product != null) {
-        buyProduct(product);
-      } else {
-        isPurchasing.value = false;
+      final offerings = await Purchases.getOfferings();
+      final current = offerings.current;
+      if (current == null || current.availablePackages.isEmpty) {
+        debugPrint('No offerings / packages configured in RevenueCat');
         ToastUtils.shotToast('Products not available');
-      }
-    } else {
-      isPurchasing.value = false;
-      ToastUtils.shotToast('Products not available');
-    }
-  }
-
-  void buyProduct(ProductDetails product) {
-    final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
-    _iap.buyNonConsumable(purchaseParam: purchaseParam);
-  }
-
-  void restorePurchases() {
-    _iap.restorePurchases();
-  }
-
-  void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) async {
-    for (var purchaseDetails in purchaseDetailsList) {
-      if (purchaseDetails.status == PurchaseStatus.pending) {
-        isPurchasing.value = true;
+        packages.clear();
+        selectedPackageId.value = '';
       } else {
-        if (purchaseDetails.status == PurchaseStatus.error) {
-          // Handle error
-          ToastUtils.shotToast('Purchase failed');
-          isPurchasing.value = false;
-        } else if (purchaseDetails.status == PurchaseStatus.purchased ||
-            purchaseDetails.status == PurchaseStatus.restored) {
-          
-          // Verify with Supabase
-          isPurchasing.value = true;
-          await _verifyPurchase(
-            productId: purchaseDetails.productID,
-            purchaseToken: purchaseDetails.verificationData.serverVerificationData,
-            platform: GetPlatform.isIOS ? 'ios' : 'android',
-          );
-          
-          isPurchasing.value = false;
-          debugPrint("Purchase successful!'");
-
-          if (Get.isRegistered<DashController>()) {
-            await Get.find<DashController>().checkSubscription();
-          }
-          Get.back();
-        }
-        if (purchaseDetails.pendingCompletePurchase) {
-          await _iap.completePurchase(purchaseDetails);
-        }
+        packages.value = current.availablePackages;
+        // 默认选中第一个套餐
+        selectedPackageId.value = current.availablePackages.first.identifier;
       }
+    } catch (e) {
+      debugPrint('Error loading offerings: $e');
+      ToastUtils.shotToast('Failed to load products');
+      packages.clear();
+      selectedPackageId.value = '';
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  Future<void> _verifyPurchase({
-    required String productId,
-    required String purchaseToken,
-    required String platform,
-  }) async {
-    try {
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
-      if (user == null) return;
+  void selectPackage(String packageId) {
+    selectedPackageId.value = packageId;
+  }
 
-      final res = await supabase.functions.invoke(
-        'handle-subscription',
-        method: HttpMethod.post,
-        body: {
-          'user_id': user.id,
-          'product_id': productId,
-          'purchase_token': purchaseToken,
-          'platform': platform,
-        },
-      );
-      
-      if (res.status != 200) {
-        throw Exception('Failed to verify subscription: ${res.data}');
+  /// 购买当前选中的套餐
+  Future<void> buySelectedProduct() async {
+    if (packages.isEmpty || selectedPackageId.value.isEmpty) {
+      ToastUtils.shotToast('Products not available');
+      return;
+    }
+
+    final pkg = packages
+        .where((p) => p.identifier == selectedPackageId.value)
+        .cast<Package?>()
+        .firstOrNull;
+    if (pkg == null) {
+      ToastUtils.shotToast('Products not available');
+      return;
+    }
+
+    await _purchasePackage(pkg);
+  }
+
+  Future<void> _purchasePackage(Package pkg) async {
+    try {
+      isPurchasing.value = true;
+
+      final paras = PurchaseParams.package(pkg);
+      final customerInfo = await Purchases.purchase(paras);
+
+      // 根据 entitlements 判断是否已解锁会员
+      final entitlements = customerInfo.customerInfo.entitlements.active;
+      if (entitlements.isNotEmpty) {
+        ToastUtils.shotToast('Purchase successful');
+
+        // 刷新本地 premium 状态（依然通过 Supabase 的 subscriptions 表）
+        if (Get.isRegistered<DashController>()) {
+          await Get.find<DashController>().checkSubscription();
+        }
+        Get.back();
+      } else {
+        ToastUtils.shotToast('No active subscription found');
       }
-      
-      // Refresh user status in DashController
-      if (Get.isRegistered<DashController>()) {
-        final dash = Get.find<DashController>();
-        dash.isPremium.value = true; // Immediate local update
-        await dash.checkSubscription(); // Server-confirmed refresh
-      }
-      
+    } on PurchasesError {
+      // 用户取消，无需提示错误
     } catch (e) {
-      debugPrint("Verification error: $e");
-      // Don't block the user, but maybe retry later or show error
+      debugPrint('Purchase error: $e');
+      ToastUtils.shotToast('Purchase failed');
     } finally {
-      if (isPurchasing.value) {
-        isPurchasing.value = false;
+      isPurchasing.value = false;
+    }
+  }
+
+  /// 恢复历史购买
+  Future<void> restorePurchases() async {
+    try {
+      isPurchasing.value = true;
+      final customerInfo = await Purchases.restorePurchases();
+      final entitlements = customerInfo.entitlements.active;
+      if (entitlements.isNotEmpty) {
+        ToastUtils.shotToast('Restore successful');
+        if (Get.isRegistered<DashController>()) {
+          await Get.find<DashController>().checkSubscription();
+        }
+        Get.back();
+      } else {
+        ToastUtils.shotToast('No purchases to restore');
       }
+    } catch (e) {
+      debugPrint('Restore error: $e');
+      ToastUtils.shotToast('Restore failed');
+    } finally {
+      isPurchasing.value = false;
     }
   }
 }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:sonoul/common/res/app_colors.dart';
-import 'package:sonoul/components/custom_appbar.dart';
-import 'package:sonoul/components/custom_box.dart';
 import 'package:sonoul/components/custom_text.dart';
 import 'package:sonoul/features/member/member_controller.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
@@ -14,197 +12,436 @@ class MemberPage extends GetView<MemberController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const CustomAppbar(
-        text: 'Premium Member',
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: GestureDetector(
+          onTap: Get.back,
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.greenLight.withValues(alpha: 0.5),
+                width: 1.5,
+              ),
+            ),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: AppColors.textOnDark,
+              size: 18,
+            ),
+          ),
+        ),
+        centerTitle: true,
+        title: const Text(
+          'Premium',
+          style: TextStyle(
+            color: AppColors.textOnDark,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      body: Obx(() {
-        return Stack(
-          children: [
-            Column(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.greenDeep,
+              Color(0xFF0A1F1B),
+              Color(0xFF051512),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Obx(() {
+            if (controller.isLoading.value && controller.packages.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.greenLight),
+                        strokeWidth: 3,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Loading membership...',
+                      style: TextStyle(
+                        color: AppColors.textOnDark,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
               children: [
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.star_rounded, size: 80, color: Colors.orange),
-                        const SizedBox(height: 20),
-                        const CustomText(
-                          text: 'Unlock Full Potential',
-                          textFontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          textColor: AppColors.textPrimary,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 10),
-                        const CustomText(
-                          text: 'Get unlimited AI songs, high quality downloads, and more.',
-                          textFontSize: 16,
-                          textColor: AppColors.textSecondary,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 40),
-                        if (controller.products.isEmpty)
-                          const CustomText(
-                            text: 'Loading products...',
-                            textFontSize: 14,
-                            textColor: AppColors.textSecondary,
-                            textAlign: TextAlign.center,
+                        const SizedBox(height: 16),
+                        _buildHeader(),
+                        const SizedBox(height: 24),
+                        _buildBenefits(),
+                        const SizedBox(height: 24),
+                        if (controller.packages.isEmpty)
+                          const Center(
+                            child: CustomText(
+                              text: 'No plans available at the moment.',
+                              textFontSize: 14,
+                              textColor: AppColors.textOnDark,
+                              textAlign: TextAlign.center,
+                            ),
                           )
                         else
-                          ...controller.products.map((product) => _buildProductCard(product)),
+                          Column(
+                            children: controller.packages
+                                .map((pkg) => _buildProductCard(pkg))
+                                .toList(),
+                          ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
                 ),
-                
-                // Bottom Area
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, -4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Continue Button with proper styling
-                      GestureDetector(
-                        onTap: controller.isPurchasing.value ? null : controller.buySelectedProduct,
-                        child: Container(
-                          width: double.infinity,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: controller.isPurchasing.value ? AppColors.primary.withValues(alpha: 0.5) : AppColors.primary,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          alignment: Alignment.center,
-                          child: controller.isPurchasing.value
-                              ? const LoadingHelper(size: 24, color: Colors.white)
-                              : const Text(
-                                  'Continue',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      // Restore Purchases Button
-                      GestureDetector(
-                        onTap: controller.isPurchasing.value ? null : controller.restorePurchases,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Text(
-                            'Restore Purchases',
-                            style: TextStyle(
-                              color: controller.isPurchasing.value ? AppColors.textSecondary : AppColors.primary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      // Terms of Service
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: const [
-                          Text(
-                            'Privacy Policy',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            'Terms of Service',
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8), // Safe area padding
-                    ],
-                  ),
-                ),
+                _buildBottomArea(),
               ],
-            ),
-          ],
-        );
-      }),
+            );
+          }),
+        ),
+      ),
     );
   }
 
-  Widget _buildProductCard(ProductDetails product) {
-    return Obx(() {
-      final isSelected = controller.selectedProductId.value == product.id;
-      return CustomBox(
-        onTap: () => controller.selectProduct(product.id),
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(20),
-        color: isSelected ? AppColors.primary.withValues(alpha: 0.05) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        borderWidth: 2,
-        borderColor: isSelected ? AppColors.primary : Colors.transparent,
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomText(
-                    text: product.title,
-                    textFontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    textColor: AppColors.textPrimary,
-                  ),
-                  const SizedBox(height: 4),
-                  CustomText(
-                    text: product.price,
-                    textFontSize: 16,
-                    textColor: AppColors.textSecondary,
-                  ),
-                ],
-              ),
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [AppColors.greenLight, AppColors.greenPrimary],
             ),
-             // Selection Radio/Check
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? AppColors.primary : Colors.grey.shade300,
-                  width: 2,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.greenPrimary.withValues(alpha: 0.5),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.star_rounded,
+            color: Colors.white,
+            size: 32,
+          ),
+        ),
+        const SizedBox(width: 16),
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Unlock Premium',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textOnDark,
                 ),
               ),
-              child: isSelected
-                  ? Center(
-                      child: Container(
-                        width: 12,
-                        height: 12,
+              SizedBox(height: 6),
+              Text(
+                'Generate more AI songs, faster and without limits.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white70,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBenefits() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.18),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.greenLight.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppColors.greenLight,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'What you get',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textOnDark,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildBenefitLine('More AI song generations per day'),
+          const SizedBox(height: 6),
+          _buildBenefitLine('Higher priority processing & faster generation'),
+          const SizedBox(height: 6),
+          _buildBenefitLine('Access to advanced models and voices'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBenefitLine(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(
+          Icons.check_circle_rounded,
+          size: 16,
+          color: AppColors.greenLight,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.white.withValues(alpha: 0.85),
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomArea() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.3),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: controller.isPurchasing.value
+                ? null
+                : controller.buySelectedProduct,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: controller.isPurchasing.value
+                      ? [
+                          AppColors.greenPrimary.withValues(alpha: 0.5),
+                          AppColors.greenDark.withValues(alpha: 0.5),
+                        ]
+                      : const [AppColors.greenLight, AppColors.greenPrimary],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  if (!controller.isPurchasing.value)
+                    BoxShadow(
+                      color: AppColors.greenPrimary.withValues(alpha: 0.4),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                ],
+              ),
+              alignment: Alignment.center,
+              child: controller.isPurchasing.value
+                  ? const LoadingHelper(size: 24, color: Colors.white)
+                  : const Text(
+                      'Continue',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: controller.isPurchasing.value
+                ? null
+                : controller.restorePurchases,
+            child: Text(
+              'Restore Purchases',
+              style: TextStyle(
+                color: controller.isPurchasing.value
+                    ? Colors.white.withValues(alpha: 0.4)
+                    : Colors.white.withValues(alpha: 0.8),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Subscriptions auto-renew. You can cancel anytime in your account settings.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.white.withValues(alpha: 0.6),
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductCard(Package package) {
+    return Obx(() {
+      final isSelected =
+          controller.selectedPackageId.value == package.identifier;
+      return GestureDetector(
+        onTap: () => controller.selectPackage(package.identifier),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: isSelected ? 0.14 : 0.06),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: isSelected
+                  ? AppColors.greenLight.withValues(alpha: 0.8)
+                  : Colors.white.withValues(alpha: 0.15),
+              width: isSelected ? 1.5 : 1,
+            ),
+            boxShadow: [
+              if (isSelected)
+                BoxShadow(
+                  color: AppColors.greenLight.withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isSelected
+                        ? const [AppColors.greenLight, AppColors.greenPrimary]
+                        : [Colors.white.withValues(alpha: 0.2), Colors.white10],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  Icons.bolt_rounded,
+                  color: isSelected ? Colors.white : AppColors.greenLight,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      package.storeProduct.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textOnDark,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      package.storeProduct.priceString,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.greenLight
+                        : Colors.white.withValues(alpha: 0.4),
+                    width: 2,
+                  ),
+                ),
+                child: isSelected
+                    ? Container(
+                        margin: const EdgeInsets.all(3),
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.primary,
+                          color: AppColors.greenLight,
                         ),
-                      ),
-                    )
-                  : null,
-            ),
-          ],
+                      )
+                    : null,
+              ),
+            ],
+          ),
         ),
       );
     });

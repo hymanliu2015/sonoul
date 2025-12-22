@@ -1,4 +1,5 @@
 
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:sonoul/common/config/config.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:flutter/services.dart';
@@ -38,7 +39,26 @@ class InitService extends GetxService {
       anonKey:AppConfig.supabaseAnonKey,
     );
 
+    await initPlatformState();
+
     return this;
+  }
+
+
+  Future<void> initPlatformState() async {
+    await Purchases.setLogLevel(LogLevel.debug); // 开发阶段开启日志
+
+    PurchasesConfiguration configuration;
+    if (GetPlatform.isAndroid) {
+      configuration = PurchasesConfiguration("goog_your_public_api_key");
+    } else {
+      configuration = PurchasesConfiguration("appl_your_public_api_key");
+    }
+
+    // 重要：将 RevenueCat 的 App User ID 关联到 Supabase 的 User ID
+    final supabase = Supabase.instance.client;
+    configuration.appUserID = supabase.auth.currentUser?.id;
+    await Purchases.configure(configuration);
   }
 
 }
