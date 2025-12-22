@@ -41,8 +41,10 @@ class DioUtils {
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
         // 每次请求时自动添加 Token
-        String token = _getToken();
-        options.headers['Authorization'] = token;
+        if (!options.headers.containsKey('Authorization')) {
+          String token = _getToken();
+          options.headers['Authorization'] = token;
+        }
         // 网络连接正常，继续请求
         handler.next(options);
       },
