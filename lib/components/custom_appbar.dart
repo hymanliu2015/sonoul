@@ -13,6 +13,7 @@ class CustomAppbar extends StatefulWidget implements PreferredSizeWidget {
   final String? text;
   final double? leadingWidth;
   final Color? backgroundColor;
+  final Color? backColor;
 
   const CustomAppbar({
     super.key,
@@ -24,6 +25,7 @@ class CustomAppbar extends StatefulWidget implements PreferredSizeWidget {
     this.actions,
     this.leadingWidth,
     this.backgroundColor,
+    this.backColor,
   });
 
   @override
@@ -62,6 +64,7 @@ class _CustomAppbarState extends State<CustomAppbar> {
                 imageUrl: AppAssets.iconBack,
                 width: 24,
                 height: 24,
+                color: widget.backColor,
               ),
             ),
       leadingWidth: widget.leadingWidth,

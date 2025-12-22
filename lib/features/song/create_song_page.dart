@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/components/custom_appbar.dart';
+import 'package:sonoul/components/custom_text.dart';
 import 'package:sonoul/features/song/create_song_controller.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
 
@@ -15,7 +16,11 @@ class CreateSongPage extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: CustomAppbar(
-        text: "Create Song",
+        title: CustomText(
+          text: "Create New Song",
+          textColor: AppColors.textOnDark,
+        ),
+        backColor: AppColors.textOnDark,
       ),
       body: Container(
         decoration: const BoxDecoration(
