@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/components/custom_appbar.dart';
-import 'package:sonoul/features/song/create_single_controller.dart';
+import 'package:sonoul/features/song/create_song_controller.dart';
 import 'package:sonoul/common/helper/loading_helper.dart';
 
-class CreateSinglePage extends StatelessWidget {
-  final CreateSingleController controller = Get.put(CreateSingleController());
+class CreateSongPage extends StatelessWidget {
+  final CreateSongController controller = Get.put(CreateSongController());
 
-  CreateSinglePage({super.key});
+  CreateSongPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppbar(
-        text: "Create New Single",
+        text: "Create New Songs",
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),

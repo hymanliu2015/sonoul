@@ -5,7 +5,7 @@ import 'package:sonoul/features/auth/login_page.dart';
 import 'package:sonoul/features/auth/register_page.dart';
 import 'package:sonoul/features/guide/guide_page.dart';
 import 'package:sonoul/features/singer/singer_page.dart';
-import 'package:sonoul/features/song/create_single_page.dart';
+import 'package:sonoul/features/song/create_song_page.dart';
 import 'package:sonoul/features/album/album_page.dart';
 import 'package:sonoul/features/song/song_detail_page.dart';
 import 'package:sonoul/features/member/member_page.dart';
@@ -44,7 +44,7 @@ class AppPages{
     ),
     GetPage(
       name: AppRoutes.createSingle,
-      page: () => CreateSinglePage(),
+      page: () => CreateSongPage(),
     ),
     GetPage(
       name: AppRoutes.album,

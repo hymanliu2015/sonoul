@@ -8,7 +8,7 @@ import 'package:sonoul/services/song_generation_service.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
 
-class CreateSingleController extends GetxController {
+class CreateSongController extends GetxController {
   final SongGenerationService _songService = Get.put(SongGenerationService());
   final AudioRecorder _audioRecorder = AudioRecorder();
   final AudioPlayer _audioPlayer = AudioPlayer();
