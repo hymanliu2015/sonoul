@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/components/custom_cached_image.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 
 class DashPage extends StatelessWidget {
@@ -206,13 +207,12 @@ class DashPage extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             // Avatar Image
-            avatarUrl.isNotEmpty
-                ? Image.network(
-                    avatarUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => _buildAvatarPlaceholder(),
-                  )
-                : _buildAvatarPlaceholder(),
+            CustomCachedImage(
+              imageUrl: avatarUrl,
+              fit: BoxFit.cover,
+              placeholderIcon: Icons.person_outline,
+              placeholderIconSize: 80,
+            ),
             // Gradient overlay at bottom
             Positioned(
               bottom: 0,
@@ -243,28 +243,6 @@ class DashPage extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAvatarPlaceholder() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.greenDark,
-            AppColors.greenDeep,
-          ],
-        ),
-      ),
-      child: const Center(
-        child: Icon(
-          Icons.person_outline,
-          size: 80,
-          color: AppColors.greenLight,
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/components/custom_cached_image.dart';
 import 'package:sonoul/features/song/song_detail_controller.dart';
 import 'package:video_player/video_player.dart';
 
@@ -163,24 +164,12 @@ class SongDetailPage extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(
-                controller.song['cover_url'] ?? 
-                    'https://picsum.photos/seed/${controller.song['id'] ?? 'default'}/300',
+              CustomCachedImage(
+                imageUrl: controller.song['cover_url'],
+                fallbackUrl: 'https://picsum.photos/seed/${controller.song['id'] ?? 'default'}/300',
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [AppColors.greenDark, AppColors.greenDeep],
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.music_note_rounded,
-                    size: 80,
-                    color: AppColors.greenLight,
-                  ),
-                ),
+                placeholderIcon: Icons.music_note_rounded,
+                placeholderIconSize: 80,
               ),
               // Subtle gradient overlay
               Container(

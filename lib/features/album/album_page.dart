@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/components/custom_cached_image.dart';
 import 'package:sonoul/features/album/album_controller.dart';
 import 'package:sonoul/routes/app_routes.dart';
 
@@ -512,17 +513,12 @@ class AlbumPage extends StatelessWidget {
     final url = song['cover_url'] as String?;
     final fallbackUrl = 'https://picsum.photos/seed/${song['id'] ?? 'default'}/200';
 
-    return Image.network(
-      url ?? fallbackUrl,
+    return CustomCachedImage(
+      imageUrl: url,
+      fallbackUrl: fallbackUrl,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.greenDark, AppColors.greenDeep],
-          ),
-        ),
-        child: const Icon(Icons.music_note, color: AppColors.greenLight),
-      ),
+      placeholderIcon: Icons.music_note,
+      placeholderIconSize: 24,
     );
   }
 
