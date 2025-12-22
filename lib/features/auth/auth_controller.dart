@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +49,7 @@ class AuthController extends GetxController {
       );
       
       if (res.user != null) {
+        await Purchases.logIn(res.user?.id ?? "");
         Get.offAllNamed(AppRoutes.dash);
       }
     } on AuthException catch (e) {
@@ -107,6 +109,7 @@ class AuthController extends GetxController {
   // Logout
   Future<void> logout() async {
     await _supabase.auth.signOut();
+    await Purchases.logOut();
     Get.offAllNamed(AppRoutes.login);
   }
 
@@ -136,6 +139,7 @@ class AuthController extends GetxController {
       // Success: sign out and navigate to login
       debugPrint('账户删除成功，执行客户端登出...');
       await _supabase.auth.signOut();
+      await Purchases.logOut();
       Get.offAllNamed(AppRoutes.login);
 
     } on FunctionException catch (e) {
