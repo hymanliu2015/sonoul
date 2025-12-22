@@ -23,6 +23,10 @@ class DashController extends GetxController {
   final RxInt currentSingerIndex = 0.obs;
   final RxBool isLoading = false.obs;
 
+  final int maxCreateSinger = 2;
+
+  final int maxCreateSongs = 1;
+
   final RxBool isPremium = false.obs;
   final SupabaseSongService _songService = Get.put(SupabaseSongService());
   RealtimeChannel? _subsRealtime;
@@ -119,7 +123,7 @@ class DashController extends GetxController {
 
   void goToCreateSinger() {
     if (requireAuth()) {
-      if (!isPremium.value && singers.length >= 2) {
+      if (!isPremium.value && singers.length >= maxCreateSinger) {
         Get.toNamed(AppRoutes.member);
         return;
       }
@@ -137,8 +141,7 @@ class DashController extends GetxController {
       
       if (!isPremium.value) {
         final songCount = await _songService.getUserSongCount();
-        if (songCount >= 20) {
-          ToastUtils.shotToast('Free limit reached (Max 2 songs). Upgrade to create more!');
+        if (songCount >= maxCreateSongs) {
           Get.toNamed(AppRoutes.member);
           return;
         }
