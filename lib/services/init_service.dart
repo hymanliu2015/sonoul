@@ -44,15 +44,14 @@ class InitService extends GetxService {
     return this;
   }
 
-
   Future<void> initPlatformState() async {
     await Purchases.setLogLevel(LogLevel.debug); // 开发阶段开启日志
 
     PurchasesConfiguration configuration;
     if (GetPlatform.isAndroid) {
-      configuration = PurchasesConfiguration("goog_your_public_api_key");
+      configuration = PurchasesConfiguration("appl_brbAQJQbGTfESxFLCvEBJwymjsz");
     } else {
-      configuration = PurchasesConfiguration("appl_your_public_api_key");
+      configuration = PurchasesConfiguration("test_vNjdrgFZHWhcSXoNJWEzBBGbksU");
     }
 
     // 重要：将 RevenueCat 的 App User ID 关联到 Supabase 的 User ID
