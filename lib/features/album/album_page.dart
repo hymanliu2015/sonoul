@@ -63,7 +63,7 @@ class AlbumPage extends StatelessWidget {
         }
 
         final hasProcessing = controller.songs
-            .any((s) => s['status'] == 'processing');
+            .any((s) => s['status'] == 'pending' || s['status'] == 'processing');
 
         return RefreshIndicator(
           onRefresh: controller.fetchSongs,
@@ -139,7 +139,9 @@ class AlbumPage extends StatelessWidget {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (song['status'] == 'processing')
+                      if (song['status'] == 'pending')
+                        const Icon(Icons.hourglass_empty, color: Colors.orange, size: 32)
+                      else if (song['status'] == 'processing')
                         _isTimedOut(song['created_at'])
                             ? const Icon(Icons.error_outline, color: Colors.orange, size: 32)
                             : const SizedBox(
@@ -158,7 +160,8 @@ class AlbumPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  onTap: (song['status'] == 'processing' && !_isTimedOut(song['created_at']))
+                  onTap: (song['status'] == 'pending' || 
+                          song['status'] == 'processing' && !_isTimedOut(song['created_at']))
                       ? null
                       : () => controller.openSongDetail(song),
                 ),
