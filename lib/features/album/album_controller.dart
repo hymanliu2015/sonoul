@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/routes/app_routes.dart';
@@ -13,6 +14,10 @@ class AlbumController extends GetxController {
   late final String? singerId;
   late final String? singerName;
 
+  // 轮询定时器
+  Timer? _pollingTimer;
+  static const _pollingInterval = Duration(seconds: 10);
+
   @override
   void onInit() {
     super.onInit();
@@ -20,6 +25,12 @@ class AlbumController extends GetxController {
     final args = Get.arguments;
     singerId = args != null ? args['singerId'] as String? : null;
     singerName = args != null ? args['singerName'] as String? : null;
+
+    // 检查是否需要立即刷新（从 CreateSongPage 跳转过来）
+    final shouldRefresh = args != null ? args['refresh'] as bool? : false;
+    if (shouldRefresh == true) {
+      debugPrint('AlbumController: Refresh requested from CreateSongPage');
+    }
 
     fetchSongs();
     
@@ -38,8 +49,46 @@ class AlbumController extends GetxController {
           // For now, simple insert at top as list is ordered by created_at desc
           songs.insert(0, updatedSong);
         }
+        
+        // 检查是否还有 pending 的歌曲，决定是否继续轮询
+        _updatePollingState();
       }
     });
+
+    // 启动轮询，监听 songs 变化来决定是否继续
+    ever(songs, (_) => _updatePollingState());
+  }
+
+  @override
+  void onClose() {
+    _stopPolling();
+    super.onClose();
+  }
+
+  /// 检查是否有 pending 状态的歌曲，决定是否开启/关闭轮询
+  void _updatePollingState() {
+    final hasPending = songs.any((s) => 
+      s['status'] == 'pending' || s['status'] == 'processing'
+    );
+    
+    if (hasPending && _pollingTimer == null) {
+      _startPolling();
+    } else if (!hasPending && _pollingTimer != null) {
+      _stopPolling();
+    }
+  }
+
+  void _startPolling() {
+    debugPrint('AlbumController: Starting polling for pending songs');
+    _pollingTimer = Timer.periodic(_pollingInterval, (_) {
+      fetchSongs(showLoading: false);
+    });
+  }
+
+  void _stopPolling() {
+    debugPrint('AlbumController: Stopping polling');
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
   }
 
   Future<void> fetchSongs({bool showLoading = true}) async {
