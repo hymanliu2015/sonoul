@@ -65,14 +65,23 @@ class RegisterPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                TextField(
+                Obx(() => TextField(
                   controller: passwordController,
-                  obscureText: true,
+                  obscureText: !controller.isRegisterPasswordVisible.value,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Password',
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isRegisterPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white70,
+                      ),
+                      onPressed: () => controller.toggleRegisterPasswordVisibility(),
+                    ),
                     filled: true,
                     fillColor: Colors.white.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
@@ -80,16 +89,25 @@ class RegisterPage extends StatelessWidget {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: 20),
-                TextField(
+                Obx(() => TextField(
                   controller: confirmPasswordController,
-                  obscureText: true,
+                  obscureText: !controller.isRegisterConfirmPasswordVisible.value,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Confirm Password',
                     labelStyle: const TextStyle(color: Colors.white70),
                     prefixIcon: const Icon(Icons.lock_outline, color: Colors.white70),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        controller.isRegisterConfirmPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white70,
+                      ),
+                      onPressed: () => controller.toggleRegisterConfirmPasswordVisibility(),
+                    ),
                     filled: true,
                     fillColor: Colors.white.withValues(alpha: 0.1),
                     border: OutlineInputBorder(
@@ -97,7 +115,7 @@ class RegisterPage extends StatelessWidget {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: 40),
                 Obx(() => ElevatedButton(
                   onPressed: controller.isLoading.value

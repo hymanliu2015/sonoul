@@ -23,9 +23,9 @@ class DashController extends GetxController {
   final RxInt currentSingerIndex = 0.obs;
   final RxBool isLoading = false.obs;
 
-  final int maxCreateSinger = 2;
+  final int maxCreateSinger = 20;
 
-  final int maxCreateSongs = 1;
+  final int maxCreateSongs = 10;
 
   final RxBool isPremium = false.obs;
   final SupabaseSongService _songService = Get.put(SupabaseSongService());

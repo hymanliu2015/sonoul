@@ -10,9 +10,21 @@ class AuthController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxBool isPasswordVisible = false.obs;
+  
+  // Register page visibility states
+  final RxBool isRegisterPasswordVisible = false.obs;
+  final RxBool isRegisterConfirmPasswordVisible = false.obs;
 
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
+  }
+  
+  void toggleRegisterPasswordVisibility() {
+    isRegisterPasswordVisible.value = !isRegisterPasswordVisible.value;
+  }
+  
+  void toggleRegisterConfirmPasswordVisibility() {
+    isRegisterConfirmPasswordVisible.value = !isRegisterConfirmPasswordVisible.value;
   }
 
   // Login
