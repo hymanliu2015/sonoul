@@ -49,9 +49,9 @@ class InitService extends GetxService {
 
     PurchasesConfiguration configuration;
     if (GetPlatform.isAndroid) {
-      configuration = PurchasesConfiguration("test_vNjdrgFZHWhcSXoNJWEzBBGbksU");
+      configuration = PurchasesConfiguration(AppConfig.subAndroidKey);
     } else {
-      configuration = PurchasesConfiguration("appl_brbAQJQbGTfESxFLCvEBJwymjsz");
+      configuration = PurchasesConfiguration(AppConfig.subIOSKey);
     }
 
     // 重要：将 RevenueCat 的 App User ID 关联到 Supabase 的 User ID
