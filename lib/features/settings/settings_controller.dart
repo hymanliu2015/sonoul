@@ -1,15 +1,14 @@
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:in_app_review/in_app_review.dart';
 import 'package:sonoul/common/config/config.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sonoul/features/auth/auth_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sonoul/utils/review_util.dart';
 
 class SettingsController extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
-  final InAppReview _inAppReview = InAppReview.instance;
   
   final RxString appVersion = ''.obs;
 
@@ -39,15 +38,7 @@ class SettingsController extends GetxController {
   }
 
   Future<void> rateApp() async {
-    try {
-      if (await _inAppReview.isAvailable()) {
-        await _inAppReview.requestReview();
-      } else {
-        ToastUtils.shotToast('Rating not available on this device');
-      }
-    } catch (e) {
-      ToastUtils.shotToast('Failed to open rating');
-    }
+    await ReviewUtils.rateAppWithFeedback();
   }
 
   Future<void> openWebsite() async {

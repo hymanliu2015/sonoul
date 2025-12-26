@@ -10,6 +10,7 @@ import 'package:sonoul/services/song_generation_service.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:sonoul/utils/review_util.dart';
 
 class CreateSongController extends GetxController {
   final SongGenerationService _songService = Get.put(SongGenerationService());
@@ -193,6 +194,9 @@ class CreateSongController extends GetxController {
       singerId = dashController.currentSinger?.id;
       singerName = dashController.currentSinger?.name;
     }
+
+    // Request app rating
+    ReviewUtils.rateAppWithFeedback();
 
     // Use Get.offNamed to replace current page with album page
     // Pass arguments and force refresh

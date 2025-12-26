@@ -5,6 +5,7 @@ import 'package:sonoul/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:sonoul/utils/sp_util.dart';
 import 'package:sonoul/utils/toast_util.dart';
+import 'package:sonoul/utils/review_util.dart';
 
 class SingerController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -108,6 +109,10 @@ class SingerController extends GetxController {
       }
 
       ToastUtils.shotToast('Singer created successfully!');
+      
+      // Request app rating
+      ReviewUtils.rateAppWithFeedback();
+      
       Get.offAndToNamed(AppRoutes.dash);
 
     } on PostgrestException catch (e) {
