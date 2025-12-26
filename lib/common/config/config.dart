@@ -16,4 +16,6 @@ class AppConfig{
 
   static const String subAndroidKey = "goog_HoCmvcWccBOWLmTBDhUedppRRmh";
   static const String subIOSKey = "appl_brbAQJQbGTfESxFLCvEBJwymjsz";
+
+  static const String amplitudeKey = "b18fc6948242df3e3d15bdb94b0e2f3e";
 }

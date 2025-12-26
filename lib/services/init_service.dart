@@ -1,4 +1,7 @@
 
+import 'package:amplitude_flutter/amplitude.dart';
+import 'package:amplitude_flutter/configuration.dart';
+import 'package:amplitude_flutter/events/base_event.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:sonoul/common/config/config.dart';
 import 'package:sonoul/common/res/app_colors.dart';
@@ -41,6 +44,8 @@ class InitService extends GetxService {
 
     await initPlatformState();
 
+    await initAmplitude();
+
     return this;
   }
 
@@ -59,5 +64,25 @@ class InitService extends GetxService {
     configuration.appUserID = supabase.auth.currentUser?.id;
     await Purchases.configure(configuration);
   }
+
+  Future<void> initAmplitude() async {
+    // Create and initailize the instance
+    final Amplitude amplitude = Amplitude(Configuration(
+      apiKey: AppConfig.amplitudeKey,
+    ));
+
+    // Wait until the SDK is initialized
+    await amplitude.isBuilt;
+
+    // Track an event
+    amplitude.track(BaseEvent(
+      'APP_INIT',
+      eventProperties: {'打开app': 'init'},
+    ));
+
+    // Send events to the server
+    amplitude.flush();
+  }
+
 
 }

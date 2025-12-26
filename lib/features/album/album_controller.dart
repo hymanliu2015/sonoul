@@ -115,18 +115,30 @@ class AlbumController extends GetxController {
   }
 
   void openSongDetail(Map<String, dynamic> song) {
-    Get.toNamed(AppRoutes.songDetail, arguments: song);
+    // Pass the current song AND the full playlist to allow navigation
+    // Filter out pending/processing songs that aren't playable if desired, 
+    // or just pass all and let the detail controller handle skippable ones.
+    // For now, let's pass all songs so the index makes sense.
+    Get.toNamed(AppRoutes.songDetail, arguments: {
+      'song': song,
+      'playlist': songs,
+    });
   }
 
   Future<void> deleteSong(String songId) async {
     Get.dialog(
       AlertDialog(
-        title: const Text('Delete Song'),
-        content: const Text('Are you sure you want to delete this song?'),
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete Song', style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'Are you sure you want to delete this song?',
+          style: TextStyle(color: Colors.white70),
+        ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () async {
@@ -135,14 +147,19 @@ class AlbumController extends GetxController {
                 isLoading.value = true;
                 await _songService.deleteSong(songId);
                 songs.removeWhere((s) => s['id'] == songId);
-                Get.snackbar('Success', 'Song deleted');
+                Get.snackbar(
+                  'Success',
+                  'Song deleted',
+                  colorText: Colors.white, 
+                  backgroundColor: Colors.black.withValues(alpha: 0.8),
+                );
               } catch (e) {
                 Get.snackbar('Error', 'Failed to delete song');
               } finally {
                 isLoading.value = false;
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),

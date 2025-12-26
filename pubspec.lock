@@ -9,6 +9,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.0"
+  amplitude_flutter:
+    dependency: "direct main"
+    description:
+      name: amplitude_flutter
+      sha256: "9c07360f23bd82f889c1b61573c7015f1b4cdf2a3bc032bd7f005cb07ba2f763"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.3.9"
   app_links:
     dependency: transitive
     description:

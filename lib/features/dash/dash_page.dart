@@ -34,9 +34,16 @@ class DashPage extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.1),
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.greenLight.withValues(alpha: 0.5), width: 1.5),
+              border: Border.all(
+                color: AppColors.greenLight.withValues(alpha: 0.5),
+                width: 1.5,
+              ),
             ),
-            child: const Icon(Icons.person_outline, color: AppColors.textOnDark, size: 20),
+            child: const Icon(
+              Icons.person_outline,
+              color: AppColors.textOnDark,
+              size: 20,
+            ),
           ),
         ),
         actions: [
@@ -48,9 +55,16 @@ class DashPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: AppColors.greenPrimary.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.greenLight.withValues(alpha: 0.5), width: 1.5),
+                border: Border.all(
+                  color: AppColors.greenLight.withValues(alpha: 0.5),
+                  width: 1.5,
+                ),
               ),
-              child: const Icon(Icons.add, color: AppColors.greenLight, size: 20),
+              child: const Icon(
+                Icons.add,
+                color: AppColors.greenLight,
+                size: 20,
+              ),
             ),
           ),
         ],
@@ -60,11 +74,7 @@ class DashPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              AppColors.greenDeep,
-              Color(0xFF0A1F1B),
-              Color(0xFF051512),
-            ],
+            colors: [AppColors.greenDeep, Color(0xFF0A1F1B), Color(0xFF051512)],
           ),
         ),
         child: SafeArea(
@@ -82,7 +92,9 @@ class DashPage extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.greenLight),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.greenLight,
+                        ),
                         strokeWidth: 3,
                       ),
                     ),
@@ -112,7 +124,11 @@ class DashPage extends StatelessWidget {
                     onPageChanged: controller.onPageChanged,
                     itemBuilder: (context, index) {
                       final singer = controller.singers[index];
-                      return _buildSingerPage(singer.name, singer.avatarUrl, index);
+                      return _buildSingerPage(
+                        singer.name,
+                        singer.avatarUrl,
+                        index,
+                      );
                     },
                   ),
                 ),
@@ -131,8 +147,7 @@ class DashPage extends StatelessWidget {
         children: [
           const SizedBox(height: 20),
           // Page Indicator
-          if (controller.singers.length > 1)
-            _buildPageIndicator(index),
+          if (controller.singers.length > 1) _buildPageIndicator(index),
           const SizedBox(height: 20),
           // Singer Avatar with glow effect
           _buildSingerAvatar(name, avatarUrl),
@@ -170,8 +185,8 @@ class DashPage extends StatelessWidget {
           width: isActive ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive 
-                ? AppColors.greenLight 
+            color: isActive
+                ? AppColors.greenLight
                 : Colors.white.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(4),
           ),
@@ -183,7 +198,7 @@ class DashPage extends StatelessWidget {
   Widget _buildSingerAvatar(String name, String avatarUrl) {
     return Container(
       width: 260,
-      height: 320,
+      height: 260,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
@@ -256,18 +271,12 @@ class DashPage extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
-          ),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.share_rounded,
-              size: 18,
-              color: AppColors.greenLight,
-            ),
+            Icon(Icons.share_rounded, size: 18, color: AppColors.greenLight),
             const SizedBox(width: 8),
             const Text(
               'Share',
@@ -497,10 +506,7 @@ class DashPage extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF1A3D35),
-              AppColors.greenDeep,
-            ],
+            colors: [Color(0xFF1A3D35), AppColors.greenDeep],
           ),
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(24),
@@ -537,29 +543,16 @@ class DashPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               ),
               child: Row(
                 children: [
                   // Singer Avatar
-                  Container(
+                  CustomCachedImage(
+                    imageUrl: singer.avatarUrl,
                     width: 70,
                     height: 70,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                        image: (singer.avatarUrl.isNotEmpty)
-                            ? NetworkImage(singer.avatarUrl)
-                            : const NetworkImage(
-                                'https://api.dicebear.com/7.x/avataaars/png?seed=default'),
-                        fit: BoxFit.cover,
-                      ),
-                      border: Border.all(
-                        color: AppColors.greenLight.withValues(alpha: 0.3),
-                      ),
-                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                   const SizedBox(width: 16),
                   // Singer Info

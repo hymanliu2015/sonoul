@@ -72,7 +72,7 @@ class SongDetailPage extends StatelessWidget {
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
+            child: Obx(() => Column(
               children: [
                 const SizedBox(height: 20),
                 // Cover / Video
@@ -88,7 +88,7 @@ class SongDetailPage extends StatelessWidget {
                 _buildPlaybackControls(),
                 const SizedBox(height: 40),
               ],
-            ),
+            )),
           ),
         ),
       ),
@@ -96,101 +96,39 @@ class SongDetailPage extends StatelessWidget {
   }
 
   Widget _buildMediaSection(BuildContext context) {
-    return Obx(() {
-      if (controller.isVideoInitialized.value && controller.videoController != null) {
-        return Container(
-          width: double.infinity,
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.45,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.greenPrimary.withValues(alpha: 0.3),
-                blurRadius: 30,
-                offset: const Offset(0, 15),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: Stack(
-              children: [
-                AspectRatio(
-                  aspectRatio: controller.videoController!.value.aspectRatio,
-                  child: VideoPlayer(controller.videoController!),
-                ),
-                // Border overlay
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: AppColors.greenLight.withValues(alpha: 0.3),
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-
-      // Cover Image with glow effect
+    if (controller.isVideoInitialized.value && controller.videoController != null) {
       return Container(
-        width: 280,
-        height: 280,
+        width: double.infinity,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.45,
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppColors.greenPrimary.withValues(alpha: 0.4),
-              blurRadius: 40,
-              spreadRadius: 0,
+              color: AppColors.greenPrimary.withValues(alpha: 0.3),
+              blurRadius: 30,
               offset: const Offset(0, 15),
-            ),
-            BoxShadow(
-              color: AppColors.greenLight.withValues(alpha: 0.2),
-              blurRadius: 60,
-              spreadRadius: -10,
             ),
           ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
           child: Stack(
-            fit: StackFit.expand,
             children: [
-              CustomCachedImage(
-                imageUrl: controller.song['cover_url'],
-                fallbackUrl: 'https://picsum.photos/seed/${controller.song['id'] ?? 'default'}/300',
-                fit: BoxFit.cover,
-                placeholderIcon: Icons.music_note_rounded,
-                placeholderIconSize: 80,
+              AspectRatio(
+                aspectRatio: controller.videoController!.value.aspectRatio,
+                child: VideoPlayer(controller.videoController!),
               ),
-              // Subtle gradient overlay
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withValues(alpha: 0.3),
-                    ],
-                  ),
-                ),
-              ),
-              // Border
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: AppColors.greenLight.withValues(alpha: 0.3),
-                    width: 2,
+              // Border overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: AppColors.greenLight.withValues(alpha: 0.3),
+                      width: 2,
+                    ),
                   ),
                 ),
               ),
@@ -198,7 +136,67 @@ class SongDetailPage extends StatelessWidget {
           ),
         ),
       );
-    });
+    }
+
+    // Cover Image with glow effect
+    return Container(
+      width: 280,
+      height: 280,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.greenPrimary.withValues(alpha: 0.4),
+            blurRadius: 40,
+            spreadRadius: 0,
+            offset: const Offset(0, 15),
+          ),
+          BoxShadow(
+            color: AppColors.greenLight.withValues(alpha: 0.2),
+            blurRadius: 60,
+            spreadRadius: -10,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomCachedImage(
+              imageUrl: controller.song['cover_url'],
+              fallbackUrl: 'https://picsum.photos/seed/${controller.song['id'] ?? 'default'}/300',
+              fit: BoxFit.cover,
+              placeholderIcon: Icons.music_note_rounded,
+              placeholderIconSize: 80,
+            ),
+            // Subtle gradient overlay
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.3),
+                  ],
+                ),
+              ),
+            ),
+            // Border
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: AppColors.greenLight.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSongInfo() {
@@ -258,121 +256,127 @@ class SongDetailPage extends StatelessWidget {
   }
 
   Widget _buildProgressBar() {
-    return Obx(() => Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
-            children: [
-              SliderTheme(
-                data: SliderThemeData(
-                  trackHeight: 4,
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-                  activeTrackColor: AppColors.greenLight,
-                  inactiveTrackColor: Colors.white.withValues(alpha: 0.2),
-                  thumbColor: AppColors.greenLight,
-                  overlayColor: AppColors.greenLight.withValues(alpha: 0.2),
-                ),
-                child: Slider(
-                  min: 0,
-                  max: controller.duration.value.inSeconds.toDouble(),
-                  value: controller.position.value.inSeconds
-                      .toDouble()
-                      .clamp(0, controller.duration.value.inSeconds.toDouble()),
-                  onChanged: controller.seek,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _formatDuration(controller.position.value),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      _formatDuration(controller.duration.value),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        children: [
+          SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 4,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+              activeTrackColor: AppColors.greenLight,
+              inactiveTrackColor: Colors.white.withValues(alpha: 0.2),
+              thumbColor: AppColors.greenLight,
+              overlayColor: AppColors.greenLight.withValues(alpha: 0.2),
+            ),
+            child: Slider(
+              min: 0,
+              max: controller.duration.value.inSeconds.toDouble(),
+              value: controller.position.value.inSeconds
+                  .toDouble()
+                  .clamp(0, controller.duration.value.inSeconds.toDouble()),
+              onChanged: controller.seek,
+            ),
           ),
-        ));
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _formatDuration(controller.position.value),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  _formatDuration(controller.duration.value),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.white.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildPlaybackControls() {
-    return Obx(() => Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Previous (disabled for now)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.skip_previous_rounded,
-                color: Colors.white.withValues(alpha: 0.4),
-                size: 32,
-              ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Previous
+        GestureDetector(
+          onTap: controller.hasPrevious ? controller.playPrevious : null,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: controller.hasPrevious ? 0.08 : 0.02),
+              shape: BoxShape.circle,
             ),
-            const SizedBox(width: 24),
-            // Play/Pause
-            GestureDetector(
-              onTap: controller.togglePlay,
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [AppColors.greenLight, AppColors.greenPrimary],
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.greenPrimary.withValues(alpha: 0.5),
-                      blurRadius: 25,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+            child: Icon(
+              Icons.skip_previous_rounded,
+              color: Colors.white.withValues(alpha: controller.hasPrevious ? 0.8 : 0.2),
+              size: 32,
+            ),
+          ),
+        ),
+        const SizedBox(width: 24),
+        // Play/Pause
+        GestureDetector(
+          onTap: controller.togglePlay,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.greenLight, AppColors.greenPrimary],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.greenPrimary.withValues(alpha: 0.5),
+                  blurRadius: 25,
+                  offset: const Offset(0, 8),
                 ),
-                child: Icon(
-                  controller.isPlaying.value
-                      ? Icons.pause_rounded
-                      : Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
+              ],
             ),
-            const SizedBox(width: 24),
-            // Next (disabled for now)
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.skip_next_rounded,
-                color: Colors.white.withValues(alpha: 0.4),
-                size: 32,
-              ),
+            child: Icon(
+              controller.isPlaying.value
+                  ? Icons.pause_rounded
+                  : Icons.play_arrow_rounded,
+              color: Colors.white,
+              size: 40,
             ),
-          ],
-        ));
+          ),
+        ),
+        const SizedBox(width: 24),
+        // Next
+        GestureDetector(
+          onTap: controller.hasNext ? controller.playNext : null,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: controller.hasNext ? 0.08 : 0.02),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.skip_next_rounded,
+              color: Colors.white.withValues(alpha: controller.hasNext ? 0.8 : 0.2),
+              size: 32,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   String _formatDuration(Duration duration) {
