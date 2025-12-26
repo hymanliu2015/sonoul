@@ -296,10 +296,11 @@ class SingerPage extends StatelessWidget {
         TextField(
           controller: promptController,
           onChanged: controller.onPromptChanged,
-          maxLines: 3,
+          minLines: 2,
+          maxLines: 5,
           style: const TextStyle(color: Colors.white, fontSize: 15),
           decoration: InputDecoration(
-            hintText: 'Describe the singer\'s appearance...\ne.g., "A young female singer with blue hair and cyberpunk style"',
+            hintText: 'Describe the singer\'s appearance...e.g., "A young female singer with blue hair and cyberpunk style"',
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 14),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),

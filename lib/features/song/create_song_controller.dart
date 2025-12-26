@@ -87,7 +87,7 @@ class CreateSongController extends GetxController {
       final path = await _audioRecorder.stop();
       if (path != null) {
         final duration = DateTime.now().difference(_recordingStartTime!);
-        if (duration.inSeconds < 2) { // Lowered min duration for testing
+        if (duration.inSeconds < 3) { // Lowered min duration for testing
           ToastUtils.shotToast('Recording too short');
           isRecording.value = false;
           return;

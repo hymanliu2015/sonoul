@@ -261,10 +261,11 @@ class CreateSongPage extends StatelessWidget {
           const SizedBox(height: 16),
           TextField(
             controller: controller.ideaController,
-            maxLines: 4,
+            minLines: 5,
+            maxLines: 10,
             style: const TextStyle(color: Colors.white, fontSize: 15),
             decoration: InputDecoration(
-              hintText: 'A summer love story on the beach, with waves and sunset...',
+              hintText: 'Please enter your music idea, such as Lonely city under neon rain, Dreamy melody of a girl and the stars, or Gentle piano and late-night longing.Or tap the record button above to generate automatically.',
               hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 14),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.05),
