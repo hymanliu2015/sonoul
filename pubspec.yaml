@@ -55,6 +55,7 @@ dependencies:
   video_player: ^2.10.1
   cached_network_image: ^3.4.1
   amplitude_flutter: 4.3.9
+  flutter_native_splash: ^2.4.7
 
 dev_dependencies:
   flutter_test:
