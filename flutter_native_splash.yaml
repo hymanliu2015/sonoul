@@ -3,7 +3,7 @@ flutter_native_splash:
   color: "#072D26"
 
   # 使用上面这张图
-  image: assets/images/icon_splash.png
+  image: assets/images/icon_logo.png
 
   # 关键设置：iOS 使用 scaleAspectFill 以确保“铺满”感
   ios_content_mode: scaleAspectFill
@@ -16,5 +16,5 @@ flutter_native_splash:
   android_12:
     color: "#072D26"
     # 注意：安卓12强制将图标放在圆圈内，建议此处单独制作一个无底色的图标
-    image: assets/images/icon_splash.png
+    image: assets/images/icon_logo.png
     icon_background_color: "#072D26"
