@@ -37,9 +37,9 @@ class MemberPage extends GetView<MemberController> {
           ),
         ),
         centerTitle: true,
-        title: const Text(
-          'Premium',
-          style: TextStyle(
+        title: Text(
+          'member_premium_title'.tr,
+          style: const TextStyle(
             color: AppColors.textOnDark,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -77,9 +77,9 @@ class MemberPage extends GetView<MemberController> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Loading membership...',
-                      style: TextStyle(
+                    Text(
+                      'member_loading'.tr,
+                      style: const TextStyle(
                         color: AppColors.textOnDark,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -104,9 +104,9 @@ class MemberPage extends GetView<MemberController> {
                         _buildBenefits(),
                         const SizedBox(height: 24),
                         if (controller.packages.isEmpty)
-                          const Center(
+                          Center(
                             child: CustomText(
-                              text: 'No plans available at the moment.',
+                              text: 'member_no_plans'.tr,
                               textFontSize: 14,
                               textColor: AppColors.textOnDark,
                               textAlign: TextAlign.center,
@@ -158,22 +158,22 @@ class MemberPage extends GetView<MemberController> {
           ),
         ),
         const SizedBox(width: 16),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Unlock Premium',
-                style: TextStyle(
+                'member_unlock_premium'.tr,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textOnDark,
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
-                'Generate more AI songs, faster and without limits.',
-                style: TextStyle(
+                'member_unlock_desc'.tr,
+                style: const TextStyle(
                   fontSize: 13,
                   color: Colors.white70,
                   height: 1.4,
@@ -215,9 +215,9 @@ class MemberPage extends GetView<MemberController> {
                 ),
               ),
               const SizedBox(width: 10),
-              const Text(
-                'What you get',
-                style: TextStyle(
+              Text(
+                'member_what_you_get'.tr,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textOnDark,
@@ -226,11 +226,11 @@ class MemberPage extends GetView<MemberController> {
             ],
           ),
           const SizedBox(height: 12),
-          _buildBenefitLine('More AI song generations per day'),
+          _buildBenefitLine('member_benefit_1'.tr),
           const SizedBox(height: 6),
-          _buildBenefitLine('Higher priority processing & faster generation'),
+          _buildBenefitLine('member_benefit_2'.tr),
           const SizedBox(height: 6),
-          _buildBenefitLine('Access to advanced models and voices'),
+          _buildBenefitLine('member_benefit_3'.tr),
         ],
       ),
     );
@@ -305,9 +305,9 @@ class MemberPage extends GetView<MemberController> {
               alignment: Alignment.center,
               child: controller.isPurchasing.value
                   ? const LoadingHelper(size: 24, color: Colors.white)
-                  : const Text(
-                      'Continue',
-                      style: TextStyle(
+                  : Text(
+                      'member_continue'.tr,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -321,7 +321,7 @@ class MemberPage extends GetView<MemberController> {
                 ? null
                 : controller.restorePurchases,
             child: Text(
-              'Restore Purchases',
+              'member_restore_purchases'.tr,
               style: TextStyle(
                 color: controller.isPurchasing.value
                     ? Colors.white.withValues(alpha: 0.4)
@@ -333,7 +333,7 @@ class MemberPage extends GetView<MemberController> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Subscriptions auto-renew. You can cancel anytime in your account settings.',
+            'member_auto_renew_disclaimer'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 11,

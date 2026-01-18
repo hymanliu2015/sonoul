@@ -106,7 +106,7 @@ class AlbumController extends GetxController {
       songs.assignAll(userSongs);
     } catch (e) {
       debugPrint('AlbumController: Error fetching songs: $e');
-      Get.snackbar('Error', 'Failed to load songs: $e');
+      Get.snackbar('Error', 'album_load_failed'.trParams({'error': e.toString()}));
     } finally {
       if (showLoading) {
         isLoading.value = false;
@@ -130,15 +130,15 @@ class AlbumController extends GetxController {
       AlertDialog(
         backgroundColor: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Song', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Are you sure you want to delete this song?',
-          style: TextStyle(color: Colors.white70),
+        title: Text('album_delete_dialog_title'.tr, style: const TextStyle(color: Colors.white)),
+        content: Text(
+          'album_delete_dialog_content'.tr,
+          style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            child: Text('album_delete_cancel'.tr, style: const TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () async {
@@ -149,17 +149,17 @@ class AlbumController extends GetxController {
                 songs.removeWhere((s) => s['id'] == songId);
                 Get.snackbar(
                   'Success',
-                  'Song deleted',
+                  'album_delete_success'.tr,
                   colorText: Colors.white, 
                   backgroundColor: Colors.black.withValues(alpha: 0.8),
                 );
               } catch (e) {
-                Get.snackbar('Error', 'Failed to delete song');
+                Get.snackbar('Error', 'album_delete_failed'.tr);
               } finally {
                 isLoading.value = false;
               }
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            child: Text('album_delete_confirm'.tr, style: const TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),

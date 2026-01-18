@@ -26,7 +26,7 @@ class SingerController extends GetxController {
   Future<void> generateAvatar() async {
     final prompt = avatarPrompt.value.trim();
     if (prompt.isEmpty) {
-      ToastUtils.shotToast('Please enter an avatar prompt');
+      ToastUtils.shotToast('singer_toast_enter_prompt'.tr);
       return;
     }
 
@@ -47,11 +47,11 @@ class SingerController extends GetxController {
       // Assuming standard OpenAI response format: { data: [{ url: "..." }] }
       final imageUrl = data['data'][0]['url'];
       avatarPath.value = imageUrl;
-      ToastUtils.shotToast('Avatar generated successfully!');
+      ToastUtils.shotToast('singer_toast_avatar_success'.tr);
 
     } catch (e) {
       debugPrint("Error generating avatar: $e");
-      ToastUtils.shotToast('Error generating avatar: $e');
+      ToastUtils.shotToast('singer_toast_generate_error'.trParams({'error': e.toString()}));
     } finally {
       isLoading.value = false;
     }
@@ -62,15 +62,15 @@ class SingerController extends GetxController {
     final prompt = avatarPrompt.value.trim();
 
     if (singerName.isEmpty) {
-      ToastUtils.shotToast('Please enter a name');
+      ToastUtils.shotToast('singer_toast_enter_name'.tr);
       return;
     }
     if (prompt.isEmpty) {
-      ToastUtils.shotToast('Please enter an avatar prompt');
+      ToastUtils.shotToast('singer_toast_enter_prompt'.tr);
       return;
     }
     if (avatarPath.value.isEmpty) {
-      ToastUtils.shotToast('Please generate an avatar first');
+      ToastUtils.shotToast('singer_toast_generate_first'.tr);
       return;
     }
 
@@ -78,7 +78,7 @@ class SingerController extends GetxController {
       isLoading.value = true;
       final user = _supabase.auth.currentUser;
       if (user == null) {
-        ToastUtils.shotToast('Please login first');
+        ToastUtils.shotToast('singer_toast_login_first'.tr);
         Get.toNamed(AppRoutes.login);
         return;
       }
@@ -96,7 +96,7 @@ class SingerController extends GetxController {
       // 后端返回：{ "data": [...] }
       final data = res.data;
       if (data == null) {
-        ToastUtils.shotToast('Server error');
+        ToastUtils.shotToast('singer_toast_server_error'.tr);
         return;
       }
 
@@ -108,7 +108,7 @@ class SingerController extends GetxController {
         Get.find<DashController>().addMockSinger(singerName, avatarPath.value);
       }
 
-      ToastUtils.shotToast('Singer created successfully!');
+      ToastUtils.shotToast('singer_toast_create_success'.tr);
       
       // Request app rating
       ReviewUtils.rateAppWithFeedback();
@@ -125,7 +125,7 @@ class SingerController extends GetxController {
         Get.find<DashController>().addMockSinger(singerName, avatarPath.value);
       }
 
-      ToastUtils.shotToast('Simulating success');
+      ToastUtils.shotToast('singer_toast_create_success'.tr);
       Get.back();
     } finally {
       isLoading.value = false;

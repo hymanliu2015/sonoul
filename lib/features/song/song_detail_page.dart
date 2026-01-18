@@ -31,9 +31,9 @@ class SongDetailPage extends StatelessWidget {
             child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textOnDark, size: 18),
           ),
         ),
-        title: const Text(
-          'Now Playing',
-          style: TextStyle(
+        title: Text(
+          'song_detail_title'.tr,
+          style: const TextStyle(
             color: AppColors.textOnDark,
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -203,7 +203,7 @@ class SongDetailPage extends StatelessWidget {
     return Column(
       children: [
         Text(
-          controller.song['title'] ?? 'Unknown Title',
+          controller.song['title'] ?? 'song_detail_title_unknown'.tr,
           style: const TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,
@@ -216,7 +216,7 @@ class SongDetailPage extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          controller.song['artist'] ?? 'AI Generated',
+          controller.song['artist'] ?? 'song_detail_artist_unknown'.tr,
           style: TextStyle(
             fontSize: 16,
             color: Colors.white.withValues(alpha: 0.6),

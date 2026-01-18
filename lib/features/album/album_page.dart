@@ -40,8 +40,8 @@ class AlbumPage extends StatelessWidget {
         ),
         title: Text(
           controller.singerName != null && controller.singerName!.isNotEmpty
-              ? "${controller.singerName}'s Album"
-              : "My Album",
+              ? "${controller.singerName}${'album_page_title_suffix'.tr}"
+              : "album_page_title".tr,
           style: const TextStyle(
             color: AppColors.textOnDark,
             fontSize: 20,
@@ -95,9 +95,9 @@ class AlbumPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Loading songs...',
-                      style: TextStyle(
+                    Text(
+                      'album_loading'.tr,
+                      style: const TextStyle(
                         color: AppColors.textOnDark,
                         fontSize: 16,
                       ),
@@ -163,9 +163,9 @@ class AlbumPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            const Text(
-              'No Songs Yet',
-              style: TextStyle(
+            Text(
+              'album_empty_title'.tr,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textOnDark,
@@ -173,7 +173,7 @@ class AlbumPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Create your first AI-generated song\nand watch the magic happen!',
+              'album_empty_desc'.tr,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -199,14 +199,14 @@ class AlbumPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.add_rounded, color: Colors.white, size: 22),
-                    SizedBox(width: 8),
+                    const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                    const SizedBox(width: 8),
                     Text(
-                      'Create Song',
-                      style: TextStyle(
+                      'album_create_song'.tr,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -257,9 +257,9 @@ class AlbumPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Creating your song...',
-                  style: TextStyle(
+                Text(
+                  'album_creating_title'.tr,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: AppColors.textOnDark,
@@ -267,7 +267,7 @@ class AlbumPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'AI is composing music. Usually takes 1-2 minutes.',
+                  'album_creating_desc'.tr,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.white.withValues(alpha: 0.6),
@@ -405,23 +405,23 @@ class AlbumPage extends StatelessWidget {
     switch (status) {
       case 'pending':
         color = Colors.orange;
-        text = 'Pending';
+        text = 'album_status_pending'.tr;
         break;
       case 'processing':
         color = Colors.blue;
-        text = 'Processing';
+        text = 'album_status_processing'.tr;
         break;
       case 'completed':
         color = AppColors.greenLight;
-        text = 'Ready';
+        text = 'album_status_ready'.tr;
         break;
       case 'failed':
         color = Colors.red;
-        text = 'Failed';
+        text = 'album_status_failed'.tr;
         break;
       default:
         color = Colors.grey;
-        text = status ?? 'Unknown';
+        text = status ?? 'album_status_unknown'.tr;
     }
 
     return Container(

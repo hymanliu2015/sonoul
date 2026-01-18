@@ -1,9 +1,9 @@
+import 'package:sonoul/common/lang/app_translations.dart';
 import 'package:sonoul/common/res/app_themes.dart';
 import 'package:sonoul/routes/app_pages.dart';
 import 'package:sonoul/services/init_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +23,9 @@ class MyApp extends StatelessWidget {
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
       themeMode: ThemeMode.system,
+      locale: Get.deviceLocale,
+      translations: AppTranslations(),
+      fallbackLocale: const Locale("en", "US"),
       builder: (context, child) {
         return GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),

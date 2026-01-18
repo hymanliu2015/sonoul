@@ -83,9 +83,9 @@ class RegisterPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  const Text(
-                    'Create Account',
-                    style: TextStyle(
+                  Text(
+                    'auth_create_account'.tr,
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textOnDark,
@@ -94,7 +94,7 @@ class RegisterPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Join Sonoul and start creating music',
+                    'auth_join_sonoul'.tr,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white.withValues(alpha: 0.6),
@@ -107,13 +107,13 @@ class RegisterPage extends StatelessWidget {
                       children: [
                         _buildTextField(
                           controller: emailController,
-                          label: 'Email',
+                          label: 'auth_email'.tr,
                           icon: Icons.email_outlined,
                         ),
                         const SizedBox(height: 20),
                         Obx(() => _buildTextField(
                           controller: passwordController,
-                          label: 'Password',
+                          label: 'auth_password'.tr,
                           icon: Icons.lock_outline,
                           isPassword: true,
                           isPasswordVisible: controller.isRegisterPasswordVisible.value,
@@ -122,7 +122,7 @@ class RegisterPage extends StatelessWidget {
                         const SizedBox(height: 20),
                         Obx(() => _buildTextField(
                           controller: confirmPasswordController,
-                          label: 'Confirm Password',
+                          label: 'auth_confirm_password'.tr,
                           icon: Icons.lock_outline,
                           isPassword: true,
                           isPasswordVisible: controller.isRegisterConfirmPasswordVisible.value,
@@ -166,10 +166,10 @@ class RegisterPage extends StatelessWidget {
                           ? const Center(
                               child: LoadingHelper(size: 24, color: Colors.white),
                             )
-                          : const Text(
-                              'Sign Up',
+                          : Text(
+                              'auth_sign_up'.tr,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -189,11 +189,11 @@ class RegisterPage extends StatelessWidget {
                     child: RichText(
                       text: TextSpan(
                         style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                        children: const [
-                          TextSpan(text: "Already have an account? "),
+                        children: [
+                          TextSpan(text: 'auth_has_account'.tr),
                           TextSpan(
-                            text: 'Sign In',
-                            style: TextStyle(
+                            text: 'auth_sign_in'.tr,
+                            style: const TextStyle(
                               color: AppColors.greenLight,
                               fontWeight: FontWeight.bold,
                             ),
@@ -271,7 +271,7 @@ class RegisterPage extends StatelessWidget {
                 : null,
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),
-            hintText: label == 'Email' ? 'Enter your email' : 'Choose a password',
+            hintText: label == 'auth_email'.tr ? 'auth_enter_email'.tr : 'auth_choose_password'.tr,
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),

@@ -18,7 +18,7 @@ class DashController extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
   final SupabaseClient _supabase = Supabase.instance.client;
 
-  String get userEmail => _authController.currentUser?.email ?? 'Guest';
+  String get userEmail => _authController.currentUser?.email ?? 'dash_guest'.tr;
   bool get isLoggedIn => _authController.currentUser != null;
   
   final RxList<Singer> singers = <Singer>[].obs;
@@ -150,7 +150,7 @@ class DashController extends GetxController {
 
   bool requireAuth() {
     if (!isLoggedIn) {
-      ToastUtils.shotToast('Please login first');
+      ToastUtils.shotToast('dash_please_login'.tr);
       Get.toNamed(AppRoutes.login);
       return false;
     }
@@ -170,7 +170,7 @@ class DashController extends GetxController {
   Future<void> goToCreateSingle() async {
     if (requireAuth()) {
       if (singers.isEmpty) {
-        ToastUtils.shotToast('Please create a singer first');
+        ToastUtils.shotToast('dash_create_singer_first'.tr);
         Get.toNamed(AppRoutes.singer);
         return;
       }
@@ -277,7 +277,7 @@ class DashController extends GetxController {
     if (currentSinger == null) return;
     
     isGeneratingShare.value = true;
-    ToastUtils.shotToast('Preparing to share...');
+    ToastUtils.shotToast('dash_preparing_share'.tr);
     
     try {
       final tempDir = await getTemporaryDirectory();
@@ -331,9 +331,9 @@ class DashController extends GetxController {
       }
       
       // 3. Prepare share text
-      String shareText = '🎤 Check out my virtual singer "${currentSinger!.name}" on Sonoul!';
+      String shareText = 'dash_share_text_prefix'.trParams({'name': currentSinger!.name});
       if (songTitle != null) {
-        shareText += '\n🎵 Featured song: "$songTitle"';
+        shareText += 'dash_share_song_prefix'.trParams({'title': songTitle});
       }
       shareText += '\n\n#Sonoul #VirtualSinger #AIMusic';
       
@@ -342,7 +342,7 @@ class DashController extends GetxController {
         final params = ShareParams(
           files: filesToShare,
           text: shareText,
-          subject: 'Check out ${currentSinger!.name} on Sonoul!',
+          subject: 'dash_share_subject'.trParams({'name': currentSinger!.name}),
         );
         
         await SharePlus.instance.share(params);
@@ -358,7 +358,7 @@ class DashController extends GetxController {
       
     } catch (e) {
       debugPrint('Error sharing: $e');
-      ToastUtils.shotToast('Failed to share. Please try again.');
+      ToastUtils.shotToast('dash_share_failed'.tr);
     } finally {
       isGeneratingShare.value = false;
     }

@@ -29,9 +29,9 @@ class SettingsPage extends StatelessWidget {
             child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textOnDark, size: 18),
           ),
         ),
-        title: const Text(
-          'Settings',
-          style: TextStyle(
+        title: Text(
+          'settings_title'.tr,
+          style: const TextStyle(
             color: AppColors.textOnDark,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -56,83 +56,83 @@ class SettingsPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              _buildSectionHeader('General'),
+              _buildSectionHeader('settings_general'.tr),
               _buildSection([
                 _buildSettingItem(
                   icon: Icons.share_rounded,
-                  title: 'Share App',
-                  subtitle: 'Share Sonoul with friends',
+                  title: 'settings_share_app'.tr,
+                  subtitle: 'settings_share_app_subtitle'.tr,
                   onTap: controller.shareApp,
                 ),
                 _buildDivider(),
                 _buildSettingItem(
                   icon: Icons.star_rate_rounded,
-                  title: 'Rate App',
-                  subtitle: 'Rate us on the app store',
+                  title: 'settings_rate_app'.tr,
+                  subtitle: 'settings_rate_app_subtitle'.tr,
                   onTap: controller.rateApp,
                 ),
               ]),
               const SizedBox(height: 24),
-              _buildSectionHeader('Support'),
+              _buildSectionHeader('settings_support'.tr),
               _buildSection([
                 _buildSettingItem(
                   icon: Icons.language_rounded,
-                  title: 'Website',
-                  subtitle: 'Visit our website',
+                  title: 'settings_website'.tr,
+                  subtitle: 'settings_website_subtitle'.tr,
                   onTap: controller.openWebsite,
                 ),
                 _buildDivider(),
                 _buildSettingItem(
                   icon: Icons.email_rounded,
-                  title: 'Contact Support',
-                  subtitle: 'Get help from our team',
+                  title: 'settings_contact_support'.tr,
+                  subtitle: 'settings_contact_support_subtitle'.tr,
                   onTap: controller.contactSupport,
                 ),
               ]),
               const SizedBox(height: 24),
-              _buildSectionHeader('Legal'),
+              _buildSectionHeader('settings_legal'.tr),
               _buildSection([
                 _buildSettingItem(
                   icon: Icons.privacy_tip_rounded,
-                  title: 'Privacy Policy',
-                  subtitle: 'Read our privacy policy',
+                  title: 'settings_privacy_policy'.tr,
+                  subtitle: 'settings_privacy_policy_subtitle'.tr,
                   onTap: controller.openPrivacyPolicy,
                 ),
                 _buildDivider(),
                 _buildSettingItem(
                   icon: Icons.description_rounded,
-                  title: 'Terms of Service',
-                  subtitle: 'Read our terms',
+                  title: 'settings_terms_of_service'.tr,
+                  subtitle: 'settings_terms_of_service_subtitle'.tr,
                   onTap: controller.openTermsOfService,
                 ),
               ]),
               const SizedBox(height: 24),
-              _buildSectionHeader('Account'),
+              _buildSectionHeader('settings_account'.tr),
               _buildSection([
                 _buildSettingItem(
                   icon: Icons.logout_rounded,
-                  title: 'Logout',
-                  subtitle: 'Sign out of your account',
+                  title: 'settings_logout'.tr,
+                  subtitle: 'settings_logout_subtitle'.tr,
                   onTap: () {
                     Get.dialog(
                       AlertDialog(
                         backgroundColor: const Color(0xFF1E1E1E),
-                        title: const Text('Logout', style: TextStyle(color: Colors.white)),
-                        content: const Text(
-                          'Are you sure you want to logout?',
-                          style: TextStyle(color: Colors.white70),
+                        title: Text('settings_logout'.tr, style: const TextStyle(color: Colors.white)),
+                        content: Text(
+                          'settings_logout_confirm_content'.tr,
+                          style: const TextStyle(color: Colors.white70),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Get.back(),
-                            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                            child: Text('settings_cancel'.tr, style: const TextStyle(color: Colors.grey)),
                           ),
                           TextButton(
                             onPressed: () {
                               Get.back();
                               controller.logout();
                             },
-                            child: const Text('Logout', style: TextStyle(color: Colors.redAccent)),
+                            child: Text('settings_logout'.tr, style: const TextStyle(color: Colors.redAccent)),
                           ),
                         ],
                       ),
@@ -145,8 +145,8 @@ class SettingsPage extends StatelessWidget {
                 _buildDivider(),
                 _buildSettingItem(
                   icon: Icons.delete_forever_rounded,
-                  title: 'Delete Account',
-                  subtitle: 'Permanently delete your account',
+                  title: 'settings_delete_account'.tr,
+                  subtitle: 'settings_delete_account_subtitle'.tr,
                   onTap: () {
                     Get.dialog(
                       _DeleteAccountDialog(
@@ -165,7 +165,7 @@ class SettingsPage extends StatelessWidget {
               Obx(
                 () => Center(
                   child: Text(
-                    'Version ${controller.appVersion.value}',
+                    '${'settings_version'.tr} ${controller.appVersion.value}',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.3),
                       fontSize: 12,
@@ -339,13 +339,13 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
     return AlertDialog(
       backgroundColor: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Row(
+      title:  Row(
         children: [
-          Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 28),
-          SizedBox(width: 12),
+          const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 28),
+          const SizedBox(width: 12),
           Text(
-            'Delete Account',
-            style: TextStyle(color: Colors.white, fontSize: 18),
+            'settings_delete_account'.tr,
+            style: const TextStyle(color: Colors.white, fontSize: 18),
           ),
         ],
       ),
@@ -353,15 +353,15 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Are you sure you want to delete your account? This action cannot be undone.',
-            style: TextStyle(fontSize: 14, color: Colors.white70, height: 1.5),
+          Text(
+            'settings_delete_account_confirm_content'.tr,
+            style: const TextStyle(fontSize: 14, color: Colors.white70, height: 1.5),
           ),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              'Hold button for $_holdDurationSeconds seconds to confirm.',
+              'settings_hold_to_delete_hint'.trParams({'seconds': '$_holdDurationSeconds'}),
               style: TextStyle(
                 fontSize: 13,
                 color: Colors.white.withValues(alpha: 0.4),
@@ -375,7 +375,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
       actions: [
         TextButton(
           onPressed: () => Get.back(),
-          child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          child: Text('settings_cancel'.tr, style: const TextStyle(color: Colors.grey)),
         ),
         const SizedBox(width: 8),
         GestureDetector(
@@ -407,7 +407,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                   child: Text(
                     _isHolding
                         ? '${(_holdDurationSeconds * (1 - _progress)).ceil()}s...'
-                        : 'Hold to Delete',
+                        : 'settings_hold_to_delete'.tr,
                     style: const TextStyle(
                       color: Colors.redAccent,
                       fontWeight: FontWeight.bold,

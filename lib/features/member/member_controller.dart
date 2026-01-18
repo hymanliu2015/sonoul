@@ -31,7 +31,7 @@ class MemberController extends GetxController {
       final current = offerings.current;
       if (current == null || current.availablePackages.isEmpty) {
         debugPrint('No offerings / packages configured in RevenueCat');
-        ToastUtils.shotToast('Products not available');
+        ToastUtils.shotToast('member_products_not_available'.tr);
         packages.clear();
         selectedPackageId.value = '';
       } else {
@@ -41,7 +41,7 @@ class MemberController extends GetxController {
       }
     } catch (e) {
       debugPrint('Error loading offerings: $e');
-      ToastUtils.shotToast('Failed to load products');
+      ToastUtils.shotToast('member_load_products_failed'.tr);
       packages.clear();
       selectedPackageId.value = '';
     } finally {
@@ -56,7 +56,7 @@ class MemberController extends GetxController {
   /// 购买当前选中的套餐
   Future<void> buySelectedProduct() async {
     if (packages.isEmpty || selectedPackageId.value.isEmpty) {
-      ToastUtils.shotToast('Products not available');
+      ToastUtils.shotToast('member_products_not_available'.tr);
       return;
     }
 
@@ -65,7 +65,7 @@ class MemberController extends GetxController {
         .cast<Package?>()
         .firstOrNull;
     if (pkg == null) {
-      ToastUtils.shotToast('Products not available');
+      ToastUtils.shotToast('member_products_not_available'.tr);
       return;
     }
 
@@ -82,7 +82,7 @@ class MemberController extends GetxController {
       // 根据 entitlements 判断是否已解锁会员
       final entitlements = customerInfo.customerInfo.entitlements.active;
       if (entitlements.isNotEmpty) {
-        ToastUtils.shotToast('Purchase successful');
+        ToastUtils.shotToast('member_purchase_success'.tr);
 
         // 刷新本地 premium 状态（依然通过 Supabase 的 subscriptions 表）
         if (Get.isRegistered<DashController>()) {
@@ -90,13 +90,13 @@ class MemberController extends GetxController {
         }
         Get.back();
       } else {
-        ToastUtils.shotToast('No active subscription found');
+        ToastUtils.shotToast('member_no_active_subscription'.tr);
       }
     } on PurchasesError {
       // 用户取消，无需提示错误
     } catch (e) {
       debugPrint('Purchase error: $e');
-      ToastUtils.shotToast('Purchase failed');
+      ToastUtils.shotToast('member_purchase_failed'.tr);
     } finally {
       isPurchasing.value = false;
     }
@@ -109,17 +109,17 @@ class MemberController extends GetxController {
       final customerInfo = await Purchases.restorePurchases();
       final entitlements = customerInfo.entitlements.active;
       if (entitlements.isNotEmpty) {
-        ToastUtils.shotToast('Restore successful');
+        ToastUtils.shotToast('member_restore_success'.tr);
         if (Get.isRegistered<DashController>()) {
           await Get.find<DashController>().checkSubscription();
         }
         Get.back();
       } else {
-        ToastUtils.shotToast('No purchases to restore');
+        ToastUtils.shotToast('member_no_purchases_to_restore'.tr);
       }
     } catch (e) {
       debugPrint('Restore error: $e');
-      ToastUtils.shotToast('Restore failed');
+      ToastUtils.shotToast('member_restore_failed'.tr);
     } finally {
       isPurchasing.value = false;
     }

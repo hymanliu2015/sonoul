@@ -142,10 +142,10 @@ class SongDetailController extends GetxController {
            }
            await _audioPlayer.resume();
          } catch (e) {
-           Get.snackbar('Error', 'Could not play audio');
+           Get.snackbar('Error', 'error_play_audio'.tr);
          }
       } else {
-        Get.snackbar('Error', 'Audio URL is missing');
+        Get.snackbar('Error', 'error_audio_url_missing'.tr);
       }
     }
   }
@@ -159,7 +159,11 @@ class SongDetailController extends GetxController {
     final title = song['title'] ?? 'Unknown Title';
     final artist = song['artist'] ?? 'Unknown Artist';
     final audioUrl = song['audio_url'] ?? '';
-    SharePlus.instance.share(ShareParams(text: 'Check out my new song "$title" by $artist! Listen here: $audioUrl'));
+    SharePlus.instance.share(ShareParams(text: 'song_share_text'.trParams({
+      'title': title,
+      'artist': artist,
+      'url': audioUrl,
+    })));
   }
 
   // Playlist Navigation

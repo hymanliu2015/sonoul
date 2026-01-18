@@ -17,9 +17,9 @@ class DashPage extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
         centerTitle: true,
-        title: const Text(
-          'Sonoul',
-          style: TextStyle(
+        title:  Text(
+          'dash_title'.tr,
+          style: const TextStyle(
             color: AppColors.textOnDark,
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -99,9 +99,9 @@ class DashPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Loading your singers...',
-                      style: TextStyle(
+                    Text(
+                      'dash_loading_singers'.tr,
+                      style: const TextStyle(
                         color: AppColors.textOnDark,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -276,11 +276,11 @@ class DashPage extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.share_rounded, size: 18, color: AppColors.greenLight),
+            const Icon(Icons.share_rounded, size: 18, color: AppColors.greenLight),
             const SizedBox(width: 8),
-            const Text(
-              'Share',
-              style: TextStyle(
+            Text(
+              'dash_share'.tr,
+              style: const TextStyle(
                 fontSize: 14,
                 color: AppColors.greenLight,
                 fontWeight: FontWeight.w600,
@@ -297,16 +297,16 @@ class DashPage extends StatelessWidget {
       children: [
         _buildGlassActionCard(
           icon: Icons.mic_rounded,
-          title: 'Create New Song',
-          subtitle: 'Generate AI music with your singer',
+          title: 'dash_create_new_song'.tr,
+          subtitle: 'dash_create_song_subtitle'.tr,
           gradientColors: [AppColors.greenLight, AppColors.greenPrimary],
           onTap: controller.goToCreateSingle,
         ),
         const SizedBox(height: 16),
         _buildGlassActionCard(
           icon: Icons.album_rounded,
-          title: 'My Album',
-          subtitle: 'View all your generated songs',
+          title: 'dash_my_album'.tr,
+          subtitle: 'dash_my_album_subtitle'.tr,
           gradientColors: [AppColors.greenMain, AppColors.greenDark],
           onTap: controller.goToAlbum,
         ),
@@ -434,9 +434,9 @@ class DashPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 32),
-          const Text(
-            'No Virtual Singer Yet',
-            style: TextStyle(
+          Text(
+            'dash_no_singer'.tr,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppColors.textOnDark,
@@ -444,7 +444,7 @@ class DashPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Create your first AI singer to start\ngenerating amazing music!',
+            'dash_create_first_singer_hint'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
@@ -470,14 +470,14 @@ class DashPage extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.add_rounded, color: Colors.white, size: 22),
-                  SizedBox(width: 8),
+                  const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                  const SizedBox(width: 8),
                   Text(
-                    'Create Singer',
-                    style: TextStyle(
+                    'dash_create_singer'.tr,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -528,9 +528,9 @@ class DashPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Share Your Singer',
-              style: TextStyle(
+            Text(
+              'dash_share_singer_title'.tr,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textOnDark,
@@ -552,7 +552,7 @@ class DashPage extends StatelessWidget {
                     imageUrl: singer.avatarUrl,
                     width: 70,
                     height: 70,
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
                   ),
                   const SizedBox(width: 16),
                   // Singer Info
@@ -570,7 +570,7 @@ class DashPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Virtual Singer',
+                          'dash_singer_role'.tr,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.white.withValues(alpha: 0.5),
@@ -579,15 +579,15 @@ class DashPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.music_note_rounded,
                               size: 14,
                               color: AppColors.greenLight,
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Includes random song',
-                              style: TextStyle(
+                              'dash_includes_random_song'.tr,
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.greenLight,
                               ),
@@ -623,14 +623,14 @@ class DashPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.share_rounded, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
+                    const Icon(Icons.share_rounded, color: Colors.white, size: 20),
+                    const SizedBox(width: 8),
                     Text(
-                      'Share Now',
-                      style: TextStyle(
+                      'dash_share_now'.tr,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,

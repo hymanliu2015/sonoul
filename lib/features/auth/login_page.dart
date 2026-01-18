@@ -67,9 +67,9 @@ class LoginPage extends StatelessWidget {
                   const SizedBox(height: 32),
                   
                   // Welcome Text
-                  const Text(
-                    'Welcome Back',
-                    style: TextStyle(
+                  Text(
+                    'auth_welcome_back'.tr,
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textOnDark,
@@ -78,7 +78,7 @@ class LoginPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Sign in to continue to Sonoul',
+                    'auth_sign_in_subtitle'.tr,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white.withValues(alpha: 0.6),
@@ -92,13 +92,13 @@ class LoginPage extends StatelessWidget {
                       children: [
                         _buildTextField(
                           controller: emailController,
-                          label: 'Email',
+                          label: 'auth_email'.tr,
                           icon: Icons.email_outlined,
                         ),
                         const SizedBox(height: 20),
                         Obx(() => _buildTextField(
                           controller: passwordController,
-                          label: 'Password',
+                          label: 'auth_password'.tr,
                           icon: Icons.lock_outline,
                           isPassword: true,
                           isPasswordVisible: controller.isPasswordVisible.value,
@@ -142,10 +142,10 @@ class LoginPage extends StatelessWidget {
                           ? const Center(
                               child: LoadingHelper(size: 24, color: Colors.white),
                             )
-                          : const Text(
-                              'Sign In',
+                          : Text(
+                              'auth_sign_in'.tr,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -166,11 +166,11 @@ class LoginPage extends StatelessWidget {
                     child: RichText(
                       text: TextSpan(
                         style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-                        children: const [
-                          TextSpan(text: "Don't have an account? "),
+                        children: [
+                          TextSpan(text: 'auth_no_account'.tr),
                           TextSpan(
-                            text: 'Register',
-                            style: TextStyle(
+                            text: 'auth_register'.tr,
+                            style: const TextStyle(
                               color: AppColors.greenLight,
                               fontWeight: FontWeight.bold,
                             ),
@@ -248,7 +248,7 @@ class LoginPage extends StatelessWidget {
                 : null,
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),
-            hintText: label == 'Email' ? 'Enter your email' : 'Enter your password',
+            hintText: label == 'auth_email'.tr ? 'auth_enter_email'.tr : 'auth_enter_password'.tr,
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3), fontSize: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),

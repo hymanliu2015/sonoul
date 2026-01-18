@@ -30,10 +30,10 @@ class SettingsController extends GetxController {
   Future<void> shareApp() async {
     try {
       SharePlus.instance.share(
-          ShareParams(text: 'Check out Sonoul - Your AI Virtual Singer App! Create amazing songs with AI-powered voices.')
+          ShareParams(text: 'share_content'.tr)
       );
     } catch (e) {
-      ToastUtils.shotToast('Failed to share app');
+      ToastUtils.shotToast('toast_share_failed'.tr);
     }
   }
 
@@ -47,10 +47,10 @@ class SettingsController extends GetxController {
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
-        ToastUtils.shotToast('Cannot open website');
+        ToastUtils.shotToast('toast_open_website_failed'.tr);
       }
     } catch (e) {
-      ToastUtils.shotToast('Failed to open website');
+      ToastUtils.shotToast('toast_open_website_error'.tr);
     }
   }
 
@@ -60,10 +60,10 @@ class SettingsController extends GetxController {
       if (await canLaunchUrl(url)) {
         await launchUrl(url);
       } else {
-        ToastUtils.shotToast('Cannot open email client');
+        ToastUtils.shotToast('toast_open_email_failed'.tr);
       }
     } catch (e) {
-      ToastUtils.shotToast('Failed to open email');
+      ToastUtils.shotToast('toast_open_email_error'.tr);
     }
   }
 
@@ -73,10 +73,10 @@ class SettingsController extends GetxController {
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
-        ToastUtils.shotToast('Cannot open privacy policy');
+        ToastUtils.shotToast('toast_open_privacy_failed'.tr);
       }
     } catch (e) {
-      ToastUtils.shotToast('Failed to open privacy policy');
+      ToastUtils.shotToast('toast_open_privacy_error'.tr);
     }
   }
 
@@ -86,10 +86,10 @@ class SettingsController extends GetxController {
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
-        ToastUtils.shotToast('Cannot open terms of service');
+        ToastUtils.shotToast('toast_open_terms_failed'.tr);
       }
     } catch (e) {
-      ToastUtils.shotToast('Failed to open terms');
+      ToastUtils.shotToast('toast_open_terms_error'.tr);
     }
   }
 

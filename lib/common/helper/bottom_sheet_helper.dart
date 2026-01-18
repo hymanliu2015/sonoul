@@ -54,7 +54,7 @@ class BottomSheetHelper {
       Container(
         decoration: BoxDecoration(
           color: backgroundColor ?? Colors.white,
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular( 16.0),
             topRight: Radius.circular( 16.0),
           ),
@@ -66,7 +66,7 @@ class BottomSheetHelper {
           children: [
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -95,7 +95,7 @@ class BottomSheetHelper {
     Get.bottomSheet(
       Container(
         height: height ?? Get.height * 0.2,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.background,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular( 16.0),

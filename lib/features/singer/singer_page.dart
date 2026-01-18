@@ -32,9 +32,9 @@ class SingerPage extends StatelessWidget {
             child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textOnDark, size: 18),
           ),
         ),
-        title: const Text(
-          'Create Singer',
-          style: TextStyle(
+        title: Text(
+          'singer_create_title'.tr,
+          style: const TextStyle(
             color: AppColors.textOnDark,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -140,7 +140,7 @@ class SingerPage extends StatelessWidget {
                     )
                   : Container(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
@@ -165,7 +165,7 @@ class SingerPage extends StatelessWidget {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Text(
-              hasAvatar ? '✨ Avatar Generated!' : 'Avatar will appear here',
+              hasAvatar ? 'singer_avatar_generated'.tr : 'singer_avatar_placeholder'.tr,
               key: ValueKey(hasAvatar),
               style: TextStyle(
                 fontSize: 14,
@@ -196,9 +196,9 @@ class SingerPage extends StatelessWidget {
               child: const Icon(Icons.person_outline, color: AppColors.greenLight, size: 20),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Singer Name',
-              style: TextStyle(
+            Text(
+              'singer_name_label'.tr,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textOnDark,
@@ -211,9 +211,9 @@ class SingerPage extends StatelessWidget {
                 color: Colors.red.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
-                'Required',
-                style: TextStyle(
+              child: Text(
+                'singer_required'.tr,
+                style: const TextStyle(
                   fontSize: 11,
                   color: Colors.redAccent,
                   fontWeight: FontWeight.w500,
@@ -228,7 +228,7 @@ class SingerPage extends StatelessWidget {
           onChanged: controller.onNameChanged,
           style: const TextStyle(color: Colors.white, fontSize: 15),
           decoration: InputDecoration(
-            hintText: 'Enter a unique name for your singer...',
+            hintText: 'singer_name_hint'.tr,
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 14),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),
@@ -266,9 +266,9 @@ class SingerPage extends StatelessWidget {
               child: const Icon(Icons.auto_awesome, color: AppColors.happy, size: 20),
             ),
             const SizedBox(width: 12),
-            const Text(
-              'Avatar Description',
-              style: TextStyle(
+            Text(
+              'singer_prompt_label'.tr,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textOnDark,
@@ -300,7 +300,7 @@ class SingerPage extends StatelessWidget {
           maxLines: 5,
           style: const TextStyle(color: Colors.white, fontSize: 15),
           decoration: InputDecoration(
-            hintText: 'Describe the singer\'s appearance...e.g., "A young female singer with blue hair and cyberpunk style"',
+            hintText: 'singer_prompt_hint'.tr,
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 14),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.05),
@@ -354,7 +354,7 @@ class SingerPage extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                'Generate Avatar',
+                'singer_generate_avatar'.tr,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -424,7 +424,7 @@ class SingerPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'Create Singer',
+                      'singer_create_title'.tr,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,

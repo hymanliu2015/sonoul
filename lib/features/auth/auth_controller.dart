@@ -32,12 +32,12 @@ class AuthController extends GetxController {
   Future<void> login(String email, String password) async {
     // Validate inputs
     if (email.isEmpty) {
-      ToastUtils.shotToast('Please enter your email', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      ToastUtils.shotToast('auth_toast_enter_email'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
       return;
     }
     
     if (password.isEmpty) {
-      ToastUtils.shotToast('Please enter your password', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      ToastUtils.shotToast('auth_toast_enter_password'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
       return;
     }
     
@@ -55,7 +55,7 @@ class AuthController extends GetxController {
     } on AuthException catch (e) {
       ToastUtils.shotToast(e.message, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
     } catch (e) {
-      ToastUtils.shotToast('An unexpected error occurred', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      ToastUtils.shotToast('auth_toast_error'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
     } finally {
       isLoading.value = false;
     }
@@ -65,22 +65,22 @@ class AuthController extends GetxController {
   Future<void> register(String email, String password, String confirmPassword) async {
     // Validate inputs
     if (email.isEmpty) {
-      ToastUtils.shotToast('Please enter your email', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      ToastUtils.shotToast('auth_toast_enter_email'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
       return;
     }
     
     if (password.isEmpty) {
-      ToastUtils.shotToast('Please enter your password', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      ToastUtils.shotToast('auth_toast_enter_password'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
       return;
     }
     
     if (confirmPassword.isEmpty) {
-      ToastUtils.shotToast('Please confirm your password', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      ToastUtils.shotToast('auth_toast_confirm_password'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
       return;
     }
     
     if (password != confirmPassword) {
-      ToastUtils.shotToast('Passwords do not match', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
+      ToastUtils.shotToast('auth_toast_password_mismatch'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.red, Colors.white);
       return;
     }
     
@@ -92,7 +92,7 @@ class AuthController extends GetxController {
       );
 
       if (res.user != null) {
-        ToastUtils.shotToast('Registration successful! Please login.', Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.green, Colors.white);
+        ToastUtils.shotToast('auth_toast_register_success'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.green, Colors.white);
         // Optionally navigate to login or auto-login
         // For now, let's just stay here or go to login if we were separate
         Get.offNamed(AppRoutes.login); 

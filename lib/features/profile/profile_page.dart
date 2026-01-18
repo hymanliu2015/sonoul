@@ -31,9 +31,9 @@ class ProfilePage extends StatelessWidget {
             child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textOnDark, size: 18),
           ),
         ),
-        title: const Text(
-          'Profile',
-          style: TextStyle(
+        title: Text(
+          'profile_title'.tr,
+          style: const TextStyle(
             color: AppColors.textOnDark,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -124,7 +124,7 @@ class ProfilePage extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            'Sonoul User',
+            'profile_sonoul_user'.tr,
             style: TextStyle(
               fontSize: 12,
               color: Colors.white.withValues(alpha: 0.6),
@@ -186,7 +186,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      isPremium ? 'Premium Plan' : 'Free Plan',
+                      isPremium ? 'profile_premium_plan'.tr : 'profile_free_plan'.tr,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -202,7 +202,7 @@ class ProfilePage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    isPremium ? 'ACTIVE' : 'BASIC',
+                    isPremium ? 'profile_status_active'.tr : 'profile_status_basic'.tr,
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -216,8 +216,8 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               isPremium 
-                  ? 'Enjoy unlimited AI song generations, higher quality audio, and priority processing.'
-                  : 'Unlock unlimited creativity with Premium. Get faster generation and exclusive features.',
+                  ? 'profile_premium_desc'.tr
+                  : 'profile_free_desc'.tr,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.white.withValues(alpha: 0.8),
@@ -242,10 +242,10 @@ class ProfilePage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
-                      'Upgrade to Premium',
-                      style: TextStyle(
+                      'profile_upgrade_btn'.tr,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppColors.greenDeep,
@@ -274,7 +274,7 @@ class ProfilePage extends StatelessWidget {
         children: [
           _buildMenuItem(
             icon: Icons.settings_rounded,
-            title: 'Settings',
+            title: 'settings_title'.tr,
             onTap: controller.goToSettings,
             showBorder: false,
           ),

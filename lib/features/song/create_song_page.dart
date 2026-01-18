@@ -17,7 +17,7 @@ class CreateSongPage extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: CustomAppbar(
         title: CustomText(
-          text: "Create New Song",
+          text: "create_song_title".tr,
           textColor: AppColors.textOnDark,
         ),
         backColor: AppColors.textOnDark,
@@ -104,9 +104,9 @@ class CreateSongPage extends StatelessWidget {
                 child: const Icon(Icons.mic, color: AppColors.greenLight, size: 20),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Voice Input',
-                style: TextStyle(
+              Text(
+                'voice_input_title'.tr,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -119,9 +119,9 @@ class CreateSongPage extends StatelessWidget {
                   color: AppColors.greenPrimary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Optional',
-                  style: TextStyle(
+                child: Text(
+                  'voice_input_optional'.tr,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: AppColors.greenLight,
                     fontWeight: FontWeight.w500,
@@ -132,7 +132,7 @@ class CreateSongPage extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Describe your song idea by voice',
+            'voice_input_desc'.tr,
             style: TextStyle(
               fontSize: 13,
               color: Colors.white.withValues(alpha: 0.6),
@@ -183,7 +183,7 @@ class CreateSongPage extends StatelessWidget {
           Obx(() => AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
             child: Text(
-              controller.isRecording.value ? '🔴 Recording...' : 'Tap to speak',
+              controller.isRecording.value ? 'voice_recording'.tr : 'voice_tap_to_speak'.tr,
               key: ValueKey(controller.isRecording.value),
               style: TextStyle(
                 fontSize: 14,
@@ -201,7 +201,7 @@ class CreateSongPage extends StatelessWidget {
                 child: TextButton.icon(
                   onPressed: controller.playRecording,
                   icon: const Icon(Icons.play_circle_outline, color: AppColors.greenLight),
-                  label: const Text('Play Recording', style: TextStyle(color: AppColors.greenLight)),
+                  label: Text('voice_play_recording'.tr, style: const TextStyle(color: AppColors.greenLight)),
                   style: TextButton.styleFrom(
                     backgroundColor: AppColors.greenPrimary.withValues(alpha: 0.15),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -232,9 +232,9 @@ class CreateSongPage extends StatelessWidget {
                 child: const Icon(Icons.lightbulb_outline, color: AppColors.happy, size: 20),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Song Idea',
-                style: TextStyle(
+              Text(
+                'song_idea_title'.tr,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -247,9 +247,9 @@ class CreateSongPage extends StatelessWidget {
                   color: Colors.red.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Required',
-                  style: TextStyle(
+                child: Text(
+                  'song_idea_required'.tr,
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.redAccent,
                     fontWeight: FontWeight.w500,
@@ -265,7 +265,7 @@ class CreateSongPage extends StatelessWidget {
             maxLines: 10,
             style: const TextStyle(color: Colors.white, fontSize: 15),
             decoration: InputDecoration(
-              hintText: 'Please enter your music idea, such as Lonely city under neon rain, Dreamy melody of a girl and the stars, or Gentle piano and late-night longing.Or tap the record button above to generate automatically.',
+              hintText: 'song_idea_hint'.tr,
               hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 14),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.05),
@@ -305,9 +305,9 @@ class CreateSongPage extends StatelessWidget {
                 child: const Icon(Icons.music_note, color: AppColors.relax, size: 20),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Music Style',
-                style: TextStyle(
+              Text(
+                'music_style_title'.tr,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -374,9 +374,9 @@ class CreateSongPage extends StatelessWidget {
                 child: const Icon(Icons.piano, color: AppColors.sad, size: 20),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Instrumental Only',
-                style: TextStyle(
+              Text(
+                'instrumental_only'.tr,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   color: Colors.white,
@@ -441,7 +441,7 @@ class CreateSongPage extends StatelessWidget {
                       const LoadingHelper(size: 22, color: Colors.white),
                       const SizedBox(width: 12),
                       Text(
-                        'Composing...',
+                        'btn_composing'.tr,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -450,14 +450,14 @@ class CreateSongPage extends StatelessWidget {
                       ),
                     ],
                   )
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.auto_awesome, color: Colors.white, size: 22),
-                      SizedBox(width: 10),
+                      const Icon(Icons.auto_awesome, color: Colors.white, size: 22),
+                      const SizedBox(width: 10),
                       Text(
-                        'Generate Song',
-                        style: TextStyle(
+                        'btn_generate_song'.tr,
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,

@@ -48,7 +48,7 @@ class AppPages{
     ),
     GetPage(
       name: AppRoutes.album,
-      page: () => AlbumPage(),
+      page: () => const AlbumPage(),
     ),
     GetPage(
       name: AppRoutes.songDetail,
@@ -56,7 +56,7 @@ class AppPages{
     ),
     GetPage(
       name: AppRoutes.member,
-      page: () => MemberPage(),
+      page: () => const MemberPage(),
     ),
     GetPage(
       name: AppRoutes.settings,

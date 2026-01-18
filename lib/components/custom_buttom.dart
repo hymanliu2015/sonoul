@@ -32,7 +32,7 @@ class CustomButton extends StatelessWidget {
       height: height ?? 56,
       onTap: isEnabled ? onPressed : null,
       alignment: Alignment.center,
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
         left: 12,
         right: 12,
       ),

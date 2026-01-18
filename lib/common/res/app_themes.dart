@@ -87,14 +87,14 @@ class AppThemes {
       modalBackgroundColor: AppColors.tranColor,
     ),
 
-    progressIndicatorTheme: ProgressIndicatorThemeData(
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: AppColors.greenPrimary,
     ),
 
-    floatingActionButtonTheme: FloatingActionButtonThemeData(
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: AppColors.greenPrimary,
       foregroundColor: Colors.white,
-      shape: const StadiumBorder(),
+      shape: StadiumBorder(),
     ),
   );
 
@@ -163,14 +163,14 @@ class AppThemes {
       backgroundColor: Colors.black.withValues(alpha: 0.4),
     ),
 
-    progressIndicatorTheme: ProgressIndicatorThemeData(
+    progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: AppColors.greenLight,
     ),
 
-    floatingActionButtonTheme: FloatingActionButtonThemeData(
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: AppColors.greenLight,
       foregroundColor: Colors.black87,
-      shape: const StadiumBorder(),
+      shape: StadiumBorder(),
     ),
   );
 }

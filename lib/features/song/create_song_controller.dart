@@ -76,7 +76,7 @@ class CreateSongController extends GetxController {
         isRecording.value = true;
         _recordingStartTime = DateTime.now();
       } else {
-        ToastUtils.shotToast('Microphone permission required');
+        ToastUtils.shotToast('toast_mic_permission'.tr);
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -89,7 +89,7 @@ class CreateSongController extends GetxController {
       if (path != null) {
         final duration = DateTime.now().difference(_recordingStartTime!);
         if (duration.inSeconds < 3) { // Lowered min duration for testing
-          ToastUtils.shotToast('Recording too short');
+          ToastUtils.shotToast('toast_recording_short'.tr);
           isRecording.value = false;
           return;
         }
@@ -108,7 +108,7 @@ class CreateSongController extends GetxController {
 
   Future<void> transcribeAudio(String path) async {
     try {
-      ToastUtils.shotToast('Transcribing audio...');
+      ToastUtils.shotToast('toast_transcribing'.tr);
       
       final file = File(path);
       final bytes = await file.readAsBytes();
@@ -126,14 +126,14 @@ class CreateSongController extends GetxController {
       final data = res.data;
       if (data != null && data['text'] != null) {
         ideaController.text = data['text'];
-        ToastUtils.shotToast('Transcription complete!');
+        ToastUtils.shotToast('toast_transcription_complete'.tr);
       } else {
-        ToastUtils.shotToast('No text found in audio');
+        ToastUtils.shotToast('toast_no_text_found'.tr);
       }
 
     } catch (e) {
       debugPrint('Error transcribing: $e');
-      ToastUtils.shotToast('Error transcribing audio');
+      ToastUtils.shotToast('toast_transcribe_error'.tr);
     }
   }
 
@@ -145,7 +145,7 @@ class CreateSongController extends GetxController {
 
   Future<void> generateSong() async {
     if (ideaController.text.trim().isEmpty) {
-      ToastUtils.shotToast('Please describe your song idea');
+      ToastUtils.shotToast('toast_describe_idea'.tr);
       return;
     }
 
@@ -177,13 +177,13 @@ class CreateSongController extends GetxController {
         return dashController.currentSinger!.id;
       }
     }
-    ToastUtils.shotToast('No singer selected');
+    ToastUtils.shotToast('toast_no_singer_selected'.tr);
     return '';
   }
 
   void _handleSuccess(dynamic songData) {
     ToastUtils.shotToast(
-      'Song generation started! It will appear in your album shortly.',
+      'toast_generation_started'.tr,
     );
 
     // Get singer info for album page

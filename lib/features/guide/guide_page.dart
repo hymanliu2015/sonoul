@@ -8,24 +8,21 @@ class GuidePage extends StatelessWidget {
 
   GuidePage({super.key});
 
-  final List<Map<String, dynamic>> _guideItems = [
+  List<Map<String, dynamic>> get _guideItems => [
     {
       'icon': Icons.person_pin,
-      'title': 'Virtual Singer',
-      'description':
-          'Create your virtual singer avatar\nand bring your music to life.',
+      'title': 'guide_virtual_singer_title'.tr,
+      'description': 'guide_virtual_singer_desc'.tr,
     },
     {
       'icon': Icons.mic_external_on,
-      'title': 'Own Songs',
-      'description':
-          'Generate your personalized songs\nwith advanced AI technology.',
+      'title': 'guide_own_songs_title'.tr,
+      'description': 'guide_own_songs_desc'.tr,
     },
     {
       'icon': Icons.share,
-      'title': 'Share Music',
-      'description':
-          'Share with friends and family\nor on social media instantly.',
+      'title': 'guide_share_music_title'.tr,
+      'description': 'guide_share_music_desc'.tr,
     },
   ];
 
@@ -54,7 +51,7 @@ class GuidePage extends StatelessWidget {
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.white.withValues(alpha: 0.5),
                     ),
-                    child: const Text('Skip', style: TextStyle(fontSize: 16)),
+                    child: Text('guide_skip'.tr, style: const TextStyle(fontSize: 16)),
                   ),
                 ),
               ),
@@ -248,7 +245,7 @@ class GuidePage extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  isLastPage ? 'Get Started' : 'Next',
+                                  isLastPage ? 'guide_get_started'.tr : 'guide_next'.tr,
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
