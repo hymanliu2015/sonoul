@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:sonoul/common/res/app_colors.dart';
+import 'package:sonoul/utils/image_cache_manager.dart';
 
 /// A customizable cached network image widget with built-in loading and error states.
 /// Supports placeholder, error widget, and various styling options.
@@ -78,6 +79,7 @@ class CustomCachedImage extends StatelessWidget {
     Widget image = CachedNetworkImage(
       imageUrl: url,
       fit: fit,
+      cacheManager: ImageCacheManager.instance,
       placeholder: (context, url) => placeholder ?? _buildPlaceholder(),
       errorWidget: (context, url, error) => errorWidget ?? _buildErrorWidget(),
       fadeInDuration: const Duration(milliseconds: 300),
