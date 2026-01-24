@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/services/supabase_song_service.dart';
+import 'package:sonoul/features/dash/dash_controller.dart';
 
 class AlbumController extends GetxController {
   final SupabaseSongService _songService = Get.put(SupabaseSongService());
@@ -164,5 +165,15 @@ class AlbumController extends GetxController {
         ],
       ),
     );
+  }
+
+  void goToCreateSong() {
+    // Use DashController's method which already has member check logic
+    if (Get.isRegistered<DashController>()) {
+      Get.find<DashController>().goToCreateSingle();
+    } else {
+      // Fallback: just navigate if DashController is not available
+      Get.toNamed(AppRoutes.createSingle);
+    }
   }
 }

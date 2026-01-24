@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/components/custom_cached_image.dart';
 import 'package:sonoul/features/album/album_controller.dart';
-import 'package:sonoul/routes/app_routes.dart';
 
 class AlbumPage extends StatelessWidget {
   const AlbumPage({super.key});
@@ -50,7 +49,7 @@ class AlbumPage extends StatelessWidget {
         ),
         actions: [
           GestureDetector(
-            onTap: () => Get.toNamed(AppRoutes.createSingle),
+            onTap: () => controller.goToCreateSong(),
             child: Container(
               margin: const EdgeInsets.only(right: 16),
               padding: const EdgeInsets.all(8),
@@ -108,7 +107,7 @@ class AlbumPage extends StatelessWidget {
             }
 
             if (controller.songs.isEmpty) {
-              return _buildEmptyState();
+              return _buildEmptyState(controller);
             }
 
             final hasProcessing = controller.songs
@@ -138,7 +137,7 @@ class AlbumPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AlbumController controller) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -183,7 +182,7 @@ class AlbumPage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             GestureDetector(
-              onTap: () => Get.toNamed(AppRoutes.createSingle),
+              onTap: () => controller.goToCreateSong(),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 decoration: BoxDecoration(
