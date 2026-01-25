@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sonoul/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:sonoul/utils/toast_util.dart';
+import 'package:sonoul/services/analytics_service.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class AuthController extends GetxController {
@@ -50,6 +51,7 @@ class AuthController extends GetxController {
       
       if (res.user != null) {
         await Purchases.logIn(res.user?.id ?? "");
+        Get.find<AnalyticsService>().trackLogin(method: 'email');
         Get.offAllNamed(AppRoutes.dash);
       }
     } on AuthException catch (e) {
@@ -93,6 +95,7 @@ class AuthController extends GetxController {
 
       if (res.user != null) {
         ToastUtils.shotToast('auth_toast_register_success'.tr, Toast.LENGTH_SHORT, ToastGravity.BOTTOM, Colors.green, Colors.white);
+        Get.find<AnalyticsService>().trackRegister(method: 'email');
         // Optionally navigate to login or auto-login
         // For now, let's just stay here or go to login if we were separate
         Get.offNamed(AppRoutes.login); 

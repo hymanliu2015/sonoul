@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
 import 'package:sonoul/utils/toast_util.dart';
+import 'package:sonoul/services/analytics_service.dart';
 
 class MemberController extends GetxController {
   /// 是否正在加载商品/套餐
@@ -83,6 +84,7 @@ class MemberController extends GetxController {
       final entitlements = customerInfo.customerInfo.entitlements.active;
       if (entitlements.isNotEmpty) {
         ToastUtils.shotToast('member_purchase_success'.tr);
+        Get.find<AnalyticsService>().trackSubscribe(pkg.storeProduct.identifier, price: pkg.storeProduct.priceString);
 
         // 刷新本地 premium 状态（依然通过 Supabase 的 subscriptions 表）
         if (Get.isRegistered<DashController>()) {

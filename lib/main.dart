@@ -1,6 +1,7 @@
 import 'package:sonoul/common/lang/app_translations.dart';
 import 'package:sonoul/common/res/app_themes.dart';
 import 'package:sonoul/routes/app_pages.dart';
+import 'package:sonoul/services/analytics_service.dart';
 import 'package:sonoul/services/init_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -39,4 +40,5 @@ class MyApp extends StatelessWidget {
 
 Future<void> initServices() async {
   await Get.putAsync(() => InitService().init());
+  await Get.putAsync(() => AnalyticsService().init());
 }

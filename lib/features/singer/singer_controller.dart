@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:sonoul/utils/sp_util.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:sonoul/utils/review_util.dart';
+import 'package:sonoul/services/analytics_service.dart';
 
 class SingerController extends GetxController {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -112,6 +113,7 @@ class SingerController extends GetxController {
       
       // Request app rating
       ReviewUtils.rateAppWithFeedback();
+      Get.find<AnalyticsService>().trackCreateSinger(singerName);
       
       Get.offAndToNamed(AppRoutes.dash);
 
