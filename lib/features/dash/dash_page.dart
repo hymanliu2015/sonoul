@@ -16,16 +16,42 @@ class DashPage extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        centerTitle: true,
-        title:  Text(
-          'dash_title'.tr,
-          style: const TextStyle(
-            color: AppColors.textOnDark,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
+        title: Obx(() {
+          if (controller.isPremium.value) {
+            return ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [AppColors.goldStart, AppColors.goldEnd],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ).createShader(bounds),
+              child: Text(
+                'dash_title'.tr,
+                style: const TextStyle(
+                  color: Colors.white, // Required for ShaderMask
+                  fontSize: 24, // Slightly larger
+                  fontWeight: FontWeight.w900, // Extra bold
+                  letterSpacing: 1.5,
+                  shadows: [
+                    Shadow(
+                      color: AppColors.goldEnd,
+                      blurRadius: 20,
+                      offset: Offset(0, 0),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          return Text(
+            'dash_title'.tr,
+            style: const TextStyle(
+              color: AppColors.textOnDark,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          );
+        }),
         leading: GestureDetector(
           onTap: controller.goToProfile,
           child: Container(

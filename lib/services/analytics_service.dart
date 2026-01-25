@@ -17,7 +17,7 @@ class AnalyticsService extends GetxService {
     await _amplitude.isBuilt;
 
     // Track an event
-    trackEvent('APP_INIT', {'打开app': 'init'});
+    trackEvent('APP_INIT', {'app init': 'init'});
 
     return this;
   }

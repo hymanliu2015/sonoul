@@ -145,12 +145,9 @@ class ProfilePage extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
+          color: isPremium ? const Color(0xFF1E1E1E) : null, // Dark background for premium
           gradient: isPremium 
-              ? const LinearGradient(
-                  colors: [Color(0xFFD4AF37), Color(0xFFA67C00)], // Gold for premium
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
+              ? null
               : LinearGradient(
                   colors: [
                     AppColors.greenPrimary.withValues(alpha: 0.8),
@@ -161,14 +158,14 @@ class ProfilePage extends StatelessWidget {
                 ),
           boxShadow: [
             BoxShadow(
-              color: (isPremium ? const Color(0xFFD4AF37) : AppColors.greenPrimary).withValues(alpha: 0.3),
+              color: (isPremium ? AppColors.goldEnd : AppColors.greenPrimary).withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
           ],
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.2),
-            width: 1,
+            color: isPremium ? AppColors.goldStart.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.2),
+            width: isPremium ? 1.5 : 1,
           ),
         ),
         child: Column(
@@ -179,34 +176,70 @@ class ProfilePage extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      isPremium ? Icons.auto_awesome_rounded : Icons.star_outline_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
+                    // Premium Icon: ShaderMask for Gold Gradient
+                    isPremium 
+                        ? ShaderMask(
+                            shaderCallback: (bounds) => const LinearGradient(
+                              colors: [AppColors.goldStart, AppColors.goldEnd],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: const Icon(
+                              Icons.auto_awesome_rounded,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.star_outline_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                     const SizedBox(width: 12),
-                    Text(
-                      isPremium ? 'profile_premium_plan'.tr : 'profile_free_plan'.tr,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    // Premium Title: Gold Gradient Text
+                    isPremium
+                        ? ShaderMask(
+                            shaderCallback: (bounds) => const LinearGradient(
+                              colors: [AppColors.goldStart, AppColors.goldEnd],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Text(
+                              'profile_premium_plan'.tr,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            'profile_free_plan'.tr,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ],
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.2),
+                    color: isPremium 
+                        ? AppColors.goldEnd.withValues(alpha: 0.2) 
+                        : Colors.black.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
+                    border: isPremium 
+                        ? Border.all(color: AppColors.goldStart.withValues(alpha: 0.5), width: 1)
+                        : null,
                   ),
                   child: Text(
                     isPremium ? 'profile_status_active'.tr : 'profile_status_basic'.tr,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: isPremium ? AppColors.goldStart : Colors.white,
                       letterSpacing: 1,
                     ),
                   ),
@@ -220,7 +253,7 @@ class ProfilePage extends StatelessWidget {
                   : 'profile_free_desc'.tr,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withValues(alpha: 0.8),
+                color: isPremium ? Colors.white.withValues(alpha: 0.9) : Colors.white.withValues(alpha: 0.8),
                 height: 1.5,
               ),
             ),

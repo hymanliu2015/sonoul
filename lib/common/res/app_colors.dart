@@ -31,4 +31,9 @@ class AppColors {
   static const Color accent = greenPrimary;
   static const Color accentLight = greenLight;
   static const Color secondary = greenMain;
+
+  // VIP / Premium
+  static const Color goldStart = Color(0xFFFFE082); // Lighter Gold
+  static const Color goldEnd   = Color(0xFFFFA000); // Darker Gold / Amber
+  static const Color vipDark   = Color(0xFF1A1A1A); // Dark background for VIP card
 }
