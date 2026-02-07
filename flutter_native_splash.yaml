@@ -6,7 +6,7 @@ flutter_native_splash:
   image: assets/images/icon_logo.png
 
   # 关键设置：iOS 使用 scaleAspectFill 以确保“铺满”感
-  ios_content_mode: scaleAspectFill
+#  ios_content_mode: scaleAspectFill
 
   # 安卓全屏设置
   android_gravity: fill

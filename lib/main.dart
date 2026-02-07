@@ -1,25 +1,31 @@
 import 'package:sonoul/common/lang/app_translations.dart';
 import 'package:sonoul/common/res/app_themes.dart';
 import 'package:sonoul/routes/app_pages.dart';
+import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/services/analytics_service.dart';
 import 'package:sonoul/services/init_service.dart';
+import 'package:sonoul/utils/sp_util.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initServices();
-  runApp(const MyApp());
+  final startRoute = _resolveStartRoute();
+  runApp(MyApp(startRoute: startRoute));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String startRoute;
+
+  const MyApp({super.key, required this.startRoute});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: AppPages.initial,
+      initialRoute: startRoute,
       getPages: AppPages.routes,
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
@@ -41,4 +47,17 @@ class MyApp extends StatelessWidget {
 Future<void> initServices() async {
   await Get.putAsync(() => InitService().init());
   await Get.putAsync(() => AnalyticsService().init());
+}
+
+String _resolveStartRoute() {
+  final bool hasSeenGuide = SpUtil.getBool('has_seen_guide', defValue: false) ?? false;
+  final bool isLoggedIn = Supabase.instance.client.auth.currentUser != null;
+
+  if (isLoggedIn) {
+    return AppRoutes.dash;
+  }
+  if (hasSeenGuide) {
+    return AppRoutes.login;
+  }
+  return AppRoutes.guide;
 }

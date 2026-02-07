@@ -17,9 +17,13 @@ import 'package:get/get.dart';
 
 class AppPages{
 
-  static const initial = AppRoutes.dash;
+  static const initial = AppRoutes.guide;
 
   static final routes = [
+    GetPage(
+      name: AppRoutes.guide,
+      page: () => GuidePage(),
+    ),
     GetPage(
         name: AppRoutes.dash,
         page: () => DashPage(),
@@ -33,10 +37,6 @@ class AppPages{
     GetPage(
       name: AppRoutes.register,
       page: () => RegisterPage(),
-    ),
-    GetPage(
-      name: AppRoutes.guide,
-      page: () => GuidePage(),
     ),
     GetPage(
       name: AppRoutes.singer,
