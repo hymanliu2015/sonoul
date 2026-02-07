@@ -13,13 +13,15 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initServices();
   final startRoute = _resolveStartRoute();
-  runApp(MyApp(startRoute: startRoute));
+  final startLocale = _resolveStartLocale();
+  runApp(MyApp(startRoute: startRoute, startLocale: startLocale));
 }
 
 class MyApp extends StatelessWidget {
   final String startRoute;
+  final Locale? startLocale;
 
-  const MyApp({super.key, required this.startRoute});
+  const MyApp({super.key, required this.startRoute, required this.startLocale});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class MyApp extends StatelessWidget {
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
       themeMode: ThemeMode.system,
-      locale: Get.deviceLocale,
+      locale: startLocale ?? Get.deviceLocale,
       translations: AppTranslations(),
       fallbackLocale: const Locale("en", "US"),
       builder: (context, child) {
@@ -60,4 +62,15 @@ String _resolveStartRoute() {
     return AppRoutes.login;
   }
   return AppRoutes.guide;
+}
+
+Locale? _resolveStartLocale() {
+  final String code = SpUtil.getString('app_locale', defValue: '') ?? '';
+  if (code.isEmpty) {
+    return Get.deviceLocale;
+  }
+  final parts = code.split('_');
+  if (parts.isEmpty) return Get.deviceLocale;
+  if (parts.length == 1) return Locale(parts[0]);
+  return Locale(parts[0], parts[1]);
 }

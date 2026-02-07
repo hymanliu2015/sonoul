@@ -58,6 +58,17 @@ class SettingsPage extends StatelessWidget {
             children: [
               _buildSectionHeader('settings_general'.tr),
               _buildSection([
+                Obx(
+                  () => _buildSettingItem(
+                    icon: Icons.translate_rounded,
+                    title: 'settings_language'.tr,
+                    subtitle: controller.currentLanguageLabel.value.isNotEmpty
+                        ? controller.currentLanguageLabel.value
+                        : 'settings_language_subtitle'.tr,
+                    onTap: () => _showLanguageSheet(context),
+                  ),
+                ),
+                _buildDivider(),
                 _buildSettingItem(
                   icon: Icons.share_rounded,
                   title: 'settings_share_app'.tr,
@@ -281,6 +292,85 @@ class SettingsPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showLanguageSheet(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF0F1D1A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'settings_language'.tr,
+                  style: const TextStyle(
+                    color: AppColors.textOnDark,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: SettingsController.supportedLocales.length,
+                    separatorBuilder: (_, __) => Divider(
+                      height: 1,
+                      color: Colors.white.withValues(alpha: 0.06),
+                    ),
+                    itemBuilder: (context, index) {
+                      final option = SettingsController.supportedLocales[index];
+                      return Obx(
+                        () => ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            option.labelValue,
+                            style: const TextStyle(
+                              color: AppColors.textOnDark,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          trailing: controller.currentLocaleCode.value == option.code
+                              ? const Icon(
+                                  Icons.check_rounded,
+                                  color: AppColors.greenLight,
+                                )
+                              : null,
+                          onTap: () {
+                            controller.setLocale(option.code);
+                            Get.back();
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
     );
   }
 }

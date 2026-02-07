@@ -6,6 +6,9 @@ class AppTranslations extends Translations {
         'en_US': {
           'settings_title': 'Settings',
           'settings_general': 'General',
+          'settings_language': 'Language',
+          'settings_language_subtitle': 'Choose app language',
+          'settings_language_system': 'System Default',
           'settings_share_app': 'Share App',
           'settings_share_app_subtitle': 'Share Sonoul with friends',
           'settings_rate_app': 'Rate App',
@@ -195,6 +198,9 @@ class AppTranslations extends Translations {
         'zh_CN': {
           'settings_title': '设置',
           'settings_general': '通用',
+          'settings_language': '语言',
+          'settings_language_subtitle': '选择应用语言',
+          'settings_language_system': '跟随系统',
           'settings_share_app': '分享应用',
           'settings_share_app_subtitle': '分享 Sonoul 给朋友',
           'settings_rate_app': '评价应用',
@@ -382,6 +388,9 @@ class AppTranslations extends Translations {
         'es_ES': {
           'settings_title': 'Ajustes',
           'settings_general': 'General',
+          'settings_language': 'Idioma',
+          'settings_language_subtitle': 'Elige el idioma de la app',
+          'settings_language_system': 'Predeterminado del sistema',
           'settings_share_app': 'Compartir aplicación',
           'settings_share_app_subtitle': 'Comparte Sonoul con amigos',
           'settings_rate_app': 'Calificar aplicación',
@@ -571,6 +580,9 @@ class AppTranslations extends Translations {
         'pt_PT': {
           'settings_title': 'Definições',
           'settings_general': 'Geral',
+          'settings_language': 'Idioma',
+          'settings_language_subtitle': 'Escolha o idioma da app',
+          'settings_language_system': 'Padrão do sistema',
           'settings_share_app': 'Partilhar Aplicação',
           'settings_share_app_subtitle': 'Partilhar Sonoul com amigos',
           'settings_rate_app': 'Avaliar Aplicação',
@@ -760,6 +772,9 @@ class AppTranslations extends Translations {
         'de_DE': {
           'settings_title': 'Einstellungen',
           'settings_general': 'Allgemein',
+          'settings_language': 'Sprache',
+          'settings_language_subtitle': 'App-Sprache auswählen',
+          'settings_language_system': 'Systemstandard',
           'settings_share_app': 'App teilen',
           'settings_share_app_subtitle': 'Sonoul mit Freunden teilen',
           'settings_rate_app': 'App bewerten',
@@ -949,6 +964,9 @@ class AppTranslations extends Translations {
         'it_IT': {
           'settings_title': 'Impostazioni',
           'settings_general': 'Generale',
+          'settings_language': 'Lingua',
+          'settings_language_subtitle': 'Scegli la lingua dell’app',
+          'settings_language_system': 'Predefinita di sistema',
           'settings_share_app': 'Condividi App',
           'settings_share_app_subtitle': 'Condividi Sonoul con gli amici',
           'settings_rate_app': 'Valuta App',
@@ -1138,6 +1156,9 @@ class AppTranslations extends Translations {
         'ar_SA': {
           'settings_title': 'الإعدادات',
           'settings_general': 'عام',
+          'settings_language': 'اللغة',
+          'settings_language_subtitle': 'اختر لغة التطبيق',
+          'settings_language_system': 'افتراضي النظام',
           'settings_share_app': 'مشاركة التطبيق',
           'settings_share_app_subtitle': 'شارك Sonoul مع الأصدقاء',
           'settings_rate_app': 'تقييم التطبيق',
@@ -1327,6 +1348,9 @@ class AppTranslations extends Translations {
         'fr_FR': {
           'settings_title': 'Paramètres',
           'settings_general': 'Général',
+          'settings_language': 'Langue',
+          'settings_language_subtitle': 'Choisissez la langue de l’app',
+          'settings_language_system': 'Par défaut du système',
           'settings_share_app': 'Partager l\'application',
           'settings_share_app_subtitle': 'Partager Sonoul avec des amis',
           'settings_rate_app': 'Évaluer l\'application',
@@ -1516,6 +1540,9 @@ class AppTranslations extends Translations {
         'ja_JP': {
           'settings_title': '設定',
           'settings_general': '全般',
+          'settings_language': '言語',
+          'settings_language_subtitle': 'アプリの言語を選択',
+          'settings_language_system': 'システム既定',
           'settings_share_app': 'アプリを共有',
           'settings_share_app_subtitle': 'Sonoulを友達と共有する',
           'settings_rate_app': 'アプリを評価',
@@ -1705,6 +1732,9 @@ class AppTranslations extends Translations {
         'ko_KR': {
           'settings_title': '설정',
           'settings_general': '일반',
+          'settings_language': '언어',
+          'settings_language_subtitle': '앱 언어 선택',
+          'settings_language_system': '시스템 기본값',
           'settings_share_app': '앱 공유',
           'settings_share_app_subtitle': 'Sonoul을 친구와 공유하기',
           'settings_rate_app': '앱 평가',
@@ -1894,6 +1924,9 @@ class AppTranslations extends Translations {
         'ru_RU': {
           'settings_title': 'Настройки',
           'settings_general': 'Общие',
+          'settings_language': 'Язык',
+          'settings_language_subtitle': 'Выберите язык приложения',
+          'settings_language_system': 'Системный по умолчанию',
           'settings_share_app': 'Поделиться приложением',
           'settings_share_app_subtitle': 'Поделиться Sonoul с друзьями',
           'settings_rate_app': 'Оценить приложение',
@@ -2083,6 +2116,9 @@ class AppTranslations extends Translations {
         'zh_TW': {
           'settings_title': '設定',
           'settings_general': '一般',
+          'settings_language': '語言',
+          'settings_language_subtitle': '選擇應用語言',
+          'settings_language_system': '跟隨系統',
           'settings_share_app': '分享應用',
           'settings_share_app_subtitle': '分享 Sonoul 給朋友',
           'settings_rate_app': '評價應用',
