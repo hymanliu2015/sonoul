@@ -81,15 +81,21 @@ class MemberController extends GetxController {
       final customerInfo = await Purchases.purchase(paras);
 
       // 根据 entitlements 判断是否已解锁会员
-      final entitlements = customerInfo.customerInfo.entitlements.active;
-      if (entitlements.isNotEmpty) {
-        ToastUtils.shotToast('member_purchase_success'.tr);
-        Get.find<AnalyticsService>().trackSubscribe(pkg.storeProduct.identifier, price: pkg.storeProduct.priceString);
+      final entitlement = customerInfo.customerInfo.entitlements.active['vip_access'];
 
-        // 刷新本地 premium 状态（依然通过 Supabase 的 subscriptions 表）
+      if (entitlement != null) {
+        ToastUtils.shotToast('member_purchase_success'.tr);
+
+        Get.find<AnalyticsService>().trackSubscribe(
+          pkg.storeProduct.identifier,
+          price: pkg.storeProduct.priceString,
+        );
+
+        // 刷新本地 premium 状态（Supabase）
         if (Get.isRegistered<DashController>()) {
           await Get.find<DashController>().checkSubscription();
         }
+
         Get.back();
       } else {
         ToastUtils.shotToast('member_no_active_subscription'.tr);
