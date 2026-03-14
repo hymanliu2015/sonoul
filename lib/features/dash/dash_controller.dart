@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -176,9 +177,20 @@ class DashController extends GetxController {
       }
       
       if (!isPremium.value) {
-        final songCount = await _songService.getUserSongCount();
-        if (songCount >= maxCreateSongs) {
-          Get.toNamed(AppRoutes.member);
+        Get.dialog(
+          const Center(child: CircularProgressIndicator()),
+          barrierDismissible: false,
+        );
+        try {
+          final songCount = await _songService.getUserSongCount();
+          Get.back(); // dismiss dialog
+          if (songCount >= maxCreateSongs) {
+            Get.toNamed(AppRoutes.member);
+            return;
+          }
+        } catch (e) {
+          Get.back();
+          debugPrint('Error getting song count: $e');
           return;
         }
       }
