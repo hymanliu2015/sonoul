@@ -194,6 +194,8 @@ class CreateSongController extends GetxController {
       final dashController = Get.find<DashController>();
       singerId = dashController.currentSinger?.id;
       singerName = dashController.currentSinger?.name;
+      // Immediately fetch songs so that DashPage's home tab reflects the new song.
+      dashController.fetchSongsForCurrentSinger(showLoading: false);
     }
 
     // Request app rating

@@ -10,6 +10,11 @@ class AlbumController extends GetxController {
   
   final RxList<Map<String, dynamic>> songs = <Map<String, dynamic>>[].obs;
   final RxBool isLoading = false.obs;
+  final RxBool isLoadingMore = false.obs;
+  final RxBool hasMore = true.obs;
+  bool _isFetching = false;
+  int _offset = 0;
+  static const int _limit = 20;
 
   // 当前专辑对应的虚拟歌手（可为空，表示所有歌手）
   late final String? singerId;
@@ -49,6 +54,7 @@ class AlbumController extends GetxController {
           // If song not found (e.g. new song), add to top or refresh
           // For now, simple insert at top as list is ordered by created_at desc
           songs.insert(0, updatedSong);
+          _offset += 1; // Increase offset so loadMore doesn't fetch duplicates
         }
         
         // 检查是否还有 pending 的歌曲，决定是否继续轮询
@@ -93,7 +99,9 @@ class AlbumController extends GetxController {
   }
 
   Future<void> fetchSongs({bool showLoading = true}) async {
+    if (_isFetching) return;
     try {
+      _isFetching = true;
       if (showLoading) {
         isLoading.value = true;
       }
@@ -101,10 +109,18 @@ class AlbumController extends GetxController {
         'AlbumController: Fetching songs for current user, singerId=$singerId (loading: $showLoading)',
       );
       
+      _offset = 0;
+      hasMore.value = true;
+      
       // 按当前虚拟歌手过滤歌曲；如果 singerId 为空，则为用户全部歌曲
-      final userSongs = await _songService.getUserSongs(singerId: singerId);
+      final userSongs = await _songService.getUserSongs(singerId: singerId, limit: _limit, offset: _offset);
       debugPrint('AlbumController: Fetched ${userSongs.length} songs');
       songs.assignAll(userSongs);
+      
+      if (userSongs.length < _limit) {
+        hasMore.value = false;
+      }
+      _offset = userSongs.length;
     } catch (e) {
       debugPrint('AlbumController: Error fetching songs: $e');
       Get.snackbar('Error', 'album_load_failed'.trParams({'error': e.toString()}));
@@ -112,6 +128,36 @@ class AlbumController extends GetxController {
       if (showLoading) {
         isLoading.value = false;
       }
+      _isFetching = false;
+    }
+  }
+
+  Future<void> loadMore() async {
+    if (isLoadingMore.value || !hasMore.value || _isFetching) return;
+    
+    try {
+      isLoadingMore.value = true;
+      _isFetching = true;
+      final newSongs = await _songService.getUserSongs(singerId: singerId, limit: _limit, offset: _offset);
+      
+      if (newSongs.isEmpty) {
+        hasMore.value = false;
+      } else {
+        // Prevent duplicates caused by offset shifts during database inserts
+        final existingIds = songs.map((s) => s['id']).toSet();
+        final filteredSongs = newSongs.where((s) => !existingIds.contains(s['id'])).toList();
+        
+        songs.addAll(filteredSongs);
+        _offset += newSongs.length;
+        if (newSongs.length < _limit) {
+          hasMore.value = false;
+        }
+      }
+    } catch (e) {
+      debugPrint('AlbumController: Error loading more: $e');
+    } finally {
+      isLoadingMore.value = false;
+      _isFetching = false;
     }
   }
 

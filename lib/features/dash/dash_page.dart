@@ -68,6 +68,7 @@ class DashPage extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
+        leadingWidth: 78,
         title: Obx(() {
           if (controller.isPremium.value) {
             return ShaderMask(
@@ -252,7 +253,10 @@ class DashPage extends StatelessWidget {
           const SizedBox(height: 12),
           // Share Button
           _buildShareButton(),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
+          // Album Header
+          _buildAlbumHeader(),
+          const SizedBox(height: 16),
           // Album list
           _buildAlbumList(),
           const SizedBox(height: 40),
@@ -358,6 +362,45 @@ class DashPage extends StatelessWidget {
     );
   }
 
+  Widget _buildAlbumHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          'dash_my_album'.tr,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textOnDark,
+          ),
+        ),
+        GestureDetector(
+          onTap: controller.goToAlbum,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'dash_more'.tr,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white.withValues(alpha: 0.6),
+                ),
+              ),
+              const SizedBox(width: 2),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: Colors.white.withValues(alpha: 0.6),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildAlbumList() {
     return Obx(() {
       if (controller.isSongsLoading.value && controller.songs.isEmpty) {
@@ -378,7 +421,7 @@ class DashPage extends StatelessWidget {
       return ListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: controller.songs.length,
+        itemCount: controller.songs.length > 10 ? 10 : controller.songs.length,
         itemBuilder: (context, index) {
           final song = controller.songs[index];
           return Padding(
@@ -431,7 +474,7 @@ class DashPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'dash_create_first_song_hint'.tr,
+            'album_empty_desc'.tr,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -730,7 +773,7 @@ class DashPage extends StatelessWidget {
         builder: (context, setState) {
           return Container(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              maxHeight: MediaQuery.of(context).size.height * 0.9,
             ),
             decoration: BoxDecoration(
               gradient: const LinearGradient(

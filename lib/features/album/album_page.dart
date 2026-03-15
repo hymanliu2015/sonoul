@@ -47,21 +47,7 @@ class AlbumPage extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () => controller.goToCreateSong(),
-            child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.greenPrimary.withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.greenLight.withValues(alpha: 0.5), width: 1.5),
-              ),
-              child: const Icon(Icons.add, color: AppColors.greenLight, size: 20),
-            ),
-          ),
-        ],
+        actions: const [],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -114,25 +100,60 @@ class AlbumPage extends StatelessWidget {
                 .any((s) => s['status'] == 'pending' || s['status'] == 'processing');
 
             return RefreshIndicator(
-              onRefresh: controller.fetchSongs,
+              onRefresh: () => controller.fetchSongs(showLoading: false),
               color: AppColors.greenLight,
               backgroundColor: AppColors.greenDeep,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: controller.songs.length + (hasProcessing ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (hasProcessing && index == 0) {
-                    return _buildProcessingCard();
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 50) {
+                    controller.loadMore();
                   }
-
-                  final realIndex = hasProcessing ? index - 1 : index;
-                  final song = controller.songs[realIndex];
-                  return SongListItem(
-                    song: song,
-                    onTap: () => controller.openSongDetail(song),
-                    onDelete: () => controller.deleteSong(song['id']),
-                  );
+                  return false;
                 },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: controller.songs.length + (hasProcessing ? 1 : 0) + 1,
+                  itemBuilder: (context, index) {
+                    if (hasProcessing && index == 0) {
+                      return _buildProcessingCard();
+                    }
+
+                    final realIndex = hasProcessing ? index - 1 : index;
+
+                    if (realIndex == controller.songs.length) {
+                      return Obx(() {
+                        if (controller.isLoadingMore.value) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(AppColors.greenLight),
+                              ),
+                            ),
+                          );
+                        } else if (!controller.hasMore.value && controller.songs.isNotEmpty) {
+                          return  Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                'album_no_more'.tr, 
+                                style: const TextStyle(color: Colors.white54, fontSize: 12),
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      });
+                    }
+
+                    final song = controller.songs[realIndex];
+                    return SongListItem(
+                      song: song,
+                      onTap: () => controller.openSongDetail(song),
+                      onDelete: () => controller.deleteSong(song['id']),
+                    );
+                  },
+                ),
               ),
             );
           }),
@@ -182,41 +203,6 @@ class AlbumPage extends StatelessWidget {
                 fontSize: 15,
                 color: Colors.white.withValues(alpha: 0.6),
                 height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 32),
-            GestureDetector(
-              onTap: () => controller.goToCreateSong(),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.greenLight, AppColors.greenPrimary],
-                  ),
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.greenPrimary.withValues(alpha: 0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.add_rounded, color: Colors.white, size: 22),
-                    const SizedBox(width: 8),
-                    Text(
-                      'album_create_song'.tr,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ],

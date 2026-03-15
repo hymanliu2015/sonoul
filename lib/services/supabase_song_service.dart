@@ -23,7 +23,7 @@ class SupabaseSongService extends GetxService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getUserSongs({String? singerId}) async {
+  Future<List<Map<String, dynamic>>> getUserSongs({String? singerId, int limit = 50, int offset = 0}) async {
     try {
       debugPrint('SupabaseSongService: Fetching songs...');
       final user = _supabase.auth.currentUser;
@@ -41,7 +41,10 @@ class SupabaseSongService extends GetxService {
         query = query.eq('singer_id', singerId);
       }
 
-      final response = await query.order('created_at', ascending: false);
+      final response = await query
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
+      
       debugPrint('SupabaseSongService: Got response: ${response.length} songs');
 
       // Explicit type conversion

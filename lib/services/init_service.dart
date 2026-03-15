@@ -45,7 +45,7 @@ class InitService extends GetxService {
   }
 
   Future<void> initPlatformState() async {
-    await Purchases.setLogLevel(LogLevel.debug); // 开发阶段开启日志
+    await Purchases.setLogLevel(LogLevel.warn); // 生产/测试阶段降低日志级别以免输出大段隐私 token
 
     PurchasesConfiguration configuration;
     if (GetPlatform.isAndroid) {

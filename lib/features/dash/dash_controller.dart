@@ -79,7 +79,10 @@ class DashController extends GetxController {
           songs[index] = updatedSong;
           songs.refresh();
         } else {
-          songs.insert(0, updatedSong);
+          // Only insert if it belongs to the currently selected singer in the tab
+          if (currentSinger != null && updatedSong['singer_id'] == currentSinger!.id) {
+            songs.insert(0, updatedSong);
+          }
         }
         
         _updatePollingState();
@@ -388,7 +391,7 @@ class DashController extends GetxController {
     if (requireAuth()) {
       // 进入专辑页时，按当前虚拟歌手过滤，只展示该歌手的歌曲
       if (currentSinger == null) {
-        ToastUtils.shotToast('Please create a singer first');
+        ToastUtils.shotToast('dash_create_singer_first'.tr);
         Get.toNamed(AppRoutes.singer);
         return;
       }

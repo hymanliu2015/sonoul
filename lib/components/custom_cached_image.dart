@@ -80,6 +80,9 @@ class CustomCachedImage extends StatelessWidget {
       imageUrl: url,
       fit: fit,
       cacheManager: ImageCacheManager.instance,
+      errorListener: (e) {
+        debugPrint('CustomCachedImage softly caught an error: \${e.toString()}');
+      },
       placeholder: (context, url) => placeholder ?? _buildPlaceholder(),
       errorWidget: (context, url, error) => errorWidget ?? _buildErrorWidget(),
       fadeInDuration: const Duration(milliseconds: 300),
