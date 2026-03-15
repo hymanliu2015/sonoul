@@ -18,19 +18,7 @@ class ProfilePage extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
         centerTitle: true,
-        leading: GestureDetector(
-          onTap: () => Get.back(),
-          child: Container(
-            margin: const EdgeInsets.all(8),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.greenLight.withValues(alpha: 0.5), width: 1.5),
-            ),
-            child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textOnDark, size: 18),
-          ),
-        ),
+        automaticallyImplyLeading: false,
         title: Text(
           'profile_title'.tr,
           style: const TextStyle(

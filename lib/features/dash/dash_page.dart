@@ -24,16 +24,7 @@ class DashPage extends StatelessWidget {
           ],
         );
       }),
-      bottomNavigationBar: Obx(() => Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: Colors.white.withValues(alpha: 0.1),
-              width: 0.5,
-            ),
-          ),
-        ),
-        child: Theme(
+      bottomNavigationBar: Obx(() => Theme(
           data: ThemeData(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
@@ -41,9 +32,9 @@ class DashPage extends StatelessWidget {
           child: BottomNavigationBar(
             currentIndex: controller.currentTab.value,
             onTap: controller.changeTab,
-            backgroundColor: const Color(0xFF051512),
+            backgroundColor: const Color(0xFF0A1F1B),
             selectedItemColor: AppColors.greenLight,
-            unselectedItemColor: Colors.white.withValues(alpha: 0.4),
+            unselectedItemColor: Colors.white.withValues(alpha: 0.6),
             selectedFontSize: 12,
             unselectedFontSize: 12,
             type: BottomNavigationBarType.fixed,
@@ -66,7 +57,7 @@ class DashPage extends StatelessWidget {
             ],
           ),
         ),
-      )),
+      ),
     );
   }
 
@@ -157,7 +148,7 @@ class DashPage extends StatelessWidget {
         }),
         actions: [
           GestureDetector(
-            onTap: controller.goToCreateSinger,
+            onTap: controller.goToCreateSingle,
             child: Container(
               margin: const EdgeInsets.only(right: 16),
               padding: const EdgeInsets.all(8),
@@ -179,6 +170,8 @@ class DashPage extends StatelessWidget {
         ],
       ),
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -379,7 +372,7 @@ class DashPage extends StatelessWidget {
       }
 
       if (controller.songs.isEmpty) {
-        return const SizedBox.shrink();
+        return _buildEmptyAlbumState();
       }
 
       return ListView.builder(
@@ -401,6 +394,91 @@ class DashPage extends StatelessWidget {
     });
   }
 
+  Widget _buildEmptyAlbumState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      margin: const EdgeInsets.only(top: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.05),
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.music_note_rounded,
+              size: 48,
+              color: AppColors.greenLight.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'album_empty_title'.tr,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textOnDark,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'dash_create_first_song_hint'.tr,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withValues(alpha: 0.6),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 32),
+          GestureDetector(
+            onTap: controller.goToCreateSingle,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.greenLight, AppColors.greenPrimary],
+                ),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.greenPrimary.withValues(alpha: 0.4),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'album_create_song'.tr,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmptySingerState() {
     return Padding(
       padding: const EdgeInsets.all(32),
@@ -408,8 +486,8 @@ class DashPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 160,
-            height: 160,
+            width: 120,
+            height: 120,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.08),
               shape: BoxShape.circle,
@@ -417,17 +495,10 @@ class DashPage extends StatelessWidget {
                 color: AppColors.greenLight.withValues(alpha: 0.3),
                 width: 2,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.greenPrimary.withValues(alpha: 0.2),
-                  blurRadius: 30,
-                  spreadRadius: 0,
-                ),
-              ],
             ),
             child: Icon(
-              Icons.person_add_alt_1_rounded,
-              size: 64,
+              Icons.music_note_rounded,
+              size: 56,
               color: AppColors.greenLight.withValues(alpha: 0.6),
             ),
           ),

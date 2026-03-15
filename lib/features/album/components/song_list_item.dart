@@ -76,7 +76,7 @@ class SongListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    song['title'] ?? 'Untitled',
+                    song['title'] ?? 'song_detail_title_unknown'.tr,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -93,7 +93,7 @@ class SongListItem extends StatelessWidget {
                             ? DateTime.parse(song['created_at'])
                                 .toString()
                                 .split(' ')[0]
-                            : 'Unknown',
+                            : 'album_status_unknown'.tr,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.white.withValues(alpha: 0.5),
