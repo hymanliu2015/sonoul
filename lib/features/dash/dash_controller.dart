@@ -14,6 +14,7 @@ import 'package:sonoul/routes/app_routes.dart';
 import 'package:sonoul/services/supabase_song_service.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:sonoul/utils/sp_util.dart';
 
 class DashController extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
@@ -59,11 +60,44 @@ class DashController extends GetxController {
     }
   }
 
+  /// 从 SP 本地缓存加载用户的 VIP 过期时间
+  void _loadPremiumFromSP() {
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+    
+    final spKey = 'vip_end_date_${user.id}';
+    final endDateStr = SpUtil.getString(spKey);
+    if (endDateStr != null && endDateStr.isNotEmpty) {
+      try {
+        final endDate = DateTime.parse(endDateStr);
+        isPremium.value = endDate.isAfter(DateTime.now());
+        debugPrint('Loaded Premium status from SP: ${isPremium.value}');
+      } catch (e) {
+        debugPrint('Error parsing cached premium date: $e');
+      }
+    }
+  }
+
+  /// 将 VIP 过期时间保存到 SP 本地缓存
+  void _savePremiumToSP(String userId, String endDateStr) {
+    final spKey = 'vip_end_date_$userId';
+    SpUtil.putString(spKey, endDateStr);
+  }
+
+  /// 清除用户的 VIP 缓存
+  void _clearPremiumSP(String userId) {
+    final spKey = 'vip_end_date_$userId';
+    SpUtil.remove(spKey);
+  }
+
   Future<void> checkSubscription() async {
     if (!isLoggedIn) return;
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) return;
+      
+      // 先从本地加载缓存的状态，防止网络离线时直接变成非VIP
+      _loadPremiumFromSP();
 
       final response = await _supabase
           .from('subscriptions')
@@ -75,18 +109,22 @@ class DashController extends GetxController {
           .maybeSingle();
 
       if (response != null) {
-        final endDate = DateTime.parse(response['end_date']);
+        final endDateStr = response['end_date'];
+        final endDate = DateTime.parse(endDateStr);
         if (endDate.isAfter(DateTime.now())) {
           isPremium.value = true;
+          _savePremiumToSP(user.id, endDateStr);
         } else {
           isPremium.value = false;
+          _clearPremiumSP(user.id);
         }
       } else {
         isPremium.value = false;
+        _clearPremiumSP(user.id);
       }
     } catch (e) {
       debugPrint("Error checking subscription: $e");
-      isPremium.value = false;
+      // 注意：这里不再将 isPremium 强制设为 false，保留从缓存加载的状态
     }
   }
 
@@ -231,6 +269,10 @@ class DashController extends GetxController {
   }
 
   void logout() {
+    final user = _supabase.auth.currentUser;
+    if (user != null) {
+      _clearPremiumSP(user.id);
+    }
     _authController.logout();
   }
   
@@ -255,7 +297,11 @@ class DashController extends GetxController {
             final endDateStr = record['end_date'];
             if (status == 'active' && endDateStr != null) {
               final endDate = DateTime.parse(endDateStr);
-              isPremium.value = endDate.isAfter(DateTime.now());
+              final premiumStatus = endDate.isAfter(DateTime.now());
+              isPremium.value = premiumStatus;
+              if (premiumStatus) {
+                _savePremiumToSP(user.id, endDateStr);
+              }
             }
           }
         },
@@ -271,9 +317,16 @@ class DashController extends GetxController {
             final endDateStr = record['end_date'];
             if (status == 'active' && endDateStr != null) {
               final endDate = DateTime.parse(endDateStr);
-              isPremium.value = endDate.isAfter(DateTime.now());
+              final premiumStatus = endDate.isAfter(DateTime.now());
+              isPremium.value = premiumStatus;
+              if (premiumStatus) {
+                _savePremiumToSP(user.id, endDateStr);
+              } else {
+                _clearPremiumSP(user.id);
+              }
             } else {
               isPremium.value = false;
+              _clearPremiumSP(user.id);
             }
           }
         },
