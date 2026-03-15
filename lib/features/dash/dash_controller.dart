@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -15,6 +14,7 @@ import 'package:sonoul/services/supabase_song_service.dart';
 import 'package:sonoul/utils/toast_util.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:sonoul/utils/sp_util.dart';
+import 'dart:async';
 
 class DashController extends GetxController {
   final AuthController _authController = Get.find<AuthController>();
@@ -26,6 +26,15 @@ class DashController extends GetxController {
   final RxList<Singer> singers = <Singer>[].obs;
   final RxInt currentSingerIndex = 0.obs;
   final RxBool isLoading = false.obs;
+
+  // Tabs state
+  final RxInt currentTab = 0.obs;
+
+  // Songs/Album state
+  final RxList<Map<String, dynamic>> songs = <Map<String, dynamic>>[].obs;
+  final RxBool isSongsLoading = false.obs;
+  Timer? _pollingTimer;
+  static const _pollingInterval = Duration(seconds: 10);
 
   final int maxCreateSinger = 2;
 
@@ -58,6 +67,65 @@ class DashController extends GetxController {
     if (_supabase.auth.currentUser != null) {
       _initializeSubscriptionsRealtime();
     }
+    
+    // Listen for real-time song updates
+    _songService.onSongGenerated.listen((updatedSong) {
+      if (updatedSong != null) {
+        debugPrint('DashController: Received song update: ${updatedSong['title']} - ${updatedSong['status']}');
+        
+        // Optimistic update
+        final index = songs.indexWhere((s) => s['id'] == updatedSong['id']);
+        if (index != -1) {
+          songs[index] = updatedSong;
+          songs.refresh();
+        } else {
+          songs.insert(0, updatedSong);
+        }
+        
+        _updatePollingState();
+      }
+    });
+
+    ever(songs, (_) => _updatePollingState());
+    
+    // Automatically fetch songs when the selected singer changes
+    ever(currentSingerIndex, (_) {
+      fetchSongsForCurrentSinger();
+    });
+  }
+
+  @override
+  void onClose() {
+    _stopPolling();
+    super.onClose();
+  }
+
+  /// 检查是否有 pending 状态的歌曲，决定是否开启/关闭轮询
+  void _updatePollingState() {
+    final hasPending = songs.any((s) => 
+      s['status'] == 'pending' || s['status'] == 'processing'
+    );
+    
+    if (hasPending && _pollingTimer == null) {
+      _startPolling();
+    } else if (!hasPending && _pollingTimer != null) {
+      _stopPolling();
+    }
+  }
+
+  void _startPolling() {
+    _pollingTimer = Timer.periodic(_pollingInterval, (_) {
+      fetchSongsForCurrentSinger(showLoading: false);
+    });
+  }
+
+  void _stopPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+  }
+
+  void changeTab(int index) {
+    currentTab.value = index;
   }
 
   /// 从 SP 本地缓存加载用户的 VIP 过期时间
@@ -174,6 +242,11 @@ class DashController extends GetxController {
         singers.value = list.map((e) => Singer.fromJson(e)).toList();
         // 缓存到本地
         _cacheSingers(list);
+        
+        // Fetch songs for the initial active singer
+        if (singers.isNotEmpty) {
+          fetchSongsForCurrentSinger();
+        }
       }
       
     } catch (e) {
@@ -181,6 +254,76 @@ class DashController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> fetchSongsForCurrentSinger({bool showLoading = true}) async {
+    if (!isLoggedIn) return;
+    
+    try {
+      if (showLoading) {
+        isSongsLoading.value = true;
+      }
+      
+      final singerId = currentSinger?.id;
+      final userSongs = await _songService.getUserSongs(singerId: singerId);
+      songs.assignAll(userSongs);
+      
+    } catch (e) {
+      debugPrint('DashController: Error fetching songs: $e');
+      ToastUtils.shotToast('album_load_failed'.trParams({'error': e.toString()}));
+    } finally {
+      if (showLoading) {
+        isSongsLoading.value = false;
+      }
+    }
+  }
+
+  void openSongDetail(Map<String, dynamic> song) {
+    Get.toNamed(AppRoutes.songDetail, arguments: {
+      'song': song,
+      'playlist': songs,
+    });
+  }
+
+  Future<void> deleteSong(String songId) async {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('album_delete_dialog_title'.tr, style: const TextStyle(color: Colors.white)),
+        content: Text(
+          'album_delete_dialog_content'.tr,
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('album_delete_cancel'.tr, style: const TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back(); // Close dialog
+              try {
+                isSongsLoading.value = true;
+                await _songService.deleteSong(songId);
+                songs.removeWhere((s) => s['id'] == songId);
+                Get.snackbar(
+                  'Success',
+                  'album_delete_success'.tr,
+                  colorText: Colors.white, 
+                  backgroundColor: Colors.black.withValues(alpha: 0.8),
+                );
+              } catch (e) {
+                Get.snackbar('Error', 'album_delete_failed'.tr);
+              } finally {
+                isSongsLoading.value = false;
+              }
+            },
+            child: Text('album_delete_confirm'.tr, style: const TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
   }
 
   void addMockSinger(String name, String avatar) {
@@ -276,8 +419,10 @@ class DashController extends GetxController {
     _authController.logout();
   }
   
-  void onPageChanged(int index) {
-    currentSingerIndex.value = index;
+  void changeActiveSinger(int index) {
+    if (index >= 0 && index < singers.length) {
+      currentSingerIndex.value = index;
+    }
   }
 
   void _initializeSubscriptionsRealtime() {

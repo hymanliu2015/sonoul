@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:sonoul/common/res/app_colors.dart';
 import 'package:sonoul/components/custom_cached_image.dart';
 import 'package:sonoul/features/dash/dash_controller.dart';
+import 'package:sonoul/features/profile/profile_page.dart';
+import 'package:sonoul/features/album/components/song_list_item.dart';
 
 class DashPage extends StatelessWidget {
   final DashController controller = Get.put(DashController());
@@ -13,6 +15,65 @@ class DashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      body: Obx(() {
+        return IndexedStack(
+          index: controller.currentTab.value,
+          children: [
+            _buildHomeTab(),
+            ProfilePage(),
+          ],
+        );
+      }),
+      bottomNavigationBar: Obx(() => Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Colors.white.withValues(alpha: 0.1),
+              width: 0.5,
+            ),
+          ),
+        ),
+        child: Theme(
+          data: ThemeData(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: BottomNavigationBar(
+            currentIndex: controller.currentTab.value,
+            onTap: controller.changeTab,
+            backgroundColor: const Color(0xFF051512),
+            selectedItemColor: AppColors.greenLight,
+            unselectedItemColor: Colors.white.withValues(alpha: 0.4),
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            items: [
+              BottomNavigationBarItem(
+                icon: const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.home_filled),
+                ),
+                label: 'dash_tab_home'.tr,
+              ),
+              BottomNavigationBarItem(
+                icon: const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Icon(Icons.person),
+                ),
+                label: 'dash_tab_profile'.tr,
+              ),
+            ],
+          ),
+        ),
+      )),
+    );
+  }
+
+  Widget _buildHomeTab() {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -52,26 +113,48 @@ class DashPage extends StatelessWidget {
             ),
           );
         }),
-        leading: GestureDetector(
-          onTap: controller.goToProfile,
-          child: Container(
-            margin: const EdgeInsets.all(8),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.greenLight.withValues(alpha: 0.5),
-                width: 1.5,
+        leading: Obx(() {
+          if (controller.singers.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          final currentSinger = controller.currentSinger;
+          return GestureDetector(
+            onTap: () => _showSwitchSingerBottomSheet(Get.context!),
+            child: Container(
+              margin: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.greenLight.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                   if (currentSinger != null)
+                     CustomCachedImage(
+                       imageUrl: currentSinger.avatarUrl,
+                       width: 24,
+                       height: 24,
+                       borderRadius: BorderRadius.circular(12),
+                       placeholderIconSize: 14,
+                     )
+                   else
+                     const Icon(Icons.person, size: 24, color: Colors.white),
+                  const SizedBox(width: 4),
+                  const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textOnDark,
+                    size: 16,
+                  ),
+                ],
               ),
             ),
-            child: const Icon(
-              Icons.person_outline,
-              color: AppColors.textOnDark,
-              size: 20,
-            ),
-          ),
-        ),
+          );
+        }),
         actions: [
           GestureDetector(
             onTap: controller.goToCreateSinger,
@@ -142,39 +225,24 @@ class DashPage extends StatelessWidget {
               return Center(child: _buildEmptySingerState());
             }
 
-            return Column(
-              children: [
-                Expanded(
-                  child: PageView.builder(
-                    itemCount: controller.singers.length,
-                    onPageChanged: controller.onPageChanged,
-                    itemBuilder: (context, index) {
-                      final singer = controller.singers[index];
-                      return _buildSingerPage(
-                        singer.name,
-                        singer.avatarUrl,
-                        index,
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
+            final singer = controller.currentSinger;
+            if (singer == null) {
+              return const SizedBox.shrink();
+            }
+
+            return _buildSingerPage(singer.name, singer.avatarUrl);
           }),
         ),
       ),
     );
   }
 
-  Widget _buildSingerPage(String name, String avatarUrl, int index) {
+  Widget _buildSingerPage(String name, String avatarUrl) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         children: [
-          const SizedBox(height: 20),
-          // Page Indicator
-          if (controller.singers.length > 1) _buildPageIndicator(index),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           // Singer Avatar with glow effect
           _buildSingerAvatar(name, avatarUrl),
           const SizedBox(height: 24),
@@ -191,33 +259,12 @@ class DashPage extends StatelessWidget {
           const SizedBox(height: 12),
           // Share Button
           _buildShareButton(),
-          const SizedBox(height: 32),
-          // Action Cards
-          _buildActionCards(),
+          const SizedBox(height: 24),
+          // Album list
+          _buildAlbumList(),
           const SizedBox(height: 40),
         ],
       ),
-    );
-  }
-
-  Widget _buildPageIndicator(int currentIndex) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(controller.singers.length, (index) {
-        final isActive = currentIndex == index;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: isActive ? 24 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: isActive
-                ? AppColors.greenLight
-                : Colors.white.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(4),
-          ),
-        );
-      }),
     );
   }
 
@@ -318,115 +365,40 @@ class DashPage extends StatelessWidget {
     );
   }
 
-  Widget _buildActionCards() {
-    return Column(
-      children: [
-        _buildGlassActionCard(
-          icon: Icons.mic_rounded,
-          title: 'dash_create_new_song'.tr,
-          subtitle: 'dash_create_song_subtitle'.tr,
-          gradientColors: [AppColors.greenLight, AppColors.greenPrimary],
-          onTap: controller.goToCreateSingle,
-        ),
-        const SizedBox(height: 16),
-        _buildGlassActionCard(
-          icon: Icons.album_rounded,
-          title: 'dash_my_album'.tr,
-          subtitle: 'dash_my_album_subtitle'.tr,
-          gradientColors: [AppColors.greenMain, AppColors.greenDark],
-          onTap: controller.goToAlbum,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGlassActionCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required List<Color> gradientColors,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.15),
-            width: 1,
+  Widget _buildAlbumList() {
+    return Obx(() {
+      if (controller.isSongsLoading.value && controller.songs.isEmpty) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.greenLight),
+            ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+        );
+      }
+
+      if (controller.songs.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.songs.length,
+        itemBuilder: (context, index) {
+          final song = controller.songs[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: SongListItem(
+              song: song,
+              onTap: () => controller.openSongDetail(song),
+              onDelete: () => controller.deleteSong(song['id']),
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: gradientColors,
-                ),
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: gradientColors.first.withValues(alpha: 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(icon, color: Colors.white, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textOnDark,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.white.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: Colors.white.withValues(alpha: 0.5),
-                size: 14,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+          );
+        },
+      );
+    });
   }
 
   Widget _buildEmptySingerState() {
@@ -669,6 +641,194 @@ class DashPage extends StatelessWidget {
             const SizedBox(height: 16),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showSwitchSingerBottomSheet(BuildContext context) {
+    if (controller.singers.isEmpty) return;
+
+    // Use a local variable to hold temporary selection state when BottomSheet is open
+    int tempSelectedIndex = controller.currentSingerIndex.value;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF1A3D35), AppColors.greenDeep],
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              border: Border.all(
+                color: AppColors.greenLight.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header (Cancel/Title/Switch)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'dash_cancel'.tr,
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.6),
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        'dash_switch_singer_title'.tr,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          controller.changeActiveSinger(tempSelectedIndex);
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'dash_switch'.tr,
+                          style: const TextStyle(
+                            color: AppColors.greenLight,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Singer List
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: controller.singers.length,
+                    itemBuilder: (context, index) {
+                      final singer = controller.singers[index];
+                      final isSelected = tempSelectedIndex == index;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            tempSelectedIndex = index;
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.greenLight.withValues(alpha: 0.2)
+                                : Colors.white.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.greenLight
+                                  : Colors.transparent,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              CustomCachedImage(
+                                imageUrl: singer.avatarUrl,
+                                width: 48,
+                                height: 48,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  singer.name,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: AppColors.greenLight,
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                // Create Singer Button
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      controller.goToCreateSinger();
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.greenLight, AppColors.greenPrimary],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.greenPrimary.withValues(alpha: 0.4),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.add_rounded, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Text(
+                            'dash_create_singer'.tr,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Safe Area padding for bottom
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
