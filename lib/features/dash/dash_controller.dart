@@ -32,7 +32,7 @@ class DashController extends GetxController {
 
   // Songs/Album state
   final RxList<Map<String, dynamic>> songs = <Map<String, dynamic>>[].obs;
-  final RxBool isSongsLoading = false.obs;
+  final RxBool isSongsLoading = true.obs;
   Timer? _pollingTimer;
   static const _pollingInterval = Duration(seconds: 10);
 
@@ -226,7 +226,10 @@ class DashController extends GetxController {
   }
 
   Future<void> fetchSingers({bool showLoading = true}) async {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) {
+      isSongsLoading.value = false;
+      return;
+    }
 
     try {
       // 只有当没有缓存数据时才显示 loading
@@ -249,11 +252,16 @@ class DashController extends GetxController {
         // Fetch songs for the initial active singer
         if (singers.isNotEmpty) {
           fetchSongsForCurrentSinger();
+        } else {
+          isSongsLoading.value = false;
         }
+      } else {
+        isSongsLoading.value = false;
       }
       
     } catch (e) {
       debugPrint("Error fetching singers: $e");
+      isSongsLoading.value = false;
     } finally {
       isLoading.value = false;
     }
